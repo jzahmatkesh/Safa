@@ -16,7 +16,7 @@ class UserState extends GetxController{
   var dashMenuItem = 1.obs;
   var sanad = Mainclass().obs;
   var taflevel = List<Mainclass>().obs;
-  var artykl = DataModel(status: Status.Loading).obs;
+  var artykl = DataModel(status: Status.Loading, rows: []).obs;
 
   void setDashMenuItem(int i) async{
     dashMenuItem.value = i;
@@ -26,9 +26,15 @@ class UserState extends GetxController{
 
   void showSanad(Mainclass snd) async{
     taflevel.value = await _repo.loadData('Coding/AccLevel');
+    if (snd == null){
+      sanad.value = Mainclass(old: 0, id: 0, date: '', note: '', reg: false);
+      artykl.value = DataModel(status: Status.Loaded, rows: []);
+    }
+    else{
+      sanad.value = snd;
+      artykl.value = DataModel(status: Status.Loaded, rows: await _repo.loadData('Asnad/Artykl', body: {'id': snd.id}));
+    }
     dashMenuItem.value = 11;
-    sanad.value = snd;
-    artykl.value = DataModel(status: Status.Loaded, rows: await _repo.loadData('Asnad/Artykl', body: {'id': snd.id}));
   }
 
   @override
@@ -80,9 +86,10 @@ print("token: $token");
 
   Future<int> saveSanad(int id, String date, String note) async{
     try{
-      var _res = await _repo.saveData('Asnad/Sanad', {'old': sanad.value.id, 'id': id, 'date': date, 'note': note});
-      myAlert(title: 'موفقیت آمیز', message: 'ذخیره سند موفقیت آمیز بود', color: Colors.green);
+      sanad.value = Mainclass(old: sanad.value.old, id: id, date: date, note: note);
+      var _res = await _repo.saveData('Asnad/Sanad', {'old': sanad.value.old, 'id': id, 'date': date, 'note': note});
       sanad.value = Mainclass(old: id, id: id, date: date, note: note);
+      myAlert(title: 'موفقیت آمیز', message: 'ذخیره سند موفقیت آمیز بود', color: Colors.green);
       return _res.id;
     }
     catch(e){
@@ -134,10 +141,12 @@ print("token: $token");
   }
 
   setArtyklEdit(int id){
-    artykl.value.rows.forEach((element) {
-      element.edit = element.id == id;
-    });
-    artykl.value = DataModel(status: Status.Loaded, rows: artykl.value.rows);
+    if (!sanad.value.reg){
+      artykl.value.rows.forEach((element) {
+        element.edit = element.id == id;
+      });
+      artykl.value = DataModel(status: Status.Loaded, rows: artykl.value.rows);
+    }
   }
 
   delArtykl(BuildContext context, int id){
@@ -156,17 +165,29 @@ print("token: $token");
   }
 
   double mandeBed(){
-    if (artykl.value.status == Status.Loaded){
+    if (artykl.value.status == Status.Loaded && artykl.value.rows.length > 0){
       return artykl.value.rows.reduce((value, element) => Mainclass(bed: value.bed+element.bed)).bed;
     }
     return 0;
   }
   double mandeBes(){
-    if (artykl.value.status == Status.Loaded){
+    if (artykl.value.status == Status.Loaded && artykl.value.rows.length > 0){
       return artykl.value.rows.reduce((value, element) => Mainclass(bes: value.bes+element.bes)).bes;
     }
     return 0;
   }
+  
+  void regSanad(int id) async{
+    try{
+      var _rec = await _repo.saveData('Asnad/Reg', {'token': userInfo.token, 'id': id});
+      sanad.value.reg = _rec.reg;
+      sanad.value = Mainclass(id: sanad.value.id, date: sanad.value.date, note: sanad.value.note, reg: sanad.value.reg);
+    }
+    catch(e){
+      analyzeError('$e');
+    }
+  }
+
 }
 
 class CodingState extends GetxController{
@@ -575,7 +596,7 @@ class SanadState extends GetxController{
 
   List<Mainclass> get listSanadRow => listSanad.value.rows;
 
-
+  var footerFilter = 0.obs;
 
   @override
   void onInit() async{
@@ -586,7 +607,13 @@ class SanadState extends GetxController{
   void fetchSanads() async{
     try{
       listSanad.value = DataModel(status: Status.Loading);
-      listSanad.value = DataModel(status: Status.Loaded, rows: await _repo.loadData('Asnad'));
+      listSanad.value = DataModel(
+        status: Status.Loaded, 
+        rows: await _repo.loadData(
+          'Asnad', 
+          body: {'filter': footerFilter.value}
+        )
+      );
     }
     catch(e){
       analyzeError('$e');
@@ -619,6 +646,14 @@ class SanadState extends GetxController{
         analyzeError('$e');
       }
     });
+  }
+
+  void setFooterFilter(int i){
+    if (footerFilter.value == i)
+      footerFilter.value = 0;
+    else
+      footerFilter.value = i;
+    fetchSanads();
   }
 }
 

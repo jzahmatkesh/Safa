@@ -17,7 +17,7 @@ class Header extends StatelessWidget {
   const Header({Key key, @required this.title, this.rightBtn, this.leftBtn, this.color}) : super(key: key);
 
   final String title;
-  final IButton rightBtn;
+  final Widget rightBtn;
   final IButton leftBtn;
   final Color color;
 
@@ -34,7 +34,7 @@ class Header extends StatelessWidget {
               rightBtn != null
                 ? rightBtn
                 : Container(width: 0),
-              Expanded(child: Text('$title', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Nazanin', fontSize: 18, fontWeight: FontWeight.bold),)),
+              Expanded(child: Text('$title', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Nazanin', fontSize: 24, fontWeight: FontWeight.bold),)),
               leftBtn != null
                 ? leftBtn
                 : Container(width: 0),
@@ -219,7 +219,7 @@ class Field extends StatelessWidget {
   }
 
   Widget widget(){
-    return Text('$data', textAlign: this.center ? TextAlign.center : TextAlign.start, style: this.bold ? TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Lalezar', fontSize: 16) : null,);
+    return Text('$data', textAlign: this.center ? TextAlign.center : TextAlign.start, style: this.bold ? TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Lalezar', fontSize: 14) : null,);
   }
 }
 
@@ -389,7 +389,7 @@ class Edit extends StatelessWidget {
 }
 
 class GridRow extends StatelessWidget {
-  const GridRow(this.fields, {Key key, this.color = Colors.transparent, this.header = false, this.onTap, this.onDoubleTap}) : super(key: key);
+  const GridRow(this.fields, {Key key, this.color, this.header = false, this.onTap, this.onDoubleTap}) : super(key: key);
 
   final List<Field> fields;
   final Color color;
@@ -404,7 +404,7 @@ class GridRow extends StatelessWidget {
       onDoubleTap: this.onDoubleTap,
       onTap: this.onTap,
       child: Card(
-        color: this.header ? appbarColor(context) : this.color,
+        color: this.color ?? (this.header ? appbarColor(context) : Colors.transparent),
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: header ? 12 : _icn ? 0 : 12, horizontal: 8),
           child: Row(
@@ -447,12 +447,40 @@ class AnalyzeData extends StatelessWidget {
           child: Text('${data.msg}'),
         )
       );
-    return ListView.builder(
-      itemCount: data.rows.length,
-      itemBuilder: (BuildContext context, int idx) {
-        Mainclass rw = data.rows[idx];
-        return onLoaded(rw);
-      }
+    if (data.rows.length > 0)
+      return ListView.builder(
+        itemCount: data.rows.length,
+        itemBuilder: (BuildContext context, int idx) {
+          Mainclass rw = data.rows[idx];
+          return onLoaded(rw);
+        }
+      );
+    return Container();
+  }
+}
+
+class FilterItem extends StatelessWidget {
+  const FilterItem({Key key, @required this.title, @required this.selected, this.onSelected, this.color}) : super(key: key);
+
+  final Color color;
+  final String title;
+  final bool selected;
+  final Function onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.all(5),
+      child: FilterChip(
+        backgroundColor: this.color,
+        selectedColor: this.color,
+        elevation: this.selected ? 5 : 2,
+        shape: BeveledRectangleBorder(side: BorderSide(color: Colors.black12, width: 0.2), borderRadius: BorderRadius.circular(5.0)),
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 25),
+        label: Text('${this.title}'),
+        selected: this.selected,
+        onSelected: this.onSelected
+      )
     );
   }
 }

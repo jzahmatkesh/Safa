@@ -22,7 +22,13 @@ class Asnad extends StatelessWidget {
         children: [
           Header(
             title: 'اسناد حسابداری',
-            rightBtn: IButton(icon: Icon(CupertinoIcons.eyeglasses), hint: 'فیلتر اسناد', onPressed: (){}),
+            rightBtn: Row(
+              children: [
+                IButton(type: Btn.Add, onPressed: ()=>_user.showSanad(null)),
+                SizedBox(width: 3),
+                IButton(icon: Icon(CupertinoIcons.eyeglasses), hint: 'فیلتر اسناد', onPressed: (){}),
+              ],
+            ),
             leftBtn: IButton(type: Btn.Reload, onPressed: ()=>_sanadState.fetchSanads()),
           ),
           GridRow(
@@ -63,22 +69,23 @@ class Asnad extends StatelessWidget {
                     : rw.bed != rw.bes
                       ? Colors.red.withOpacity(0.15)
                       : rw.reg 
-                        ? Colors.green.withOpacity(0.5)
+                        ? Colors.green.withOpacity(0.15)
                         : rw.bed>0 && rw.bes == rw.bed && !rw.reg
-                          ? Colors.green.withOpacity(0.15)
+                          ? Colors.lightBlue.withOpacity(0.25)
                           :  null,
+                  onDoubleTap: ()=>_user.showSanad(rw),
                 ),
               )
             )
           ),
-          Row(
+          Obx(()=>Row(
             children: [
-              Card(color: Colors.yellow.withOpacity(0.15), child: Container(margin: EdgeInsets.symmetric(vertical: 8, horizontal: 25), child: Text('بدون آرتیکل'))),
-              Card(color: Colors.red.withOpacity(0.15), child: Container(margin: EdgeInsets.symmetric(vertical: 8, horizontal: 25), child: Text('عدم تراز'))),
-              Card(color: Colors.green.withOpacity(0.15), child: Container(margin: EdgeInsets.symmetric(vertical: 8, horizontal: 25), child: Text('ثبت نشده'))),
-              Card(color: Colors.green.withOpacity(0.5), child: Container(margin: EdgeInsets.symmetric(vertical: 8, horizontal: 25), child: Text('ثبت شده'))),
+              FilterItem(title: 'بدون آرتیکل', selected: _sanadState.footerFilter.value == 1, color: Colors.yellow.withOpacity(0.15), onSelected: (val)=> _sanadState.setFooterFilter(1)),
+              FilterItem(title: 'عدم تراز', selected: _sanadState.footerFilter.value == 2, color: Colors.red.withOpacity(0.15), onSelected: (val)=> _sanadState.setFooterFilter(2)),
+              FilterItem(title: 'قابل ثبت', selected: _sanadState.footerFilter.value == 3, color: Colors.lightBlue.withOpacity(0.25), onSelected: (val)=> _sanadState.setFooterFilter(3)),
+              FilterItem(title: 'ثبت شده', selected: _sanadState.footerFilter.value == 4, color: Colors.green.withOpacity(0.15), onSelected: (val)=> _sanadState.setFooterFilter(4)),
             ]
-          ),
+          )),
         ],
       ),
     );
@@ -87,7 +94,6 @@ class Asnad extends StatelessWidget {
 
 class FmSanad extends StatelessWidget {
   const FmSanad({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     var _edid = TextEditingController(text: _user.sanad.value.id.toString());
@@ -144,10 +150,13 @@ class FmSanad extends StatelessWidget {
     }
     void saveSanad() async {
       var id = await _user.saveSanad(int.parse(_edid.text), _eddate.text, _ednote.text);
-      if (id > 0)
+      if (id > 0){
         _edid.text = id.toString();
+        focusChange(context, _edfnote, _edfkol);
+      }
       else{
-        _edid.text = _user.sanad.value.old.toString();
+        if (_user.sanad.value.old > 0)
+          _edid.text = _user.sanad.value.old.toString();
         _eddate.text = _user.sanad.value.date;
         _ednote.text = _user.sanad.value.note;
       }
@@ -157,16 +166,16 @@ class FmSanad extends StatelessWidget {
           Mainclass(
             sanadid: _user.sanad.value.id, 
             id: artid, 
-            kolid: _edkol.text.isEmpty ? 0 : int.parse(_edkol.text), 
-            moinid: _edmoin.text.isEmpty ? 0 : int.parse(_edmoin.text), 
-            taf1: _edtaf1.text.isEmpty ? 0 : int.parse(_edtaf1.text), 
-            taf2: _edtaf2.text.isEmpty ? 0 : int.parse(_edtaf2.text), 
-            taf3: _edtaf3.text.isEmpty ? 0 : int.parse(_edtaf3.text), 
-            taf4: _edtaf4.text.isEmpty ? 0 : int.parse(_edtaf4.text), 
-            taf5: _edtaf5.text.isEmpty ? 0 : int.parse(_edtaf5.text), 
-            taf6: _edtaf6.text.isEmpty ? 0 : int.parse(_edtaf6.text), 
-            bed: _edbed.text.isEmpty ? 0 : double.parse(_edbed.text.isEmpty ? '0' : _edbed.text.replaceAll(',', '')), 
-            bes: _edbes.text.isEmpty ? 0 : double.parse(_edbes.text.isEmpty ? '0' : _edbes.text.replaceAll(',', '')), 
+            kolid: _edkol.text.isEmpty ? 0 : int.parse(_edkol.text.trim()), 
+            moinid: _edmoin.text.isEmpty ? 0 : int.parse(_edmoin.text.trim()), 
+            taf1: _edtaf1.text.isEmpty ? 0 : int.parse(_edtaf1.text.trim()), 
+            taf2: _edtaf2.text.isEmpty ? 0 : int.parse(_edtaf2.text.trim()), 
+            taf3: _edtaf3.text.isEmpty ? 0 : int.parse(_edtaf3.text.trim()), 
+            taf4: _edtaf4.text.isEmpty ? 0 : int.parse(_edtaf4.text.trim()), 
+            taf5: _edtaf5.text.isEmpty ? 0 : int.parse(_edtaf5.text.trim()), 
+            taf6: _edtaf6.text.isEmpty ? 0 : int.parse(_edtaf6.text.trim()), 
+            bed: _edbed.text.isEmpty ? 0 : double.parse(_edbed.text.trim().isEmpty ? '0' : _edbed.text.trim().replaceAll(',', '')), 
+            bes: _edbes.text.isEmpty ? 0 : double.parse(_edbes.text.trim().isEmpty ? '0' : _edbes.text.trim().replaceAll(',', '')), 
             note: _edartnote.text
           )
         )){
@@ -202,12 +211,20 @@ class FmSanad extends StatelessWidget {
     
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Column(
+      child: Obx(()=>Column(
         children: [
           Header(
             title: 'سند حسابداری',
-            rightBtn: _user.sanad.value.reg ? null : IButton(type: Btn.Save, onPressed: ()=>saveSanad()),
+            rightBtn: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IButton(type: Btn.Add, onPressed: (){_edid.clear(); _eddate.clear(); _ednote.clear(); _user.showSanad(null);}),
+                SizedBox(width: 3),
+                _user.sanad.value.reg ? Container(width: 0,) : IButton(type: Btn.Save, onPressed: ()=>saveSanad()),
+              ]
+            ),
             leftBtn: IButton(type: Btn.Exit, onPressed: ()=>_user.setDashMenuItem(1),),
+            color: _user.sanad.value.reg ? Colors.green.withOpacity(0.25) : null,
           ),
           SizedBox(height: 15),
           Row(
@@ -217,6 +234,10 @@ class FmSanad extends StatelessWidget {
               SizedBox(width: 5),
               Container(width: screenWidth(context)*0.2, child: Edit(hint: 'تاریخ سند', controller: _eddate, focus: _edfdate, date: true, readonly: _user.sanad.value.reg, onSubmitted: (val){_eddate.text=val; focusChange(context, _edfdate, _edfnote);})),
               Spacer(),
+              IButton(icon: Icon(_user.sanad.value.reg ? CupertinoIcons.lock : CupertinoIcons.lock_open), hint: _user.sanad.value.reg ? 'خروح از ثبت' : 'ثبت سند', onPressed: ()=>_user.regSanad(_user.sanad.value.id)),
+              SizedBox(width: 15),
+              _user.sanad.value.reg ? Container() : IButton(icon: Icon(CupertinoIcons.trash), hint: 'حذف سند', onPressed: (){}),
+              SizedBox(width: 15),
               IButton(icon: Icon(CupertinoIcons.plus_rectangle_on_rectangle), hint: 'کپی در سند جدید', onPressed: (){}),
               SizedBox(width: 15),
               IButton(icon: Icon(CupertinoIcons.arrow_right_to_line), hint: 'اولین سند', onPressed: (){}),
@@ -250,7 +271,7 @@ class FmSanad extends StatelessWidget {
             ],
             header: true,
           ),
-          Obx(()=>_user.sanad.value.reg ? Container() : GridRow(
+          _user.sanad.value.reg ? Container() : GridRow(
             [
               Field(F2Edit(hint: 'کد کل', controller: _edkol, focus: _edfkol, f2key: 'Kol', onSubmitted: (val)=>focusChange(context, _edfkol, _edfmoin))),
               Field(F2Edit(hint: 'کد معین', controller: _edmoin, focus: _edfmoin, f2key: 'Moin', f2controller: _edkol, onSubmitted: (val){
@@ -302,7 +323,7 @@ class FmSanad extends StatelessWidget {
               Field(SizedBox(width: 40)),
               Field(IButton(type: Btn.Save, onPressed: (){saveArtykl(); focusChange(context, _edfbes, _edfkol);}))
             ],
-          )),
+          ),
           Expanded(
             child: GetX<UserState>(
               builder: (_) => AnalyzeData(
@@ -323,11 +344,12 @@ class FmSanad extends StatelessWidget {
                     _user.sanad.value.reg ? Field(SizedBox(width: 40, height: 40,)) : Field(IButton(type: Btn.Del, onPressed: ()=>_user.delArtykl(context, rw.id)))
                   ],
                   color: rw.edit ? editRowColor() : null,
+                  onDoubleTap: ()=>editArtykl(rw),
                 )
               )
             )
           ),
-          Obx(()=>GridRow(
+          GridRow(
             [
               Field('جمع', flex: 2),
               ... _user.taflevel.map((e){ 
@@ -341,8 +363,8 @@ class FmSanad extends StatelessWidget {
               Field(SizedBox(width: 80))
             ],
             header: true,
-          )),
-          Obx(()=>GridRow(
+          ),
+          GridRow(
             [
               Field('اختلاف', flex: 2),
               ... _user.taflevel.map((e){ 
@@ -356,9 +378,10 @@ class FmSanad extends StatelessWidget {
               Field(SizedBox(width: 80))
             ],
             header: true,
-          ))
+            color: _user.mandeBed() != _user.mandeBes() ? Colors.red.withOpacity(0.25) : _user.mandeBes() > 0 ? Colors.green.withOpacity(0.25) : null,
+          )
         ],
-      )
+      ))
     );
   }
 }

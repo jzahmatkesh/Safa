@@ -29,8 +29,9 @@ class Repository{
     else
       body.putIfAbsent('token', () => _user.user.value.token);
     Map<String, dynamic> _data = await postToServer(api: '$api', body: jsonEncode(body));
-    if (_data['msg'] == "Success")
+    if (_data['msg'] == "Success"){
       return _data['body'].map<Mainclass>((data) => Mainclass.fromJson(json.decode(data))).toList();
+    }
     throw Exception(_data['msg']);
   }
 

@@ -68,7 +68,7 @@ class _F2EditState extends State<F2Edit> {
     return OverlayEntry(
       builder: (context) => Positioned(
         width: size.width + 75,
-        height: 300,
+        // height: 300,
         child: CompositedTransformFollower(
           link: this._layerLink,
           showWhenUnlinked: false,
@@ -78,21 +78,24 @@ class _F2EditState extends State<F2Edit> {
             child: Directionality(
               textDirection: TextDirection.rtl,
               child: Obx(()=> _controller.f2Row == null || _controller.f2List.value.status!=Status.Loaded 
-                ? Center(child: Text('جهت جستجو تایپ کنید')) 
+                ? Container() 
                 : widget.f2key.contains('Moin') && widget.f2controller.text.isEmpty
                   ? Center(child: Text('کد کل مشخص نشده است')) 
                   : _controller.f2Row != null && _controller.f2Row.length==0
-                    ? Center(child: Text('رکوردی پیدا نشد')) 
-                    : ListView.builder(
-                      padding: EdgeInsets.zero,
-                      shrinkWrap: true,
-                      itemCount: _controller.f2Row.length,
-                      itemBuilder: (BuildContext context, int idx) {
-                        return _controller.f2Row[idx].inSearch ? ListTile(
-                          title: Text('${_controller.f2Row[idx].id}  ${_controller.f2Row[idx].name}', style: TextStyle(fontSize: 12),),
-                          onTap: (){widget.controller.text = _controller.f2Row[idx].id.toString(); this._overlayEntry.remove(); this._overlayEntry = null;},
-                        ) : Container(height: 0);
-                      },
+                    ? Container() 
+                    : Container(
+                      height: 300,
+                      child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        itemCount: _controller.f2Row.length,
+                        itemBuilder: (BuildContext context, int idx) {
+                          return _controller.f2Row[idx].inSearch ? ListTile(
+                            title: Text('${_controller.f2Row[idx].id}  ${_controller.f2Row[idx].name}', style: TextStyle(fontSize: 12),),
+                            onTap: (){widget.controller.text = _controller.f2Row[idx].id.toString(); this._overlayEntry.remove(); this._overlayEntry = null;},
+                          ) : Container(height: 0);
+                        },
+                      ),
                     )
               )
             ),
@@ -106,34 +109,37 @@ class _F2EditState extends State<F2Edit> {
   Widget build(BuildContext context) {
     return CompositedTransformTarget(
       link: this._layerLink,
-      child: TextField(
-        focusNode: widget.focus,
-        readOnly: widget.readonly,
-        autofocus: widget.autofocus,
-        controller: widget.controller ?? TextEditingController(text: widget.value ?? ''),
-        onChanged: (val)=> _controller.fetchF2(widget.f2key, val, widget.f2controller!=null && widget.f2controller.text.isNotEmpty && widget.f2controller.text.isNumericOnly ? int.parse(widget.f2controller.text) : 0),
-        decoration: textDecoration(widget.hint),
-        obscureText: widget.password,
-        onSubmitted: (val){
-          if (!val.isNumericOnly && widget.controller != null)
-            for(Mainclass element in _controller.f2Row)
-              if (element.name.contains(val)){
-                widget.controller.text = element.id.toString();    
-                break;
-              }
-          if (widget.onSubmitted != null)
-            widget.onSubmitted(val);
-        },
-        // focusNode: widget.focus,
-        // inputFormatters: widget.date 
-        //   ? <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly,DateTextFormatter()] 
-        //   : widget.numbersonly 
-        //     ? <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly] 
-        //     : widget.timeonly
-        //       ? <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly,TimeTextFormatter()]
-        //       : widget.money 
-        //         ? <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly, MoneyTextFormatter()]
-        //         : <TextInputFormatter>[],
+      child: GestureDetector(
+        onDoubleTap: ()=>_controller.fetchF2(widget.f2key, ' ', widget.f2controller!=null && widget.f2controller.text.isNotEmpty && widget.f2controller.text.isNumericOnly ? int.parse(widget.f2controller.text) : 0),
+        child: TextField(
+          focusNode: widget.focus,
+          readOnly: widget.readonly,
+          autofocus: widget.autofocus,
+          controller: widget.controller ?? TextEditingController(text: widget.value ?? ''),
+          onChanged: (val)=> _controller.fetchF2(widget.f2key, val, widget.f2controller!=null && widget.f2controller.text.isNotEmpty && widget.f2controller.text.isNumericOnly ? int.parse(widget.f2controller.text) : 0),
+          decoration: textDecoration(widget.hint),
+          obscureText: widget.password,
+          onSubmitted: (val){
+            if (!val.isNumericOnly && widget.controller != null)
+              for(Mainclass element in _controller.f2Row)
+                if (element.name.contains(val)){
+                  widget.controller.text = element.id.toString();    
+                  break;
+                }
+            if (widget.onSubmitted != null)
+              widget.onSubmitted(val);
+          },
+          // focusNode: widget.focus,
+          // inputFormatters: widget.date 
+          //   ? <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly,DateTextFormatter()] 
+          //   : widget.numbersonly 
+          //     ? <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly] 
+          //     : widget.timeonly
+          //       ? <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly,TimeTextFormatter()]
+          //       : widget.money 
+          //         ? <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly, MoneyTextFormatter()]
+          //         : <TextInputFormatter>[],
+        ),
       )
     );
   }
