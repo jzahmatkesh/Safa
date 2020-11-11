@@ -34,7 +34,7 @@ class Header extends StatelessWidget {
               rightBtn != null
                 ? rightBtn
                 : Container(width: 0),
-              Expanded(child: Text('$title', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Nazanin', fontSize: 24, fontWeight: FontWeight.bold),)),
+              Expanded(child: Text('$title', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Nazanin', fontSize: 22, fontWeight: FontWeight.bold),)),
               leftBtn != null
                 ? leftBtn
                 : Container(width: 0),
@@ -109,13 +109,14 @@ class IButton extends StatelessWidget {
 }
 
 class OButton extends StatelessWidget {
-  const OButton({Key key, this.type, this.caption, this.icon, this.onPressed}) : super(key: key);
+  const OButton({Key key, this.type, this.caption, this.icon, this.onPressed, this.color}) : super(key: key);
 
   
   final Btn type;
   final String caption;
   final Icon icon;
   final VoidCallback onPressed;
+  final Color color;
 
 
   @override
@@ -149,6 +150,7 @@ class OButton extends StatelessWidget {
               : Icon(CupertinoIcons.question_diamond);
 
     return Card(
+      color: this.color,
       child: CupertinoButton(
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -160,7 +162,8 @@ class OButton extends StatelessWidget {
         ),
         onPressed: type==Btn.Exit && this.onPressed==null 
           ? ()=>Navigator.of(context).pop()
-          : this.onPressed
+          : this.onPressed,
+        color: this.color,
       ),
     );
   }
@@ -232,6 +235,7 @@ InputDecoration textDecoration(String label) {
     fillColor: Colors.white,
     labelStyle: TextStyle(color: Colors.grey[500], fontSize: 14.0),
     labelText: label,
+    counterText: ''
     // prefixIcon: icon==null ? null : Icon(icon, color: Colors.grey[500], size: 15.0,),
   );
 }
@@ -346,7 +350,7 @@ class MoneyTextFormatter extends TextInputFormatter {
 }
 
 class Edit extends StatelessWidget {
-  const Edit({Key key, this.value, this.onChange, this.controller, this.onSubmitted, this.autofocus = false, this.hint, this.password = false, this.focus, this.date=false, this.money=false, this.numbersonly=false, this.timeonly=false, this.readonly = false}) : super(key: key);
+  const Edit({Key key, this.value, this.onChange, this.controller, this.onSubmitted, this.autofocus = false, this.hint, this.password = false, this.focus, this.date=false, this.money=false, this.numbersonly=false, this.timeonly=false, this.readonly = false, this.onEditingComplete, this.maxlength}) : super(key: key);
 
   final bool autofocus;
   final String value;
@@ -361,20 +365,24 @@ class Edit extends StatelessWidget {
   final bool timeonly;
   final bool money;
   final bool readonly;
+  final VoidCallback onEditingComplete;
+  final int maxlength;
 
   @override
   Widget build(BuildContext context) {
     if (controller != null && controller.text.isEmpty)
       controller.text = this.value ?? '';
-    return TextField(
+    return TextFormField(
       readOnly: this.readonly,
       autofocus: this.autofocus,
       controller: this.controller ?? TextEditingController(text: this.value ?? ''),
       onChanged: this.onChange,
       decoration: textDecoration(this.hint),
       obscureText: this.password,
-      onSubmitted: this.onSubmitted,
+      onFieldSubmitted: this.onSubmitted,
+      onEditingComplete: this.onEditingComplete,
       focusNode: this.focus,
+      maxLength: this.maxlength,
       inputFormatters: date 
         ? <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly,DateTextFormatter()] 
         : this.numbersonly 

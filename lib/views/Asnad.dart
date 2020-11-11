@@ -162,20 +162,22 @@ class FmSanad extends StatelessWidget {
       }
     }
     void saveArtykl() async{
+        if (_user.sanad.value.old == 0)
+          saveSanad();
         if (await _user.saveArtykl(
           Mainclass(
             sanadid: _user.sanad.value.id, 
             id: artid, 
-            kolid: _edkol.text.isEmpty ? 0 : int.parse(_edkol.text.trim()), 
-            moinid: _edmoin.text.isEmpty ? 0 : int.parse(_edmoin.text.trim()), 
-            taf1: _edtaf1.text.isEmpty ? 0 : int.parse(_edtaf1.text.trim()), 
-            taf2: _edtaf2.text.isEmpty ? 0 : int.parse(_edtaf2.text.trim()), 
-            taf3: _edtaf3.text.isEmpty ? 0 : int.parse(_edtaf3.text.trim()), 
-            taf4: _edtaf4.text.isEmpty ? 0 : int.parse(_edtaf4.text.trim()), 
-            taf5: _edtaf5.text.isEmpty ? 0 : int.parse(_edtaf5.text.trim()), 
-            taf6: _edtaf6.text.isEmpty ? 0 : int.parse(_edtaf6.text.trim()), 
-            bed: _edbed.text.isEmpty ? 0 : double.parse(_edbed.text.trim().isEmpty ? '0' : _edbed.text.trim().replaceAll(',', '')), 
-            bes: _edbes.text.isEmpty ? 0 : double.parse(_edbes.text.trim().isEmpty ? '0' : _edbes.text.trim().replaceAll(',', '')), 
+            kolid: _edkol.text.trim().isEmpty ? 0 : int.parse(_edkol.text.trim()), 
+            moinid: _edmoin.text.trim().isEmpty ? 0 : int.parse(_edmoin.text.trim()), 
+            taf1: _edtaf1.text.trim().isEmpty ? 0 : int.parse(_edtaf1.text.trim()), 
+            taf2: _edtaf2.text.trim().isEmpty ? 0 : int.parse(_edtaf2.text.trim()), 
+            taf3: _edtaf3.text.trim().isEmpty ? 0 : int.parse(_edtaf3.text.trim()), 
+            taf4: _edtaf4.text.trim().isEmpty ? 0 : int.parse(_edtaf4.text.trim()), 
+            taf5: _edtaf5.text.trim().isEmpty ? 0 : int.parse(_edtaf5.text.trim()), 
+            taf6: _edtaf6.text.trim().isEmpty ? 0 : int.parse(_edtaf6.text.trim()), 
+            bed: _edbed.text.trim().isEmpty ? 0 : double.parse(_edbed.text.trim().isEmpty ? '0' : _edbed.text.trim().replaceAll(',', '')), 
+            bes: _edbes.text.trim().isEmpty ? 0 : double.parse(_edbes.text.trim().isEmpty ? '0' : _edbes.text.trim().replaceAll(',', '')), 
             note: _edartnote.text
           )
         )){

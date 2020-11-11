@@ -188,6 +188,10 @@ print("token: $token");
     }
   }
 
+  void sendRegisterSms(String mobile) async{
+    List<Mainclass> _res = await _repo.loadData('User/SMS', body: {'mobile': mobile});
+    print(_res[0].note);
+  }
 }
 
 class CodingState extends GetxController{
@@ -529,11 +533,11 @@ class CodingState extends GetxController{
         f2List.value = DataModel(status: Status.Loading);
       else
         if (f2key.contains('Kol'))
-          f2List.value = DataModel(status: Status.Loaded, rows: await _repo.loadData('Coding/Kol', body: {'grpid': -1, 'name': val}));
+          f2List.value = DataModel(status: Status.Loaded, rows: await _repo.loadData('Coding/Kol', body: {'grpid': -1, 'name': val}), msg: f2key);
         else if (f2key.contains('Moin'))
-          f2List.value = DataModel(status: Status.Loaded, rows: await _repo.loadData('Coding/Moin', body: {'kolid': kol, 'name': val}));
+          f2List.value = DataModel(status: Status.Loaded, rows: await _repo.loadData('Coding/Moin', body: {'kolid': kol, 'name': val}), msg: f2key);
         else if (f2key.contains('Tafsili'))
-          f2List.value = DataModel(status: Status.Loaded, rows: await _repo.loadData('Coding/Tafsili', body: {'name': val, 'lev': f2key.replaceAll('Tafsili', '').length>0 ? int.parse(f2key.replaceAll('Tafsili', '')) : 0}));
+          f2List.value = DataModel(status: Status.Loaded, rows: await _repo.loadData('Coding/Tafsili', body: {'name': val, 'lev': f2key.replaceAll('Tafsili', '').length>0 ? int.parse(f2key.replaceAll('Tafsili', '')) : 0}), msg: f2key);
     }
     catch(e){
       analyzeError('$e');

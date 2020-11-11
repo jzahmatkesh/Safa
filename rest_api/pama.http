@@ -1,0 +1,26 @@
+post http://127.0.0.1:8080/PamaApi/api/User/login
+Content-Type: application/json
+
+{
+    "username": "2",
+    "password": "c4ca4238a0b923820dcc509a6f75849b"
+}
+
+
+###
+post http://127.0.0.1:8080/Finance/api/User/SMS
+Content-Type: application/json
+
+{
+    "mobile": "09305105691"
+}
+
+
+###
+POST http://127.0.0.1:8080/PamaApi/api/F2Key/Bank
+Content-Type: application/json
+
+{
+    "token": "289D8725-561A-4A09-AC29-C5FFAEFE2AD7"
+}
+

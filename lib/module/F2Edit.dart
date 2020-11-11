@@ -83,20 +83,22 @@ class _F2EditState extends State<F2Edit> {
                   ? Center(child: Text('کد کل مشخص نشده است')) 
                   : _controller.f2Row != null && _controller.f2Row.length==0
                     ? Container() 
-                    : Container(
-                      height: 300,
-                      child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        itemCount: _controller.f2Row.length,
-                        itemBuilder: (BuildContext context, int idx) {
-                          return _controller.f2Row[idx].inSearch ? ListTile(
-                            title: Text('${_controller.f2Row[idx].id}  ${_controller.f2Row[idx].name}', style: TextStyle(fontSize: 12),),
-                            onTap: (){widget.controller.text = _controller.f2Row[idx].id.toString(); this._overlayEntry.remove(); this._overlayEntry = null;},
-                          ) : Container(height: 0);
-                        },
-                      ),
-                    )
+                    : _controller.f2List.value.msg == widget.f2key
+                      ? Container(
+                        height: 300,
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          itemCount: _controller.f2Row.length,
+                          itemBuilder: (BuildContext context, int idx) {
+                            return _controller.f2Row[idx].inSearch ? ListTile(
+                              title: Text('${_controller.f2Row[idx].id}  ${_controller.f2Row[idx].name}', style: TextStyle(fontSize: 12),),
+                              onTap: (){widget.controller.text = _controller.f2Row[idx].id.toString(); this._overlayEntry.remove(); this._overlayEntry = null;},
+                            ) : Container(height: 0);
+                          },
+                        ),
+                      )
+                      : Container()
               )
             ),
           ),
@@ -111,24 +113,27 @@ class _F2EditState extends State<F2Edit> {
       link: this._layerLink,
       child: GestureDetector(
         onDoubleTap: ()=>_controller.fetchF2(widget.f2key, ' ', widget.f2controller!=null && widget.f2controller.text.isNotEmpty && widget.f2controller.text.isNumericOnly ? int.parse(widget.f2controller.text) : 0),
-        child: TextField(
+        child: TextFormField(
           focusNode: widget.focus,
           readOnly: widget.readonly,
           autofocus: widget.autofocus,
           controller: widget.controller ?? TextEditingController(text: widget.value ?? ''),
-          onChanged: (val)=> _controller.fetchF2(widget.f2key, val, widget.f2controller!=null && widget.f2controller.text.isNotEmpty && widget.f2controller.text.isNumericOnly ? int.parse(widget.f2controller.text) : 0),
+          onChanged: (val)=> _controller.fetchF2(widget.f2key, val.trim(), widget.f2controller!=null && widget.f2controller.text.isNotEmpty && widget.f2controller.text.isNumericOnly ? int.parse(widget.f2controller.text) : 0),
           decoration: textDecoration(widget.hint),
           obscureText: widget.password,
-          onSubmitted: (val){
-            if (!val.isNumericOnly && widget.controller != null)
-              for(Mainclass element in _controller.f2Row)
-                if (element.name.contains(val)){
+          // onFieldSubmitted: widget.onSubmitted,
+          onFieldSubmitted:(val){
+            if (!val.isNumericOnly && widget.controller != null && _controller.f2Row != null)
+              for(Mainclass element in _controller.f2Row){
+                if (element.name.contains(val.trim())){
                   widget.controller.text = element.id.toString();    
                   break;
                 }
+              }
             if (widget.onSubmitted != null)
               widget.onSubmitted(val);
           },
+
           // focusNode: widget.focus,
           // inputFormatters: widget.date 
           //   ? <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly,DateTextFormatter()] 
