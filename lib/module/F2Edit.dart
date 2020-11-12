@@ -118,7 +118,7 @@ class _F2EditState extends State<F2Edit> {
           readOnly: widget.readonly,
           autofocus: widget.autofocus,
           controller: widget.controller ?? TextEditingController(text: widget.value ?? ''),
-          onChanged: (val)=> _controller.fetchF2(widget.f2key, val.trim(), widget.f2controller!=null && widget.f2controller.text.isNotEmpty && widget.f2controller.text.isNumericOnly ? int.parse(widget.f2controller.text) : 0),
+          onChanged: (val)=> _controller.fetchF2(widget.f2key, val, widget.f2controller!=null && widget.f2controller.text.isNotEmpty && widget.f2controller.text.isNumericOnly ? int.parse(widget.f2controller.text) : 0),
           decoration: textDecoration(widget.hint),
           obscureText: widget.password,
           // onFieldSubmitted: widget.onSubmitted,

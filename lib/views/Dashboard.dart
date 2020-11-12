@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:safa/views/AnalyzeRep.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../controller/Controller.dart';
@@ -9,7 +10,6 @@ import '../module/class.dart';
 import '../module/functions.dart';
 import 'Asnad.dart';
 import 'Coding.dart';
-import 'Sanad.dart';
 import 'TafLevel.dart';
 
 UserState _user = Get.find();
@@ -54,13 +54,15 @@ class Dashboard extends StatelessWidget {
                 flex: 5, 
                 child:Obx(()=> _user.dashMenuItem.value == 1
                   ? Asnad()
-                  : _user.dashMenuItem.value == 11
-                    ? FmSanad() //sanad: Mainclass(old: 0, id: 0, date: '', note: '', reg: false),
-                    : _user.dashMenuItem.value == 3
-                      ? PnAccGroup()
-                      : _user.dashMenuItem.value == 4
-                        ? TafLevel()
-                        : Text('none')
+                  : _user.dashMenuItem.value == 2
+                    ? Analyze()
+                    :_user.dashMenuItem.value == 11
+                      ? FmSanad() //sanad: Mainclass(old: 0, id: 0, date: '', note: '', reg: false),
+                      : _user.dashMenuItem.value == 3
+                        ? PnAccGroup()
+                        : _user.dashMenuItem.value == 4
+                          ? TafLevel()
+                          : Text('none')
               )),
             ],
           ),

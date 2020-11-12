@@ -5,7 +5,6 @@ import 'package:safa/module/functions.dart';
 import '../controller/Controller.dart';
 import '../module/Widgets.dart';
 
-var _sec = 1.obs;
 var _defcoding = false.obs;
 
 class Login extends StatelessWidget {
@@ -120,21 +119,24 @@ class Login extends StatelessWidget {
             child: PageView(
               controller: _pagecontroller,
               children: <Widget>[
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(margin: EdgeInsets.symmetric(horizontal: screenWidth(context)*0.1),child: Edit(hint: 'شماره همراه', value: _data['mobile'], onChange: (val)=> _data['mobile']=val)),
-                    SizedBox(height: 10),
-                    Container(margin: EdgeInsets.symmetric(horizontal: screenWidth(context)*0.1),child: Edit(hint: 'رمز عبور', value: _data['pass'], onChange: (val)=> _data['pass']=val, password: true)),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        OButton(caption: 'ورود به سیستم', icon: Icon(CupertinoIcons.checkmark_shield_fill), onPressed: ()=>_user.authenticate(_data['mobile'], _data['pass'])),
-                        OButton(caption: 'ثبت نام', icon: Icon(CupertinoIcons.wand_stars), onPressed: ()=>nextPage()),
-                      ],
-                    )
-                  ],
+                Container(
+                  margin: EdgeInsets.only(top: screenHeight(context) * 0.2),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(margin: EdgeInsets.symmetric(horizontal: screenWidth(context)*0.1),child: Edit(hint: 'شماره همراه', value: _data['mobile'], onChange: (val)=> _data['mobile']=val)),
+                      SizedBox(height: 10),
+                      Container(margin: EdgeInsets.symmetric(horizontal: screenWidth(context)*0.1),child: Edit(hint: 'رمز عبور', value: _data['pass'], onChange: (val)=> _data['pass']=val, password: true)),
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          OButton(caption: 'ورود به سیستم', icon: Icon(CupertinoIcons.checkmark_shield_fill), onPressed: ()=>_user.authenticate(_data['mobile'], _data['pass'])),
+                          OButton(caption: 'ثبت نام', icon: Icon(CupertinoIcons.wand_stars), onPressed: ()=>nextPage()),
+                        ],
+                      )
+                    ],
+                  ),
                 ),
                 Column(
                   mainAxisSize: MainAxisSize.min,

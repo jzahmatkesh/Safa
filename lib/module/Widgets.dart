@@ -407,30 +407,75 @@ class GridRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool _icn = fields.where((e) => !(e.data is String)).length > 0;
-    return GestureDetector(
-      onDoubleTap: this.onDoubleTap,
-      onTap: this.onTap,
-      child: Card(
-        color: this.color ?? (this.header ? appbarColor(context) : Colors.transparent),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: header ? 12 : _icn ? 0 : 12, horizontal: 8),
-          child: Row(
-            children: [
-              ...fields.map((e){
-                if (e.data is String)
-                  return Expanded(flex: e.flex, child: e);
-                else if (e.data is Edit || e.data is F2Edit)
-                  return Expanded(flex: e.flex, child: Container(margin: EdgeInsets.symmetric(vertical: 5, horizontal: 3), child: e.data));
-                else 
-                  return e.data;
-              })
-            ],
-          ),
+    bool icn = fields.where((e) => !(e.data is String)).length > 0;
+    return this.onTap != null
+      ? Card(
+        child: ListTile(
+          title: widget(context, icn),
+          onTap: this.onTap,
         ),
+        color: this.color ?? (this.header ? appbarColor(context) : Colors.transparent),
+      )
+      : GestureDetector(
+        onDoubleTap: this.onDoubleTap,
+        child: Card(
+          color: this.color ?? (this.header ? appbarColor(context) : Colors.transparent),
+          child: widget(context, icn)
+        ),
+      );
+  }
+
+  Widget widget(BuildContext context, bool icn){
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: header ? 12 : icn ? 0 : 12, horizontal: 8),
+      child: Row(
+        children: [
+          ...fields.map((e){
+            if (e.data is String)
+              return Expanded(flex: e.flex, child: e);
+            else if (e.data is Edit || e.data is F2Edit)
+              return Expanded(flex: e.flex, child: Container(margin: EdgeInsets.symmetric(vertical: 5, horizontal: 3), child: e.data));
+            else 
+              return e.data;
+          })
+        ],
       ),
     );
   }
+  // @override
+  // Widget build(BuildContext context) {
+  //   bool icn = fields.where((e) => !(e.data is String)).length > 0;
+  //   return this.onTap != null
+  //     ? ListTile(
+  //       title: widget(context, icn),
+  //       onTap: this.onTap,
+  //     )
+  //     : GestureDetector(
+  //       onDoubleTap: this.onDoubleTap,
+  //       child: widget(context, icn),
+  //     );
+  // }
+
+  // Widget widget(BuildContext context, bool icn){
+  //   return Card(
+  //     color: this.color ?? (this.header ? appbarColor(context) : Colors.transparent),
+  //     child: Padding(
+  //       padding: EdgeInsets.symmetric(vertical: header ? 12 : icn ? 0 : 12, horizontal: 8),
+  //       child: Row(
+  //         children: [
+  //           ...fields.map((e){
+  //             if (e.data is String)
+  //               return Expanded(flex: e.flex, child: e);
+  //             else if (e.data is Edit || e.data is F2Edit)
+  //               return Expanded(flex: e.flex, child: Container(margin: EdgeInsets.symmetric(vertical: 5, horizontal: 3), child: e.data));
+  //             else 
+  //               return e.data;
+  //           })
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 }
 
 class AnalyzeData extends StatelessWidget {

@@ -15,7 +15,9 @@ class Asnad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var _sanadState = Get.put(SanadState())..fetchSanads();
+    var _sanadState = Get.put(SanadState());
+    if (_sanadState.listSanadRow == null)
+      _sanadState.fetchSanads();
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Column(
@@ -220,12 +222,12 @@ class FmSanad extends StatelessWidget {
             rightBtn: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                IButton(type: Btn.Add, onPressed: (){_edid.clear(); _eddate.clear(); _ednote.clear(); _user.showSanad(null);}),
+                IButton(type: Btn.Add, onPressed: ()=>_user.showSanad(null)),
                 SizedBox(width: 3),
                 _user.sanad.value.reg ? Container(width: 0,) : IButton(type: Btn.Save, onPressed: ()=>saveSanad()),
               ]
             ),
-            leftBtn: IButton(type: Btn.Exit, onPressed: ()=>_user.setDashMenuItem(1),),
+            leftBtn: IButton(type: Btn.Exit, onPressed: (){SanadState _asnad = Get.find(); _asnad.fetchSanads(); _user.setDashMenuItem(1);},),
             color: _user.sanad.value.reg ? Colors.green.withOpacity(0.25) : null,
           ),
           SizedBox(height: 15),

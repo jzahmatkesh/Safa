@@ -25,16 +25,22 @@ class UserState extends GetxController{
   }
 
   void showSanad(Mainclass snd) async{
-    taflevel.value = await _repo.loadData('Coding/AccLevel');
+    taflevel.assignAll(await _repo.loadData('Coding/AccLevel'));
     if (snd == null){
-      sanad.value = Mainclass(old: 0, id: 0, date: '', note: '', reg: false);
+      var _res = await _repo.loadData('Asnad/NewSanad');
+      sanad.value = _res[0];
       artykl.value = DataModel(status: Status.Loaded, rows: []);
+      myAlert(title: 'سند جدید', message: 'سند شماره ${sanad.value.id} ایجاد شد', msgType: Msg.Success);
     }
     else{
       sanad.value = snd;
       artykl.value = DataModel(status: Status.Loaded, rows: await _repo.loadData('Asnad/Artykl', body: {'id': snd.id}));
     }
     dashMenuItem.value = 11;
+  }
+
+  void loadTafLevels() async{
+    taflevel.assignAll(await _repo.loadData('Coding/AccLevel'));
   }
 
   @override
@@ -69,7 +75,6 @@ class UserState extends GetxController{
         dashMenuItem.value = prefs.getInt('menu');
 
       String token = prefs.getString("token") ?? "";
-print("token: $token");
       if (token.isNotEmpty)
         user.value = await _repo.verify(token);
     }
@@ -89,7 +94,7 @@ print("token: $token");
       sanad.value = Mainclass(old: sanad.value.old, id: id, date: date, note: note);
       var _res = await _repo.saveData('Asnad/Sanad', {'old': sanad.value.old, 'id': id, 'date': date, 'note': note});
       sanad.value = Mainclass(old: id, id: id, date: date, note: note);
-      myAlert(title: 'موفقیت آمیز', message: 'ذخیره سند موفقیت آمیز بود', color: Colors.green);
+      myAlert(title: 'موفقیت آمیز', message: 'ذخیره سند موفقیت آمیز بود', msgType: Msg.Success);
       return _res.id;
     }
     catch(e){
@@ -102,7 +107,7 @@ print("token: $token");
     try{
       art.token = userInfo.token;
       var _res = await _repo.saveData('Asnad/Artykl', art.toJson());
-      myAlert(title: 'موفقیت آمیز', message: 'ذخیره سند موفقیت آمیز بود', color: Colors.green);
+      myAlert(title: 'موفقیت آمیز', message: 'ذخیره سند موفقیت آمیز بود', msgType: Msg.Success);
       bool nvld = true;
       artykl.value.rows.forEach((element) {
         if (element.id == art.id){
@@ -156,6 +161,7 @@ print("token: $token");
         artykl.value.rows.removeWhere((element) => element.id==id);
         artykl.value = DataModel(status: Status.Loaded, rows: artykl.value.rows);
         Navigator.pop(context);
+        myAlert(title: 'حذف آرتیکل', message: 'حذف آرتیکل با موفقیت انجام گردید', msgType: Msg.Info);
       }
       catch(e){
         analyzeError('$e');
@@ -215,18 +221,20 @@ class CodingState extends GetxController{
 
   void fetchGroup({bool loadkol = false}) async{
     setMenu(1);
-    taflevel.value = await _repo.loadData('Coding/AccLevel');
+    taflevel.assignAll(await _repo.loadData('Coding/AccLevel'));
     group.value = DataModel(status: Status.Loading);
     try{
       group.value = DataModel(status: Status.Loaded, rows: await _repo.loadData('Coding/Group'));
-      groupRow[0].selected = true;
-      group.value = DataModel(status: Status.Loaded, rows: group.value.rows);
-      if (loadkol)
-        fetchKol(groupRow[0].id, loadmoin: true);
+      if (group.value.rows.length > 0){
+        groupRow[0].selected = true;
+        group.value = DataModel(status: Status.Loaded, rows: group.value.rows);
+        if (loadkol)
+          fetchKol(groupRow[0].id, loadmoin: true);
+      }
     }
     catch(e){
       analyzeError('$e');
-      group.value = DataModel(status: Status.Error, msg: 'خطا در دریافت اطلاعات از سرور');
+      group.value = DataModel(status: Status.Error, msg: 'خطا در دریافت اطلاعات از سرور $e');
     }
   }
 
@@ -275,7 +283,7 @@ class CodingState extends GetxController{
         groupRow.removeWhere((element) => element.id == id);
         group.value = DataModel(status: Status.Loaded, rows: groupRow);
         Navigator.of(context).pop();
-        myAlert(title: 'حذف موفقیت آمیز', message: 'حذف $name با موفقیت انجام گردید', color: Colors.green);
+        myAlert(title: 'حذف موفقیت آمیز', message: 'حذف $name با موفقیت انجام گردید', msgType: Msg.Info);
       }
       catch(e){
         Navigator.of(context).pop();
@@ -360,7 +368,7 @@ class CodingState extends GetxController{
         kolRow.removeWhere((element) => element.id == id);
         kol.value = DataModel(status: Status.Loaded, rows: kolRow);
         Navigator.of(context).pop();
-        myAlert(title: 'حذف موفقیت آمیز', message: 'حذف $name با موفقیت انجام گردید', color: Colors.green);
+        myAlert(title: 'حذف موفقیت آمیز', message: 'حذف $name با موفقیت انجام گردید', msgType: Msg.Info);
       }
       catch(e){
         Navigator.of(context).pop();
@@ -425,7 +433,7 @@ class CodingState extends GetxController{
         moinRow.removeWhere((element) => element.id == id);
         moin.value = DataModel(status: Status.Loaded, rows: moinRow);
         Navigator.of(context).pop();
-        myAlert(title: 'حذف موفقیت آمیز', message: 'حذف $name با موفقیت انجام گردید', color: Colors.green);
+        myAlert(title: 'حذف موفقیت آمیز', message: 'حذف $name با موفقیت انجام گردید', msgType: Msg.Info);
       }
       catch(e){
         Navigator.of(context).pop();
@@ -452,7 +460,7 @@ class CodingState extends GetxController{
         tafsiliRow.removeWhere((element) => element.id == id);
         tafsili.value = DataModel(status: Status.Loaded, rows: tafsiliRow);
         Navigator.of(context).pop();
-        myAlert(title: 'حذف موفقیت آمیز', message: 'حذف $name با موفقیت انجام گردید', color: Colors.green);
+        myAlert(title: 'حذف موفقیت آمیز', message: 'حذف $name با موفقیت انجام گردید', msgType: Msg.Info);
       }
       catch(e){
         Navigator.of(context).pop();
@@ -586,7 +594,7 @@ class AccLevelState extends GetxController{
         //   element.active = true;
       });
       levels.value = DataModel(status: Status.Loaded, rows: levelsRow);
-      myAlert(title: 'ذخیره', message: 'ذخیره اطلاعات با موفقیت انجام گرددید', color: Colors.green);
+      myAlert(title: 'ذخیره', message: 'ذخیره اطلاعات با موفقیت انجام گرددید', msgType: Msg.Success);
     }
     catch(e){
       analyzeError('$e');
@@ -645,6 +653,8 @@ class SanadState extends GetxController{
         await _repo.delData('Asnad', {'token': _user.userInfo.token, 'id': id});
         listSanadRow.removeWhere((element) => element.id==id);
         listSanad.value = DataModel(status: Status.Loaded, rows: listSanadRow);
+        Navigator.of(context).pop();
+        myAlert(title: 'حذف سند', message: 'سند شماره $id با موفقیت حذف گردید', msgType: Msg.Info);
       }
       catch(e){
         analyzeError('$e');
@@ -662,4 +672,46 @@ class SanadState extends GetxController{
 }
 
 
+class AnalyzeState extends GetxController{
+  var kol = DataModel(status: Status.Loading).obs;
+  List<Mainclass> get kolRow => kol.value.rows;
+  var rec1 = Mainclass().obs;
 
+  void fetchKol() async{
+    try{
+      rec1.value = null;
+      kol.value = DataModel(status: Status.Loading);
+      kol.value = DataModel(status: Status.Loaded, rows: await _repo.loadData('Analyze/Kol'));
+    }catch(e){
+      analyzeError('$e');
+      kol.value = DataModel(status: Status.Error, msg: '$e');
+    }
+  }
+
+  void fetchMoin(int kl) async{
+    try{
+      kol.value = DataModel(status: Status.Loading);
+      kol.value = DataModel(status: Status.Loaded, rows: await _repo.loadData('Analyze/Moin', body: {'kolid': kl}));
+    }catch(e){
+      analyzeError('$e');
+      kol.value = DataModel(status: Status.Error, msg: '$e');
+    }
+  }
+
+  void chooseKol(Mainclass rec, int lev){
+    rec1.value = rec;
+    if (lev==0)
+      fetchMoin(rec.id);
+  }
+
+  void fetchTafsili(int lev) async{
+    try{
+      rec1.value = null;
+      kol.value = DataModel(status: Status.Loading);
+      kol.value = DataModel(status: Status.Loaded, rows: await _repo.loadData('Analyze/Tafsili', body: {'id': lev}));
+    }catch(e){
+      analyzeError('$e');
+      kol.value = DataModel(status: Status.Error, msg: '$e');
+    }
+  }
+}

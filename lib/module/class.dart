@@ -7,7 +7,9 @@ enum AppTheme {
 enum Status{
   Loading, Loaded, Error
 }
-
+enum Msg{
+  Warning, Error, Success, Info
+}
 class User{
     int id;
     String company;
@@ -76,6 +78,8 @@ class Mainclass{
     String taf6name;
     double bed;
     double bes;
+    double mandebed;
+    double mandebes;
     bool edit;
     String token;
     bool selected;
@@ -90,7 +94,7 @@ class Mainclass{
     bool autoins;
     bool reg;
 
-    Mainclass({this.cmpid,this.cmpname,this.dorehid,this.dorehname,this.userid,this.userfamily,this.sanadid,this.levid,this.tafid,this.grpid,this.kolid,this.moinid,this.old,this.id,this.name,this.date,this.note,this.taf1,this.taf2,this.taf3,this.taf4,this.taf5,this.taf6,this.kolname,this.moinname,this.taf1name,this.taf2name,this.taf3name,this.taf4name,this.taf5name,this.taf6name,this.bed,this.bes,this.edit=false, this.token, this.selected=false, this.inSearch = true, this.lev1=false,this.lev2=false,this.lev3=false,this.lev4=false,this.lev5=false,this.lev6=false, this.active = true, this.autoins = false, this.reg=false});
+    Mainclass({this.cmpid,this.cmpname,this.dorehid,this.dorehname,this.userid,this.userfamily,this.sanadid,this.levid,this.tafid,this.grpid,this.kolid,this.moinid,this.old,this.id,this.name,this.date,this.note,this.taf1,this.taf2,this.taf3,this.taf4,this.taf5,this.taf6,this.kolname,this.moinname,this.taf1name,this.taf2name,this.taf3name,this.taf4name,this.taf5name,this.taf6name,this.bed,this.bes,this.mandebed,this.mandebes,this.edit=false, this.token, this.selected=false, this.inSearch = true, this.lev1=false,this.lev2=false,this.lev3=false,this.lev4=false,this.lev5=false,this.lev6=false, this.active = true, this.autoins = false, this.reg=false});
  
     Mainclass.fromJson(Map<String, dynamic> json):
         cmpid = json['cmpid'],
@@ -132,6 +136,8 @@ class Mainclass{
         taf6name = json['taf6name'],
         bed = json['bed'],
         bes = json['bes'],
+        mandebed = json['mandebed'],
+        mandebes = json['mandebes'],
         edit = json['edit'] == 1,
         active = json['active'] == 1,
         autoins = json['autoins'] == 1,
