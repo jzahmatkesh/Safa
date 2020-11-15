@@ -2,12 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'F2Edit.dart';
 import 'class.dart';
 import 'functions.dart';
 
 enum Btn{
-  Add,Save,Exit,Reload,Del,Other,Edit
+  Add,Save,Exit,Reload,Del,Other,Edit,Loading
 }
 enum Sort{
   Asc,Desc
@@ -155,7 +154,7 @@ class OButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _icon,
+            type == Btn.Loading ? CupertinoActivityIndicator() : _icon,
             SizedBox(width: 10),
             Text(_hnt, style: TextStyle(fontFamily: 'nazanin', fontSize: 18, fontWeight: FontWeight.bold),),
           ],
@@ -411,6 +410,7 @@ class GridRow extends StatelessWidget {
     return this.onTap != null
       ? Card(
         child: ListTile(
+          dense: true,
           title: widget(context, icn),
           onTap: this.onTap,
         ),
@@ -426,14 +426,14 @@ class GridRow extends StatelessWidget {
   }
 
   Widget widget(BuildContext context, bool icn){
-    return Padding(
+    return Container(
       padding: EdgeInsets.symmetric(vertical: header ? 12 : icn ? 0 : 12, horizontal: 8),
       child: Row(
         children: [
           ...fields.map((e){
             if (e.data is String)
               return Expanded(flex: e.flex, child: e);
-            else if (e.data is Edit || e.data is F2Edit)
+            else if (e.data is Edit) // || e.data is F2Edit
               return Expanded(flex: e.flex, child: Container(margin: EdgeInsets.symmetric(vertical: 5, horizontal: 3), child: e.data));
             else 
               return e.data;
@@ -478,40 +478,6 @@ class GridRow extends StatelessWidget {
   // }
 }
 
-class AnalyzeData extends StatelessWidget {
-  const AnalyzeData({Key key, @required this.data, @required this.onLoaded}) : super(key: key);
-
-  final DataModel data;
-  final Function onLoaded;
-
-  @override
-  Widget build(BuildContext context) {
-    if (data.status == Status.Loading)
-      return Center(child: CupertinoActivityIndicator());
-    if (data.status == Status.Error)
-      return Center(
-        child: Container(
-          padding: EdgeInsets.all(12),
-          margin: EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.0),
-            color: Colors.red.withOpacity(0.25)
-          ),
-          child: Text('${data.msg}'),
-        )
-      );
-    if (data.rows.length > 0)
-      return ListView.builder(
-        itemCount: data.rows.length,
-        itemBuilder: (BuildContext context, int idx) {
-          Mainclass rw = data.rows[idx];
-          return onLoaded(rw);
-        }
-      );
-    return Container();
-  }
-}
-
 class FilterItem extends StatelessWidget {
   const FilterItem({Key key, @required this.title, @required this.selected, this.onSelected, this.color}) : super(key: key);
 
@@ -534,6 +500,33 @@ class FilterItem extends StatelessWidget {
         selected: this.selected,
         onSelected: this.onSelected
       )
+    );
+  }
+}
+
+class StreamWidget extends StatelessWidget {
+  const StreamWidget({Key key, @required this.stream, @required this.itembuilder}) : super(key: key);
+
+  final Function(Mainclass) itembuilder;
+  final Stream stream;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<DataModel>(
+      stream: this.stream,
+      builder: (context, snap){
+        if (snap.hasData)
+          if (snap.data.status == Status.Error)
+            return Center(child: Text('${snap.data.msg}'));
+          else if (snap.data.status == Status.Loaded)             
+            return ListView.builder(
+              itemCount: snap.data.rows.length,
+              itemBuilder: (context, idx){
+                return itembuilder(snap.data.rows[idx]);
+            },
+            );
+        return Center(child: CupertinoActivityIndicator());
+      },
     );
   }
 }

@@ -1,8 +1,8 @@
-post http://127.0.0.1:8080/PamaApi/api/User/login
+post http://127.0.0.1:8080/Finance/api/User/Authenticate
 Content-Type: application/json
 
 {
-    "username": "2",
+    "mobile": "2",
     "password": "c4ca4238a0b923820dcc509a6f75849b"
 }
 

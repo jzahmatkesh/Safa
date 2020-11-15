@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 enum AppTheme {
  Light, Dark
 }
-
 enum Status{
   Loading, Loaded, Error
 }
 enum Msg{
   Warning, Error, Success, Info
 }
+
 class User{
     int id;
     String company;
