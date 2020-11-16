@@ -18,6 +18,7 @@ abstract class Bloc{
 
   BehaviorSubject<DataModel> _rows = BehaviorSubject<DataModel>.seeded(DataModel(status: Status.Loading));
   Stream<DataModel> get rowsStream$ => _rows.stream;
+  DataModel get rowsValue$ => _rows.value;
 
   fetchData() async{
     try{
@@ -78,6 +79,10 @@ class SanadBloc extends Bloc{
     Stream<int> get filterStream$ => _filter.stream;
     int get filterValue => _filter.value;
 
+    BehaviorSubject<Mainclass> _sanad = BehaviorSubject<Mainclass>.seeded(null);
+    Stream<Mainclass> get sanadStream$ => _sanad.stream;
+    Mainclass get sanadValue => _sanad.value;
+
     changeFilter(int i){
       if (filterValue == i)
         i = 0;
@@ -85,4 +90,10 @@ class SanadBloc extends Bloc{
       _filter.add(i);
       this.fetchData();
     }
+
+    showSanad(Mainclass rec)=>_sanad.add(rec);
+}
+
+class ArtyklBloc extends Bloc{
+    ArtyklBloc({@required String api, @required String token, @required Map<String, dynamic> body}): super(api: api, token: token, body: body);
 }

@@ -504,8 +504,8 @@ class FilterItem extends StatelessWidget {
   }
 }
 
-class StreamWidget extends StatelessWidget {
-  const StreamWidget({Key key, @required this.stream, @required this.itembuilder}) : super(key: key);
+class StreamListWidget extends StatelessWidget {
+  const StreamListWidget({Key key, @required this.stream, @required this.itembuilder}) : super(key: key);
 
   final Function(Mainclass) itembuilder;
   final Stream stream;
@@ -525,6 +525,25 @@ class StreamWidget extends StatelessWidget {
                 return itembuilder(snap.data.rows[idx]);
             },
             );
+        return Center(child: CupertinoActivityIndicator());
+      },
+    );
+  }
+}
+
+class StreamWidget extends StatelessWidget {
+  const StreamWidget({Key key, @required this.stream, @required this.itemBuilder}) : super(key: key);
+
+  final Stream<dynamic> stream;
+  final Function itemBuilder;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<dynamic>(
+      stream: this.stream,
+      builder: (context, snap){
+        if (snap.connectionState == ConnectionState.active)
+          return this.itemBuilder(snap.data);
         return Center(child: CupertinoActivityIndicator());
       },
     );

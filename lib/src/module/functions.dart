@@ -233,6 +233,7 @@ Color textColor(BuildContext context)=> Theme.of(context).buttonColor;
 TextStyle gridFieldStyle()=> TextStyle(fontSize: 15,fontFamily: 'lalezar');
 
 Color editRowColor() => Colors.deepOrange.withOpacity(0.15);
+Color rowColor(BuildContext context) => appbarColor(context);
 
 focusChange(BuildContext context, FocusNode currentFocus,FocusNode nextFocus) {
   // if (currentFocus != null)
