@@ -10,33 +10,6 @@ String enumName(AppTheme anyEnum) {
  return anyEnum.toString().split('.')[1];
 }
 
-final appThemeData = {
- AppTheme.Light : ThemeData(
-    brightness: Brightness.light,
-    primarySwatch: Colors.blue,
-    primaryColor: Colors.blue,
-    accentColor: Colors.blueAccent,
-    scaffoldBackgroundColor: Colors.white,
-    bottomAppBarColor: Colors.grey[100],
-    textTheme: TextTheme(
-      headline1: TextStyle(color: Colors.grey[600], fontFamily: 'Lalezar', fontSize: 14.0),
-    ),
-    fontFamily: 'nazanin',
- ),
- AppTheme.Dark : ThemeData(
-    brightness: Brightness.dark,
-    primarySwatch: Colors.blueGrey,
-    primaryColor: Color(0xFF294c60),
-    accentColor: Colors.lightBlueAccent,
-    scaffoldBackgroundColor: Colors.grey[800],
-    bottomAppBarColor: Colors.grey[700],
-    textTheme: TextTheme(
-      headline1: TextStyle(color: Colors.white70, fontFamily: 'Lalezar', fontSize: 14.0)
-    ),
-    fontFamily: 'nazanin',
- ),
-};
-
 class MyProvider with ChangeNotifier {
   Repository _repo = Repository();
 
@@ -64,7 +37,7 @@ class MyProvider with ChangeNotifier {
  
   ThemeData get themeData {
     if (_themeData.value == null) {
-      _themeData.add(appThemeData[AppTheme.Dark]);
+      _themeData.add(appThemeData[AppTheme.Light]);
     }
     return _themeData.value;
   }

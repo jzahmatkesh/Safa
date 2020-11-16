@@ -72,6 +72,9 @@ abstract class Bloc{
   }
 }
 
+class PublicBloc extends Bloc{
+  PublicBloc({@required String api, @required String token, @required Map<String, dynamic> body}): super(api: api, token: token, body: body);
+}
 class SanadBloc extends Bloc{
     SanadBloc({@required String api, @required String token}): super(api: api, token: token, body: {'filter': 0});
 
@@ -95,5 +98,10 @@ class SanadBloc extends Bloc{
 }
 
 class ArtyklBloc extends Bloc{
-    ArtyklBloc({@required String api, @required String token, @required Map<String, dynamic> body}): super(api: api, token: token, body: body);
+  PublicBloc tafLevel;
+  
+  ArtyklBloc({@required String api, @required String token, @required Map<String, dynamic> body}): super(api: api, token: token, body: body){
+     tafLevel = PublicBloc(api: 'Coding/AccLevel', token: token, body: {});
+  }
+
 }

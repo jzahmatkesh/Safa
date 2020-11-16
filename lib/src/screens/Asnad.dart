@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:safa/src/module/class.dart';
+import '../module/class.dart';
 
 import '../module/Blocs.dart';
 import '../module/MyProvider.dart';
@@ -9,6 +9,7 @@ import '../module/Widgets.dart';
 import '../module/functions.dart';
 
 SanadBloc _asnad;
+ArtyklBloc _artykl;
 
 class Asnad extends StatelessWidget {
   const Asnad({Key key}) : super(key: key);
@@ -22,7 +23,7 @@ class Asnad extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: StreamWidget(
         stream: _asnad.sanadStream$, 
-        itemBuilder: (Mainclass rec)=> rec==null 
+        itemBuilder: (Mainclass rec)=> rec==null
           ? PnAsnad(prov: _prov)
           : PnSanad(prov: _prov, sanad: rec)
       )
@@ -120,14 +121,15 @@ class PnSanad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ArtyklBloc _artykl = ArtyklBloc(api: 'Asnad/Artykl', token: prov.currentUser.token, body: {'id': sanad.id});
+    if (_artykl == null)
+      _artykl = ArtyklBloc(api: 'Asnad/Artykl', token: prov.currentUser.token, body: {'id': sanad.id});
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Header(
           rightBtn: IButton(type: Btn.Save, onPressed: (){}),
           title: 'سند حسابداری',
-          leftBtn: IButton(type: Btn.Exit, onPressed: ()=>_asnad.showSanad(null),),
+          leftBtn: IButton(type: Btn.Exit, onPressed: (){_artykl=null; _asnad.showSanad(null);}),
         ),
         SizedBox(height: 10),
         Row(
@@ -140,33 +142,40 @@ class PnSanad extends StatelessWidget {
         SizedBox(height: 10),
         Container(width: screenWidth(context) * 0.3, child: Edit(hint: 'شرح سند', value: '${this.sanad.note}')),
         SizedBox(height: 10),
-        GridRow([
-          Field('کد کل', bold: true,),
-          Field('کد معین', bold: true,),
-          Field('تفصیلی یک', bold: true,),
-          Field('تفصیلی دو', bold: true,),
-          Field('شرح آرتیکل', bold: true, flex: 2),
-          Field('بدهکار', bold: true,),
-          Field('بستانکار', bold: true,),
-        ], header: true),
-        GridRow([
-          Field(Edit(hint: 'کد کل')),
-          Field(Edit(hint: 'کد معین')),
-          Field(Edit(hint: 'تفصیلی یک')),
-          Field(Edit(hint: 'تفصیلی دو')),
-          Field(Edit(hint: 'شرح آرتیکل'), flex: 2),
-          Field(Edit(hint: 'بدهکار')),
-          Field(Edit(hint: 'بستانکار')),
-          Field(SizedBox(width: 40)),
-          Field(IButton(type: Btn.Save, onPressed: (){})),
-        ]),
+        StreamBuilder<DataModel>(
+          stream: _artykl.tafLevel.rowsStream$,
+          builder: (context, snap){
+            return snap.connectionState != ConnectionState.active || snap.data.rows == null ? Field(CupertinoActivityIndicator()) : GridRow([
+              Field('کد کل', bold: true,),
+              Field('کد معین', bold: true,),
+              ...snap.data.rows.where((element) => element.active).map((e) => Field(e.name, bold: true)),
+              Field('شرح آرتیکل', bold: true, flex: 2),
+              Field('بدهکار', bold: true,),
+              Field('بستانکار', bold: true,),
+            ], header: true);
+          }
+        ),
+        StreamBuilder<DataModel>(
+          stream: _artykl.tafLevel.rowsStream$,
+          builder: (context, snap){
+            return snap.connectionState != ConnectionState.active || snap.data.rows == null ? Field(CupertinoActivityIndicator()) : GridRow([
+              Field(Edit(hint: 'کد کل')),
+              Field(Edit(hint: 'کد معین')),
+              ...snap.data.rows.where((element) => element.active).map((e) => Field(Edit(hint: '${e.name}'))),
+              Field(Edit(hint: 'شرح آرتیکل'), flex: 2),
+              Field(Edit(hint: 'بدهکار')),
+              Field(Edit(hint: 'بستانکار')),
+              Field(SizedBox(width: 40)),
+              Field(IButton(type: Btn.Save, onPressed: (){})),
+            ]);
+          }
+        ),
         Expanded(
-          child: StreamListWidget(stream: _artykl.rowsStream$, itembuilder: (rw)=> GridRow(
+          child: StreamListWidget(stream: _artykl.rowsStream$, itembuilder: (rw)=> rw==null || _artykl.rowsValue$.rows==null ? Container() : GridRow(
             [
               Field('${rw.kolid}'),
               Field('${rw.moinid}'),
-              Field('${rw.taf1}'),
-              Field('${rw.taf2}'),
+              ..._artykl.tafLevel.rowsValue$.rows.where((element) => element.active).map((e) => Field('${e.id==1 ? rw.taf1 : e.id==2 ? rw.taf2 : e.id==3 ? rw.taf3 : e.id==4 ? rw.taf4 : e.id==5 ? rw.taf5 : rw.taf6}')),
               Field('${rw.note}', flex: 2,),
               Field('${moneySeprator(rw.bed)}'),
               Field('${moneySeprator(rw.bes)}'),
@@ -175,7 +184,7 @@ class PnSanad extends StatelessWidget {
             ],
             color: _artykl.rowsValue$.rows.indexOf(rw).isOdd ? rowColor(context) : Colors.transparent,
           )),
-        )
+        ),
       ],
     );
   }
