@@ -93,8 +93,9 @@ class Mainclass{
     bool active;
     bool autoins;
     bool reg;
+    int errorid;
 
-    Mainclass({this.cmpid,this.cmpname,this.dorehid,this.dorehname,this.userid,this.userfamily,this.sanadid,this.levid,this.tafid,this.grpid,this.kolid,this.moinid,this.old,this.id,this.name,this.date,this.note,this.taf1,this.taf2,this.taf3,this.taf4,this.taf5,this.taf6,this.kolname,this.moinname,this.taf1name,this.taf2name,this.taf3name,this.taf4name,this.taf5name,this.taf6name,this.bed,this.bes,this.mandebed,this.mandebes,this.edit=false, this.token, this.selected=false, this.inSearch = true, this.lev1=false,this.lev2=false,this.lev3=false,this.lev4=false,this.lev5=false,this.lev6=false, this.active = true, this.autoins = false, this.reg=false});
+    Mainclass({this.cmpid,this.cmpname,this.dorehid,this.dorehname,this.userid,this.userfamily,this.sanadid,this.levid,this.tafid,this.grpid,this.kolid,this.moinid,this.old,this.id=0,this.name,this.date,this.note,this.taf1,this.taf2,this.taf3,this.taf4,this.taf5,this.taf6,this.kolname,this.moinname,this.taf1name,this.taf2name,this.taf3name,this.taf4name,this.taf5name,this.taf6name,this.bed,this.bes,this.mandebed,this.mandebes,this.edit=false, this.token, this.selected=false, this.inSearch = true, this.lev1=false,this.lev2=false,this.lev3=false,this.lev4=false,this.lev5=false,this.lev6=false, this.active = true, this.autoins = false, this.reg=false, this.errorid = 0});
  
     Mainclass.fromJson(Map<String, dynamic> json):
         cmpid = json['cmpid'],
@@ -143,7 +144,8 @@ class Mainclass{
         autoins = json['autoins'] == 1,
         reg = json['reg'] == 1,
         selected = false,
-        inSearch = true;
+        inSearch = true,
+        errorid = json['errorid'] ?? 0;
  
     Map<String, dynamic> toJson(){
         final Map<String, dynamic> data = new Map<String, dynamic>();

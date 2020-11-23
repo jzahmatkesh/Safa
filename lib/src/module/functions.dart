@@ -71,7 +71,7 @@ Future<Map<String, dynamic>> putToServer({String api, dynamic body, Map<String,S
   if(res.statusCode == 200)
     return {"msg": "Success", "body": json.decode(utf8.decode(res.bodyBytes))};
   else
-    return {"msg": utf8.decode(res.bodyBytes)};
+    return json.decode(utf8.decode(res.bodyBytes));
 }
 
 Future<Map<String, dynamic>> delToServer({String api, dynamic body, Map<String,String> header}) async{
@@ -245,7 +245,7 @@ TextStyle gridFieldStyle()=> TextStyle(fontSize: 15,fontFamily: 'lalezar');
 Color editRowColor() => Colors.deepOrange.withOpacity(0.15);
 Color rowColor(BuildContext context) => appbarColor(context);
 
-focusChange(BuildContext context, FocusNode currentFocus,FocusNode nextFocus) {
+focusChange(BuildContext context, FocusNode nextFocus) {
   // if (currentFocus != null)
   //   currentFocus.unfocus();
   // else

@@ -11,6 +11,36 @@ import '../module/functions.dart';
 SanadBloc _asnad;
 ArtyklBloc _artykl;
 
+TextEditingController _sanadid = TextEditingController();
+TextEditingController _date = TextEditingController();
+TextEditingController _note = TextEditingController();
+TextEditingController _kol = TextEditingController();
+TextEditingController _moin = TextEditingController();
+TextEditingController _taf1 = TextEditingController();
+TextEditingController _taf2 = TextEditingController();
+TextEditingController _taf3 = TextEditingController();
+TextEditingController _taf4 = TextEditingController();
+TextEditingController _taf5 = TextEditingController();
+TextEditingController _taf6 = TextEditingController();
+TextEditingController _bed = TextEditingController();
+TextEditingController _bes = TextEditingController();
+TextEditingController _artnote = TextEditingController();
+
+FocusNode _fid = FocusNode();
+FocusNode _fdate = FocusNode();
+FocusNode _fnote = FocusNode();
+FocusNode _fkol = FocusNode();
+FocusNode _fmoin = FocusNode();
+FocusNode _ftaf1 = FocusNode();
+FocusNode _ftaf2 = FocusNode();
+FocusNode _ftaf3 = FocusNode();
+FocusNode _ftaf4 = FocusNode();
+FocusNode _ftaf5 = FocusNode();
+FocusNode _ftaf6 = FocusNode();
+FocusNode _fbed = FocusNode();
+FocusNode _fbes = FocusNode();
+FocusNode _fartnote = FocusNode();
+
 class Asnad extends StatelessWidget {
   const Asnad({Key key}) : super(key: key);
 
@@ -18,14 +48,21 @@ class Asnad extends StatelessWidget {
   Widget build(BuildContext context) {
     MyProvider _prov = Provider.of<MyProvider>(context);
     if (_asnad == null)
-      _asnad = SanadBloc(api: 'Asnad', token: _prov.currentUser.token);
+      _asnad = SanadBloc(context: context, api: 'Asnad', token: _prov.currentUser.token);
     return Directionality(
       textDirection: TextDirection.rtl,
       child: StreamWidget(
         stream: _asnad.sanadStream$, 
-        itemBuilder: (Mainclass rec)=> rec==null
-          ? PnAsnad(prov: _prov)
-          : PnSanad(prov: _prov, sanad: rec)
+        itemBuilder: (Mainclass rec){
+          if (rec==null)
+           return PnAsnad(prov: _prov);
+          else{
+            _sanadid.text = rec.id.toString();
+            _date.text = rec.date;
+            _note.text = rec.note;
+           return PnSanad(prov: _prov, sanad: rec);
+          }
+        }
       )
     );
   }
@@ -44,7 +81,7 @@ class PnAsnad extends StatelessWidget {
           title: 'اسناد حسابداری',
           rightBtn: Row(
             children: [
-              IButton(type: Btn.Add, onPressed: ()=>prov.setDashMenuItem(11)),
+              IButton(type: Btn.Add, onPressed: ()=>_asnad.showSanad(Mainclass(id: 0, date: '', note: ''))),
               SizedBox(width: 3),
               IButton(icon: Icon(CupertinoIcons.eyeglasses), hint: 'فیلتر اسناد', onPressed: (){}),
             ],
@@ -122,7 +159,83 @@ class PnSanad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (_artykl == null)
-      _artykl = ArtyklBloc(api: 'Asnad/Artykl', token: prov.currentUser.token, body: {'id': sanad.id});
+      _artykl = ArtyklBloc(context: context, api: 'Asnad/Artykl', token: prov.currentUser.token, body: {'id': sanad.id});
+
+    _changeTafFocus(int i){
+      if ((_artykl.tafLevel.rowsValue$.rows ?? []).where((element) => element.active && element.id==i).length > 0){
+        if (i==1) focusChange(context, _ftaf1);
+        else if (i==2) focusChange(context, _ftaf2);
+        else if (i==3) focusChange(context, _ftaf3);
+        else if (i==4) focusChange(context, _ftaf4);
+        else if (i==5) focusChange(context, _ftaf5);
+        else if (i==6) focusChange(context, _ftaf6);
+      }
+      else
+        focusChange(context, _fartnote);
+    }
+
+    clearArtykl(){
+      _kol.clear();_moin.clear();_taf1.clear();_taf2.clear();_taf3.clear();_taf4.clear();_taf5.clear();_taf6.clear();_bed.clear();_bes.clear();_artnote.clear();
+    }
+
+    editArtykl(Mainclass art){
+      _artykl.editMode(art.id);
+      _kol.text = art.kolid.toString();
+      _moin.text = art.moinid.toString();
+      _taf1.text = art.taf1.toString();
+      _taf2.text = art.taf2.toString();
+      _taf3.text = art.taf3.toString();
+      _taf4.text = art.taf4.toString();
+      _taf5.text = art.taf5.toString();
+      _taf6.text = art.taf6.toString();
+      _bed.text = moneySeprator(art.bed);
+      _bes.text = moneySeprator(art.bes);
+      _artnote.text = art.note;
+    }
+
+    saveArtykl() async{
+      int _id = 0;
+      _artykl.rowsValue$.rows.forEach((element) {
+        if (element.edit)
+          _id = element.id;
+      });
+      Mainclass _art = await _artykl.saveData(
+        context: context, 
+        msg: true,
+        data: Mainclass(
+          sanadid: int.parse(_sanadid.text),
+          id: _id, 
+          kolid: int.parse(_kol.text),
+          moinid: int.parse(_moin.text),
+          taf1: int.parse(_taf1.text.isEmpty ? '0' : _taf1.text),
+          taf2: int.parse(_taf2.text.isEmpty ? '0' : _taf2.text),
+          taf3: int.parse(_taf3.text.isEmpty ? '0' : _taf3.text),
+          taf4: int.parse(_taf4.text.isEmpty ? '0' : _taf4.text),
+          taf5: int.parse(_taf5.text.isEmpty ? '0' : _taf5.text),
+          taf6: int.parse(_taf6.text.isEmpty ? '0' : _taf6.text),
+          bed: double.parse(_bed.text.isEmpty ? '0' : _bed.text),
+          bes: double.parse(_bes.text.isEmpty ? '0' : _bes.text),
+          note: _artnote.text,
+        )
+      );
+      if (_art.errorid > 0){
+        if (_art.errorid == 1) focusChange(context, _fkol);
+        if (_art.errorid == 2) focusChange(context, _fmoin);
+        if (_art.errorid == 11) focusChange(context, _ftaf1);
+        if (_art.errorid == 12) focusChange(context, _ftaf2);
+        if (_art.errorid == 13) focusChange(context, _ftaf3);
+        if (_art.errorid == 14) focusChange(context, _ftaf4);
+        if (_art.errorid == 15) focusChange(context, _ftaf5);
+        if (_art.errorid == 16) focusChange(context, _ftaf6);
+        if (_art.errorid == 3) focusChange(context, _fbed);
+      }
+      else if (_art != null && _art.id > 0){
+        _artykl.updateRow(_art);
+        clearArtykl();
+        focusChange(context, _fkol);
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -134,13 +247,13 @@ class PnSanad extends StatelessWidget {
         SizedBox(height: 10),
         Row(
           children: [
-            Container(width: screenWidth(context) * 0.1, child: Edit(hint: 'شماره سند', value: '${this.sanad.id}')),
+            Container(width: screenWidth(context) * 0.1, child: Edit(hint: 'شماره سند', controller: _sanadid, focus: _fid, onSubmitted: (val)=> focusChange(context, _fdate),)),
             SizedBox(width: 5),
-            Container(width: screenWidth(context) * 0.1, child: Edit(hint: 'تاریخ سند', value: '${this.sanad.date}', date: true)),
+            Container(width: screenWidth(context) * 0.1, child: Edit(hint: 'تاریخ سند', controller: _date, focus: _fdate, date: true, onSubmitted: (val)=> focusChange(context, _fnote),)),
           ],
         ),
         SizedBox(height: 10),
-        Container(width: screenWidth(context) * 0.3, child: Edit(hint: 'شرح سند', value: '${this.sanad.note}')),
+        Container(width: screenWidth(context) * 0.3, child: Edit(hint: 'شرح سند', controller: _note, focus: _fnote, onSubmitted: (val)=> focusChange(context, _fkol),)),
         SizedBox(height: 10),
         StreamBuilder<DataModel>(
           stream: _artykl.tafLevel.rowsStream$,
@@ -159,12 +272,24 @@ class PnSanad extends StatelessWidget {
           stream: _artykl.tafLevel.rowsStream$,
           builder: (context, snap){
             return snap.connectionState != ConnectionState.active || snap.data.rows == null ? Field(CupertinoActivityIndicator()) : GridRow([
-              Field(Edit(hint: 'کد کل')),
-              Field(Edit(hint: 'کد معین')),
-              ...snap.data.rows.where((element) => element.active).map((e) => Field(Edit(hint: '${e.name}'))),
-              Field(Edit(hint: 'شرح آرتیکل'), flex: 2),
-              Field(Edit(hint: 'بدهکار')),
-              Field(Edit(hint: 'بستانکار')),
+              Field(Edit(hint: 'کد کل', controller: _kol, focus: _fkol, onSubmitted: (val)=>focusChange(context, _fmoin),)),
+              Field(Edit(hint: 'کد معین', controller: _moin, focus: _fmoin, onSubmitted: (val)=>focusChange(context, _ftaf1),)),
+              ...snap.data.rows.where((element) => element.active).map(
+                  (e) => e.id==1 
+                    ? Field(Edit(hint: '${e.name}', controller: _taf1, focus: _ftaf1, onSubmitted: (val)=>_changeTafFocus(2)))
+                    : e.id==2 
+                      ? Field(Edit(hint: '${e.name}', controller: _taf2, focus: _ftaf2, onSubmitted: (val)=>_changeTafFocus(3)))
+                      : e.id==3
+                        ? Field(Edit(hint: '${e.name}', controller: _taf3, focus: _ftaf3, onSubmitted: (val)=>_changeTafFocus(4)))
+                        : e.id==4
+                          ? Field(Edit(hint: '${e.name}', controller: _taf4, focus: _ftaf4, onSubmitted: (val)=>_changeTafFocus(5)))
+                          : e.id==5
+                            ? Field(Edit(hint: '${e.name}', controller: _taf5, focus: _ftaf5, onSubmitted: (val)=>_changeTafFocus(6)))
+                            : Field(Edit(hint: '${e.name}', controller: _taf6, focus: _ftaf6, onSubmitted: (val)=>focusChange(context, _fartnote)))
+                 ),
+              Field(Edit(hint: 'شرح آرتیکل', controller: _artnote, focus: _fartnote, onSubmitted: (val)=>focusChange(context, _fbed)), flex: 2),
+              Field(Edit(hint: 'بدهکار', controller: _bed, focus: _fbed, onSubmitted: (val)=>focusChange(context, _fbes))),
+              Field(Edit(hint: 'بستانکار', controller: _bes, focus: _fbes, onSubmitted: (val)=>saveArtykl())),
               Field(SizedBox(width: 40)),
               Field(IButton(type: Btn.Save, onPressed: (){})),
             ]);
@@ -175,14 +300,14 @@ class PnSanad extends StatelessWidget {
             [
               Field('${rw.kolid}'),
               Field('${rw.moinid}'),
-              ..._artykl.tafLevel.rowsValue$.rows.where((element) => element.active).map((e) => Field('${e.id==1 ? rw.taf1 : e.id==2 ? rw.taf2 : e.id==3 ? rw.taf3 : e.id==4 ? rw.taf4 : e.id==5 ? rw.taf5 : rw.taf6}')),
+              ...(_artykl.tafLevel.rowsValue$.rows ?? []).where((element) => element.active).map((e) => Field('${e.id==1 ? rw.taf1 : e.id==2 ? rw.taf2 : e.id==3 ? rw.taf3 : e.id==4 ? rw.taf4 : e.id==5 ? rw.taf5 : rw.taf6}')),
               Field('${rw.note}', flex: 2,),
               Field('${moneySeprator(rw.bed)}'),
               Field('${moneySeprator(rw.bes)}'),
-              Field(IButton(type: Btn.Edit, onPressed: (){})),
-              Field(IButton(type: Btn.Del, onPressed: (){}))
+              Field(IButton(type: Btn.Edit, onPressed: ()=>editArtykl(rw))),
+              Field(IButton(type: Btn.Del, onPressed: ()=>_artykl.delData(context: context, msg: 'آرتیکل', body: {'sanadid': sanad.id, 'id': rw.id})))
             ],
-            color: _artykl.rowsValue$.rows.indexOf(rw).isOdd ? rowColor(context) : Colors.transparent,
+            color: rw.edit ? editRowColor() : _artykl.rowsValue$.rows.indexOf(rw).isOdd ? rowColor(context) : Colors.transparent,
           )),
         ),
       ],
