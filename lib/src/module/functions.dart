@@ -152,8 +152,9 @@ void analyzeError(BuildContext context, String note, {bool msg = true}){
       MaterialPageRoute(builder: (context) => Login()),
       (route) => false
     );
-  else if (msg)
-    myAlert(context: context, title: 'خطا', message: compileErrorMessage('$note'));
+  else if (msg){
+    myAlert(context: context, title: 'خطا', message: '${compileErrorMessage('$note')}');
+  }
 }
 
 void confirmMessage(BuildContext context, String title, String msg, {Function yesclick, Function noClick, AlertType type = AlertType.warning}){

@@ -46,14 +46,14 @@ abstract class Bloc{
     }
   }
 
-  Future<Mainclass> saveData({BuildContext context, Mainclass data, bool msg = false}) async{
+  Future<Mainclass> saveData({BuildContext context, Mainclass data, bool msg = false, String secapi}) async{
     Map<String, dynamic> _data;
     try{
       showWaiting(context);
       try{
         if (data.token == null || data.token.isEmpty)
           data.token = this.token;
-        _data = await putToServer(api: '$api', body: jsonEncode(data.toJson()));
+        _data = await putToServer(api: '${secapi ?? api}', body: jsonEncode(data.toJson()));
         if (_data['msg'] == "Success"){
           if (msg)
             myAlert(context: context, msgType: Msg.Success, title: 'ذخیره', message: 'ذخیره اطلاعات با موفقیت انجام گردید');
@@ -132,25 +132,38 @@ class PublicBloc extends Bloc{
   PublicBloc({@required BuildContext context,@required String api, @required String token, @required Map<String, dynamic> body}): super(context: context, api: api, token: token, body: body);
 }
 class SanadBloc extends Bloc{
-    SanadBloc({@required BuildContext context, @required String api, @required String token}): super(context: context, api: api, token: token, body: {'filter': 0});
+  SanadBloc({@required BuildContext context, @required String api, @required String token}): super(context: context, api: api, token: token, body: {'filter': 0});
 
-    BehaviorSubject<int> _filter = BehaviorSubject<int>.seeded(0);
-    Stream<int> get filterStream$ => _filter.stream;
-    int get filterValue => _filter.value;
+  BehaviorSubject<int> _filter = BehaviorSubject<int>.seeded(0);
+  Stream<int> get filterStream$ => _filter.stream;
+  int get filterValue => _filter.value;
 
-    BehaviorSubject<Mainclass> _sanad = BehaviorSubject<Mainclass>.seeded(null);
-    Stream<Mainclass> get sanadStream$ => _sanad.stream;
-    Mainclass get sanadValue => _sanad.value;
+  BehaviorSubject<Mainclass> _sanad = BehaviorSubject<Mainclass>.seeded(null);
+  Stream<Mainclass> get sanadStream$ => _sanad.stream;
+  Mainclass get sanadValue => _sanad.value;
 
-    changeFilter(int i){
-      if (filterValue == i)
-        i = 0;
-      this.body['filter'] = i;
-      _filter.add(i);
-      this.fetchData();
+  changeFilter(int i){
+    if (filterValue == i)
+      i = 0;
+    this.body['filter'] = i;
+    _filter.add(i);
+    this.fetchData();
+  }
+
+  showSanad(Mainclass rec)=>_sanad.add(rec);
+
+  registerSanad(BuildContext context, int id) async{
+    try{
+      Mainclass _res = await saveData(context: context, data: Mainclass(id: id), secapi: 'Asnad/Reg');
+      if (_res != null){
+        sanadValue.reg = _res.reg;
+        _sanad.add(_res);
+      }
     }
-
-    showSanad(Mainclass rec)=>_sanad.add(rec);
+    catch(e){
+      analyzeError(context, '$e');
+    }
+  }
 }
 
 class ArtyklBloc extends Bloc{

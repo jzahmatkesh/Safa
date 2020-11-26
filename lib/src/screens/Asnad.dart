@@ -194,6 +194,8 @@ class PnSanad extends StatelessWidget {
     }
 
     saveArtykl() async{
+      if (_kol.text.trim().isEmpty || _moin.text.trim().isEmpty)
+        return;
       int _id = 0;
       _artykl.rowsValue$.rows.forEach((element) {
         if (element.edit)
@@ -213,8 +215,8 @@ class PnSanad extends StatelessWidget {
           taf4: int.parse(_taf4.text.isEmpty ? '0' : _taf4.text),
           taf5: int.parse(_taf5.text.isEmpty ? '0' : _taf5.text),
           taf6: int.parse(_taf6.text.isEmpty ? '0' : _taf6.text),
-          bed: double.parse(_bed.text.isEmpty ? '0' : _bed.text),
-          bes: double.parse(_bes.text.isEmpty ? '0' : _bes.text),
+          bed: double.parse(_bed.text.isEmpty ? '0' : _bed.text.replaceAll(",", "")),
+          bes: double.parse(_bes.text.isEmpty ? '0' : _bes.text.replaceAll(",", "")),
           note: _artnote.text,
         )
       );
@@ -240,20 +242,23 @@ class PnSanad extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Header(
-          rightBtn: IButton(type: Btn.Save, onPressed: (){}),
+          rightBtn: sanad.reg ? null : IButton(type: Btn.Save, onPressed: (){}),
           title: 'سند حسابداری',
           leftBtn: IButton(type: Btn.Exit, onPressed: (){_artykl=null; _asnad.showSanad(null);}),
+          color: sanad.reg ? Colors.green.withOpacity(0.15) : null,
         ),
         SizedBox(height: 10),
         Row(
           children: [
-            Container(width: screenWidth(context) * 0.1, child: Edit(hint: 'شماره سند', controller: _sanadid, focus: _fid, onSubmitted: (val)=> focusChange(context, _fdate),)),
+            Container(width: screenWidth(context) * 0.1, child: Edit(hint: 'شماره سند', controller: _sanadid, focus: _fid, onSubmitted: (val)=> focusChange(context, _fdate), readonly: sanad.reg)),
             SizedBox(width: 5),
-            Container(width: screenWidth(context) * 0.1, child: Edit(hint: 'تاریخ سند', controller: _date, focus: _fdate, date: true, onSubmitted: (val)=> focusChange(context, _fnote),)),
+            Container(width: screenWidth(context) * 0.1, child: Edit(hint: 'تاریخ سند', controller: _date, focus: _fdate, date: true, onSubmitted: (val)=> focusChange(context, _fnote), readonly: sanad.reg)),
+            Spacer(),
+            Switch(value: sanad.reg, onChanged: (val)=>_asnad.registerSanad(context, sanad.id))
           ],
         ),
         SizedBox(height: 10),
-        Container(width: screenWidth(context) * 0.3, child: Edit(hint: 'شرح سند', controller: _note, focus: _fnote, onSubmitted: (val)=> focusChange(context, _fkol),)),
+        Container(width: screenWidth(context) * 0.3, child: Edit(hint: 'شرح سند', controller: _note, focus: _fnote, onSubmitted: (val)=> focusChange(context, _fkol), readonly: sanad.reg)),
         SizedBox(height: 10),
         StreamBuilder<DataModel>(
           stream: _artykl.tafLevel.rowsStream$,
@@ -268,11 +273,11 @@ class PnSanad extends StatelessWidget {
             ], header: true);
           }
         ),
-        StreamBuilder<DataModel>(
+        sanad.reg ? Container() : StreamBuilder<DataModel>(
           stream: _artykl.tafLevel.rowsStream$,
           builder: (context, snap){
             return snap.connectionState != ConnectionState.active || snap.data.rows == null ? Field(CupertinoActivityIndicator()) : GridRow([
-              Field(Edit(hint: 'کد کل', controller: _kol, focus: _fkol, onSubmitted: (val)=>focusChange(context, _fmoin),)),
+              Field(Edit(hint: 'کد کل', controller: _kol, focus: _fkol, onSubmitted: (val)=>focusChange(context, _fmoin), autofocus: true,)),
               Field(Edit(hint: 'کد معین', controller: _moin, focus: _fmoin, onSubmitted: (val)=>focusChange(context, _ftaf1),)),
               ...snap.data.rows.where((element) => element.active).map(
                   (e) => e.id==1 
@@ -288,10 +293,10 @@ class PnSanad extends StatelessWidget {
                             : Field(Edit(hint: '${e.name}', controller: _taf6, focus: _ftaf6, onSubmitted: (val)=>focusChange(context, _fartnote)))
                  ),
               Field(Edit(hint: 'شرح آرتیکل', controller: _artnote, focus: _fartnote, onSubmitted: (val)=>focusChange(context, _fbed)), flex: 2),
-              Field(Edit(hint: 'بدهکار', controller: _bed, focus: _fbed, onSubmitted: (val)=>focusChange(context, _fbes))),
-              Field(Edit(hint: 'بستانکار', controller: _bes, focus: _fbes, onSubmitted: (val)=>saveArtykl())),
+              Field(Edit(hint: 'بدهکار', controller: _bed, focus: _fbed, onSubmitted: (val)=>focusChange(context, _fbes), money: true,)),
+              Field(Edit(hint: 'بستانکار', controller: _bes, focus: _fbes, onSubmitted: (val)=>saveArtykl(), money: true,)),
               Field(SizedBox(width: 40)),
-              Field(IButton(type: Btn.Save, onPressed: (){})),
+              Field(IButton(type: Btn.Save, onPressed: ()=>saveArtykl())),
             ]);
           }
         ),
@@ -310,6 +315,31 @@ class PnSanad extends StatelessWidget {
             color: rw.edit ? editRowColor() : _artykl.rowsValue$.rows.indexOf(rw).isOdd ? rowColor(context) : Colors.transparent,
           )),
         ),
+        StreamWidget(stream: _artykl.rowsStream$, itemBuilder: (DataModel data)=> data.status==Status.Loaded ? GridRow(
+          [
+            Field('جمع'),
+            Field(Spacer()),
+            Field(moneySeprator(data.rows.reduce((value, element) => Mainclass(bed: value.bed+element.bed)).bed)),
+            Field(moneySeprator(data.rows.reduce((value, element) => Mainclass(bes: value.bes+element.bes)).bes)),
+          ], 
+          header: true, color: accentcolor(context).withOpacity(0.05)
+        ) : CupertinoActivityIndicator()),
+        StreamWidget(stream: _artykl.rowsStream$, itemBuilder: (DataModel data){
+          if (data.status==Status.Loaded){
+            var _bed = data.rows.reduce((value, element) => Mainclass(bed: value.bed+element.bed)).bed;
+            var _bes = data.rows.reduce((value, element) => Mainclass(bes: value.bes+element.bes)).bes;
+            return GridRow(
+              [
+                Field('اختلاف'),
+                Field(Spacer()),
+                Field(moneySeprator(_bed > _bes ? _bed - _bes : 0)),
+                Field(moneySeprator(_bed < _bes ? _bes - _bed : 0)),
+              ], 
+              header: true, color: sanad.reg ? Colors.green.withOpacity(0.15) : _bed!=_bes || _bed==0 ? editRowColor().withOpacity(0.15) : accentcolor(context).withOpacity(0.05)
+            );
+          }
+          return CupertinoActivityIndicator();
+        }),
       ],
     );
   }
