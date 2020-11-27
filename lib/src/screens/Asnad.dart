@@ -81,7 +81,7 @@ class PnAsnad extends StatelessWidget {
           title: 'اسناد حسابداری',
           rightBtn: Row(
             children: [
-              IButton(type: Btn.Add, onPressed: ()=>_asnad.showSanad(Mainclass(id: 0, date: '', note: ''))),
+              IButton(type: Btn.Add, onPressed: ()=>_asnad.newSanad()),
               SizedBox(width: 3),
               IButton(icon: Icon(CupertinoIcons.eyeglasses), hint: 'فیلتر اسناد', onPressed: (){}),
             ],
@@ -254,7 +254,7 @@ class PnSanad extends StatelessWidget {
             SizedBox(width: 5),
             Container(width: screenWidth(context) * 0.1, child: Edit(hint: 'تاریخ سند', controller: _date, focus: _fdate, date: true, onSubmitted: (val)=> focusChange(context, _fnote), readonly: sanad.reg)),
             Spacer(),
-            Switch(value: sanad.reg, onChanged: (val)=>_asnad.registerSanad(context, sanad.id))
+            Tooltip(message: 'ثبت سند', child: Switch(value: sanad.reg, onChanged: (val)=>_asnad.registerSanad(context, sanad.id)))
           ],
         ),
         SizedBox(height: 10),
@@ -277,20 +277,20 @@ class PnSanad extends StatelessWidget {
           stream: _artykl.tafLevel.rowsStream$,
           builder: (context, snap){
             return snap.connectionState != ConnectionState.active || snap.data.rows == null ? Field(CupertinoActivityIndicator()) : GridRow([
-              Field(Edit(hint: 'کد کل', controller: _kol, focus: _fkol, onSubmitted: (val)=>focusChange(context, _fmoin), autofocus: true,)),
-              Field(Edit(hint: 'کد معین', controller: _moin, focus: _fmoin, onSubmitted: (val)=>focusChange(context, _ftaf1),)),
+              Field(Edit(hint: 'کد کل', controller: _kol, focus: _fkol, onSubmitted: (val)=>focusChange(context, _fmoin), autofocus: true, f2key: 'Kol')),
+              Field(Edit(hint: 'کد معین', controller: _moin, focus: _fmoin, onSubmitted: (val)=>focusChange(context, _ftaf1), f2key: 'Moin', f2value: _kol)),
               ...snap.data.rows.where((element) => element.active).map(
                   (e) => e.id==1 
-                    ? Field(Edit(hint: '${e.name}', controller: _taf1, focus: _ftaf1, onSubmitted: (val)=>_changeTafFocus(2)))
+                    ? Field(Edit(hint: '${e.name}', controller: _taf1, focus: _ftaf1, onSubmitted: (val)=>_changeTafFocus(2), f2key: 'Tafsili', f2value: 1))
                     : e.id==2 
-                      ? Field(Edit(hint: '${e.name}', controller: _taf2, focus: _ftaf2, onSubmitted: (val)=>_changeTafFocus(3)))
+                      ? Field(Edit(hint: '${e.name}', controller: _taf2, focus: _ftaf2, onSubmitted: (val)=>_changeTafFocus(3), f2key: 'Tafsili', f2value: 2))
                       : e.id==3
-                        ? Field(Edit(hint: '${e.name}', controller: _taf3, focus: _ftaf3, onSubmitted: (val)=>_changeTafFocus(4)))
+                        ? Field(Edit(hint: '${e.name}', controller: _taf3, focus: _ftaf3, onSubmitted: (val)=>_changeTafFocus(4), f2key: 'Tafsili', f2value: 3))
                         : e.id==4
-                          ? Field(Edit(hint: '${e.name}', controller: _taf4, focus: _ftaf4, onSubmitted: (val)=>_changeTafFocus(5)))
+                          ? Field(Edit(hint: '${e.name}', controller: _taf4, focus: _ftaf4, onSubmitted: (val)=>_changeTafFocus(5), f2key: 'Tafsili', f2value: 4))
                           : e.id==5
-                            ? Field(Edit(hint: '${e.name}', controller: _taf5, focus: _ftaf5, onSubmitted: (val)=>_changeTafFocus(6)))
-                            : Field(Edit(hint: '${e.name}', controller: _taf6, focus: _ftaf6, onSubmitted: (val)=>focusChange(context, _fartnote)))
+                            ? Field(Edit(hint: '${e.name}', controller: _taf5, focus: _ftaf5, onSubmitted: (val)=>_changeTafFocus(6), f2key: 'Tafsili', f2value: 5))
+                            : Field(Edit(hint: '${e.name}', controller: _taf6, focus: _ftaf6, onSubmitted: (val)=>focusChange(context, _fartnote), f2key: 'Tafsili', f2value: 6))
                  ),
               Field(Edit(hint: 'شرح آرتیکل', controller: _artnote, focus: _fartnote, onSubmitted: (val)=>focusChange(context, _fbed)), flex: 2),
               Field(Edit(hint: 'بدهکار', controller: _bed, focus: _fbed, onSubmitted: (val)=>focusChange(context, _fbes), money: true,)),
@@ -319,15 +319,15 @@ class PnSanad extends StatelessWidget {
           [
             Field('جمع'),
             Field(Spacer()),
-            Field(moneySeprator(data.rows.reduce((value, element) => Mainclass(bed: value.bed+element.bed)).bed)),
-            Field(moneySeprator(data.rows.reduce((value, element) => Mainclass(bes: value.bes+element.bes)).bes)),
+            Field(data.rows.length == 0 ? '0' : moneySeprator(data.rows.reduce((value, element) => Mainclass(bed: value.bed+element.bed)).bed)),
+            Field(data.rows.length == 0 ? '0' : moneySeprator(data.rows.reduce((value, element) => Mainclass(bes: value.bes+element.bes)).bes)),
           ], 
           header: true, color: accentcolor(context).withOpacity(0.05)
         ) : CupertinoActivityIndicator()),
         StreamWidget(stream: _artykl.rowsStream$, itemBuilder: (DataModel data){
           if (data.status==Status.Loaded){
-            var _bed = data.rows.reduce((value, element) => Mainclass(bed: value.bed+element.bed)).bed;
-            var _bes = data.rows.reduce((value, element) => Mainclass(bes: value.bes+element.bes)).bes;
+            var _bed = data.rows.length == 0 ? 0 : data.rows.reduce((value, element) => Mainclass(bed: value.bed+element.bed)).bed;
+            var _bes = data.rows.length == 0 ? 0 : data.rows.reduce((value, element) => Mainclass(bes: value.bes+element.bes)).bes;
             return GridRow(
               [
                 Field('اختلاف'),

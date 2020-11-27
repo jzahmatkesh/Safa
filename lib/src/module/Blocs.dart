@@ -21,6 +21,10 @@ abstract class Bloc{
   Stream<DataModel> get rowsStream$ => _rows.stream;
   DataModel get rowsValue$ => _rows.value;
 
+  reload(){
+    _rows.add(rowsValue$);
+  }
+
   fetchData() async{
     try{
       Future.delayed(Duration.zero, () => showWaiting(context));
@@ -126,6 +130,65 @@ abstract class Bloc{
     rowsValue$.rows.forEach((element) {element.edit = element.id == id;});
     _rows.add(DataModel(status: Status.Loaded, rows: rowsValue$.rows));
   }
+
+  findByName(String val){
+    rowsValue$.rows.forEach((element) {
+      element.inSearch = element.name.contains(val);
+      element.selected = false;
+    });
+    _rows.add(rowsValue$);
+  }
+
+  selectRowbyClick(Mainclass rw){
+    if (rowsValue$.rows != null){
+      rowsValue$.rows.forEach((value) {
+        value.selected = value == rw;
+      });
+      reload();
+    }
+  }
+  selectRow(int i){
+    if (rowsValue$.rows != null){
+      int idx = -1;
+      rowsValue$.rows.forEach((value) {
+        if (value.inSearch){
+          idx++;
+          value.selected = idx == i;
+        }
+        else
+          value.selected = false;
+      });
+      reload();
+    }
+  }
+  selectNextRow(){
+    if (rowsValue$.rows != null){
+      int i=-1, idx = -1;
+      rowsValue$.rows.forEach((element) {
+        if (element.inSearch){
+          idx++;
+          if (element.selected)
+            i = idx;
+        }
+      });
+      selectRow(i+1);
+    }
+    reload();
+  }
+  selectPriorRow(){
+    if (rowsValue$.rows != null){
+      int i=-1, idx = -1;
+      rowsValue$.rows.forEach((element) {
+        if (element.inSearch){
+          idx++;
+          if (element.selected)
+            i = idx;
+        }
+      });
+      selectRow(i-1);
+    }
+    reload();
+  }
 }
 
 class PublicBloc extends Bloc{
@@ -151,6 +214,19 @@ class SanadBloc extends Bloc{
   }
 
   showSanad(Mainclass rec)=>_sanad.add(rec);
+
+  newSanad() async{
+    try{
+      var _data = await postToServer(api: 'Asnad/NewSanad', body: jsonEncode({'token': this.token}));
+      if (_data['msg'] == "Success")
+        showSanad(Mainclass.fromJson(_data['body']));
+      else
+        throw Exception(_data['msg']);
+    }
+    catch(e){
+      analyzeError(context, '$e');
+    }
+  }
 
   registerSanad(BuildContext context, int id) async{
     try{

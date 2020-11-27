@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'MyProvider.dart';
 
 import 'class.dart';
 import 'functions.dart';
+import 'Blocs.dart';
 
 enum Btn{
   Add,Save,Exit,Reload,Del,Other,Edit,Loading
@@ -349,7 +352,7 @@ class MoneyTextFormatter extends TextInputFormatter {
 }
 
 class Edit extends StatelessWidget {
-  const Edit({Key key, this.value, this.onChange, this.controller, this.onSubmitted, this.autofocus = false, this.hint, this.password = false, this.focus, this.date=false, this.money=false, this.numbersonly=false, this.timeonly=false, this.readonly = false, this.onEditingComplete, this.maxlength}) : super(key: key);
+  const Edit({Key key, this.value, this.onChange, this.controller, this.onSubmitted, this.autofocus = false, this.hint, this.password = false, this.focus, this.date=false, this.money=false, this.numbersonly=false, this.timeonly=false, this.readonly = false, this.onEditingComplete, this.maxlength, this.f2key, this.f2value}) : super(key: key);
 
   final bool autofocus;
   final String value;
@@ -366,6 +369,8 @@ class Edit extends StatelessWidget {
   final bool readonly;
   final VoidCallback onEditingComplete;
   final int maxlength;
+  final String f2key;
+  final dynamic f2value;
 
   @override
   Widget build(BuildContext context) {
@@ -378,7 +383,12 @@ class Edit extends StatelessWidget {
       onChanged: this.onChange,
       decoration: textDecoration(this.hint),
       obscureText: this.password,
-      onFieldSubmitted: this.onSubmitted,
+      onFieldSubmitted: this.f2key == null ? this.onSubmitted : (val){
+        if (val.isEmpty && (f2value == null || !(f2value is TextEditingController) || (f2value as TextEditingController).text.isNotEmpty))
+          showFormAsDialog(context: context, form: ForeignKey(controller: controller, onSubmitted: this.onSubmitted, f2key: this.f2key, relationvalue: f2value is TextEditingController ? (f2value as TextEditingController).text : f2value));
+        else
+          this.onSubmitted('');
+      },
       onEditingComplete: this.onEditingComplete,
       focusNode: this.focus,
       maxLength: this.maxlength,
@@ -546,6 +556,76 @@ class StreamWidget extends StatelessWidget {
           return this.itemBuilder(snap.data);
         return Center(child: CupertinoActivityIndicator());
       },
+    );
+  }
+}
+
+class ForeignKey extends StatelessWidget {
+  const ForeignKey({Key key, @required this.onSubmitted, @required this.controller, @required this.f2key, this.relationvalue}) : super(key: key);
+
+  final TextEditingController controller;
+  final Function onSubmitted;
+  final String f2key;
+  final dynamic relationvalue;
+
+  @override
+  Widget build(BuildContext context) {
+    MyProvider _prov = Provider.of<MyProvider>(context);
+    var _f2Bloc = PublicBloc(
+      context: context, 
+      api: 'Coding/$f2key',
+      body: f2key=='Moin' ? {'kolid': int.parse(relationvalue)} : f2key=="Tafsili" ? {'lev': relationvalue} : null,
+      token: _prov.currentUser.token
+    );
+    return Container(
+      width: screenWidth(context) * 0.25,  
+      height: screenHeight(context) * 0.50,  
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Column(
+          children: [
+            RawKeyboardListener(
+              child: Edit(hint: '... جستجو', onChange: (val)=>_f2Bloc.findByName(val), autofocus: true, onSubmitted: (String val){
+                if (_f2Bloc.rowsValue$.rows.where((element) => element.selected).length == 0)
+                  this.onSubmitted('');
+                else{
+                  this.controller.text = _f2Bloc.rowsValue$.rows.where((element) => element.selected).toList()[0].id.toString();
+                  this.onSubmitted(this.controller.text);
+                }                  
+                Navigator.of(context).pop();
+              }),
+              focusNode: FocusNode(),
+              onKey: (RawKeyEvent event) {
+                List<Mainclass> _rows = _f2Bloc.rowsValue$.rows;
+                if (_f2Bloc.rowsValue$.status == Status.Loaded && _rows != null && _rows.length > 0){
+                  if (_rows.where((element) => element.selected).length == 0)  
+                    _f2Bloc.selectRow(0);
+                  else if (event.runtimeType == RawKeyDownEvent)
+                    if (event.data.logicalKey.keyId == 4295426129)
+                      _f2Bloc.selectNextRow();
+                    else if (event.data.logicalKey.keyId == 4295426130)
+                      _f2Bloc.selectPriorRow();
+                }
+              }
+            ),
+            SizedBox(height: 5),
+            Expanded(
+              child: StreamListWidget(stream: _f2Bloc.rowsStream$, itembuilder: (rw) =>rw.inSearch ? GridRow(
+                [
+                  Field('${rw.id}'),
+                  Field(rw.name, flex: 3,)
+                ], 
+                color: rw.selected ? accentcolor(context).withOpacity(0.25) : null,
+                onTap: (){
+                  this.controller.text = rw.id.toString();
+                  Navigator.of(context).pop();
+                  this.onSubmitted('${rw.id}');
+                },
+              ) : Container()
+            ))
+          ],
+        ),
+      ),
     );
   }
 }
