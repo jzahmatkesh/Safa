@@ -10,7 +10,7 @@ Back end : Java
 Database : Ms Sql Server 2019
 
 
-![Preview](https://i.imgur.com/Zfc2mnc.png)
+![Preview](images/preview.png)
 
 
 [find me here ](http://zahmatkesh.dev), to hire :sunglasses:,
