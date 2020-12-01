@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:safa/src/module/Blocs.dart';
 
 import '../module/MyProvider.dart';
 import '../module/Widgets.dart';
@@ -8,13 +9,19 @@ import '../module/class.dart';
 import '../module/functions.dart';
 import 'Asnad.dart';
 
+
+SanadBloc _asnad;
+
 class Dashboard extends StatelessWidget {
   const Dashboard({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     MyProvider _prov = Provider.of<MyProvider>(context);
-    
+
+    if (_asnad == null)
+      _asnad = SanadBloc(context: context, api: 'Asnad', token: _prov.currentUser.token);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('حسابداری رایگان'),
@@ -44,7 +51,7 @@ class Dashboard extends StatelessWidget {
                   stream: _prov.menuitemStream$,
                   builder: (context, snap){
                     if  (snap.hasData){
-                      if (snap.data == 1) return Asnad();
+                      if (snap.data == 1) return Asnad(asnad: _asnad);
                       // if (snap.data == 2) return Analyze();
                       // if (snap.data == 3) return FmSanad(); //sanad: Mainclass(old: 0, id: 0, date: '', note: '', reg: false),;
                       // if (snap.data == 4) return PnAccGroup();

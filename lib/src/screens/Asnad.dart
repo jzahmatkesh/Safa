@@ -1,15 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../module/class.dart';
 
 import '../module/Blocs.dart';
 import '../module/MyProvider.dart';
 import '../module/Widgets.dart';
+import '../module/class.dart';
 import '../module/functions.dart';
 
-SanadBloc _asnad;
-ArtyklBloc _artykl;
 
 TextEditingController _sanadid = TextEditingController();
 TextEditingController _date = TextEditingController();
@@ -42,25 +40,27 @@ FocusNode _fbes = FocusNode();
 FocusNode _fartnote = FocusNode();
 
 class Asnad extends StatelessWidget {
-  const Asnad({Key key}) : super(key: key);
+  const Asnad({Key key, @required this.asnad}) : super(key: key);
+
+  final SanadBloc asnad;
 
   @override
   Widget build(BuildContext context) {
     MyProvider _prov = Provider.of<MyProvider>(context);
-    if (_asnad == null)
-      _asnad = SanadBloc(context: context, api: 'Asnad', token: _prov.currentUser.token);
+    // if (asnad == null)
+    //   asnad = SanadBloc(context: context, api: 'Asnad', token: _prov.currentUser.token);
     return Directionality(
       textDirection: TextDirection.rtl,
       child: StreamWidget(
-        stream: _asnad.sanadStream$, 
+        stream: asnad.sanadStream$, 
         itemBuilder: (Mainclass rec){
           if (rec==null)
-           return PnAsnad(prov: _prov);
+           return PnAsnad(prov: _prov, asnad: this.asnad);
           else{
             _sanadid.text = rec.id.toString();
             _date.text = rec.date;
             _note.text = rec.note;
-           return PnSanad(prov: _prov, sanad: rec);
+           return PnSanad(prov: _prov, sanad: rec, asnad: this.asnad);
           }
         }
       )
@@ -69,8 +69,9 @@ class Asnad extends StatelessWidget {
 }
 
 class PnAsnad extends StatelessWidget {
-  const PnAsnad({Key key, @required this.prov,}) : super(key: key);
+  const PnAsnad({Key key, @required this.prov, @required this.asnad}) : super(key: key);
 
+  final SanadBloc asnad;
   final MyProvider prov;
 
   @override
@@ -81,12 +82,12 @@ class PnAsnad extends StatelessWidget {
           title: 'اسناد حسابداری',
           rightBtn: Row(
             children: [
-              IButton(type: Btn.Add, onPressed: ()=>_asnad.newSanad()),
+              IButton(type: Btn.Add, onPressed: ()=>asnad.newSanad()),
               SizedBox(width: 3),
               IButton(icon: Icon(CupertinoIcons.eyeglasses), hint: 'فیلتر اسناد', onPressed: (){}),
             ],
           ),
-          leftBtn: IButton(type: Btn.Reload, onPressed: ()=>_asnad.fetchData()),
+          leftBtn: IButton(type: Btn.Reload, onPressed: ()=>asnad.fetchData()),
         ),
         GridRow(
           [
@@ -100,7 +101,7 @@ class PnAsnad extends StatelessWidget {
           header: true,
         ),
         Expanded(
-          child: StreamListWidget(stream: _asnad.rowsStream$, itembuilder: (rw) =>GridRow(
+          child: StreamListWidget(stream: asnad.rowsStream$, itembuilder: (rw) =>GridRow(
             [
               Field('${rw.id}'),
               Field('${rw.date}'),
@@ -113,10 +114,11 @@ class PnAsnad extends StatelessWidget {
                   : rw.reg
                     ? IButton(icon: Icon(CupertinoIcons.hand_thumbsup), hint: 'خروج از ثبت', onPressed: (){})
                     : rw.bed==0 && rw.bes==0
-                      ? IButton(icon: Icon(CupertinoIcons.trash), hint: 'حذف سند', onPressed: ()=>_asnad.delData(context: context, msg: 'سند شماره ${rw.id}', body: {'id': rw.id}))
+                      ? IButton(icon: Icon(CupertinoIcons.trash), hint: 'حذف سند', onPressed: ()=>asnad.delData(context: context, msg: 'سند شماره ${rw.id}', body: {'id': rw.id}))
                       : Container(width: 40,)
               ),
-              Field(IButton(icon: Icon(CupertinoIcons.viewfinder), hint: 'مشاهده سند', onPressed: ()=>_asnad.showSanad(rw)))
+              Field(IButton(icon: Icon(CupertinoIcons.doc_on_doc), hint: 'کپی سند', onPressed: ()=>asnad.copySanad(context, rw.id))),
+              Field(IButton(icon: Icon(CupertinoIcons.viewfinder), hint: 'مشاهده سند', onPressed: ()=>asnad.showSanad(rw))),
             ],
             color: rw.bed==0 && rw.bes == 0 
               ? Colors.yellow.withOpacity(0.15)
@@ -131,15 +133,15 @@ class PnAsnad extends StatelessWidget {
           ))
         ),
         StreamBuilder<int>(
-          stream: _asnad.filterStream$,
+          stream: asnad.filterStream$,
           builder: (context, snap){
             if (snap.hasData)
               return Row(
                 children: [
-                  FilterItem(title: 'بدون آرتیکل', selected: snap.data == 1, color: Colors.yellow.withOpacity(0.15), onSelected: (val)=> _asnad.changeFilter(1)),
-                  FilterItem(title: 'عدم تراز', selected: snap.data == 2, color: Colors.red.withOpacity(0.15), onSelected: (val)=> _asnad.changeFilter(2)),
-                  FilterItem(title: 'قابل ثبت', selected: snap.data == 3, color: Colors.lightBlue.withOpacity(0.25), onSelected: (val)=> _asnad.changeFilter(3)),
-                  FilterItem(title: 'ثبت شده', selected: snap.data == 4, color: Colors.green.withOpacity(0.15), onSelected: (val)=> _asnad.changeFilter(4)),
+                  FilterItem(title: 'بدون آرتیکل', selected: snap.data == 1, color: Colors.yellow.withOpacity(0.15), onSelected: (val)=> asnad.changeFilter(1)),
+                  FilterItem(title: 'عدم تراز', selected: snap.data == 2, color: Colors.red.withOpacity(0.15), onSelected: (val)=> asnad.changeFilter(2)),
+                  FilterItem(title: 'قابل ثبت', selected: snap.data == 3, color: Colors.lightBlue.withOpacity(0.25), onSelected: (val)=> asnad.changeFilter(3)),
+                  FilterItem(title: 'ثبت شده', selected: snap.data == 4, color: Colors.green.withOpacity(0.15), onSelected: (val)=> asnad.changeFilter(4)),
                 ],
               );
             return Container();
@@ -151,15 +153,16 @@ class PnAsnad extends StatelessWidget {
 }
 
 class PnSanad extends StatelessWidget {
-  const PnSanad({Key key, @required this.prov, @required this.sanad}) : super(key: key);
+  const PnSanad({Key key, @required this.prov, @required this.sanad, @required this.asnad}) : super(key: key);
 
   final Mainclass sanad;
   final MyProvider prov;
+  final SanadBloc asnad;
+
 
   @override
   Widget build(BuildContext context) {
-    if (_artykl == null)
-      _artykl = ArtyklBloc(context: context, api: 'Asnad/Artykl', token: prov.currentUser.token, body: {'id': sanad.id});
+    ArtyklBloc _artykl = ArtyklBloc(context: context, api: 'Asnad/Artykl', token: prov.currentUser.token, body: {'id': sanad.id});
 
     _changeTafFocus(int i){
       if ((_artykl.tafLevel.rowsValue$.rows ?? []).where((element) => element.active && element.id==i).length > 0){
@@ -244,7 +247,7 @@ class PnSanad extends StatelessWidget {
         Header(
           rightBtn: sanad.reg ? null : IButton(type: Btn.Save, onPressed: (){}),
           title: 'سند حسابداری',
-          leftBtn: IButton(type: Btn.Exit, onPressed: (){_artykl=null; _asnad.showSanad(null);}),
+          leftBtn: IButton(type: Btn.Exit, onPressed: (){_artykl=null; asnad.showSanad(null);}),
           color: sanad.reg ? Colors.green.withOpacity(0.15) : null,
         ),
         SizedBox(height: 10),
@@ -254,7 +257,7 @@ class PnSanad extends StatelessWidget {
             SizedBox(width: 5),
             Container(width: screenWidth(context) * 0.1, child: Edit(hint: 'تاریخ سند', controller: _date, focus: _fdate, date: true, onSubmitted: (val)=> focusChange(context, _fnote), readonly: sanad.reg)),
             Spacer(),
-            Tooltip(message: 'ثبت سند', child: Switch(value: sanad.reg, onChanged: (val)=>_asnad.registerSanad(context, sanad.id)))
+            Tooltip(message: 'ثبت سند', child: Switch(value: sanad.reg, onChanged: (val)=>asnad.registerSanad(context, sanad.id)))
           ],
         ),
         SizedBox(height: 10),

@@ -28,7 +28,7 @@ class Header extends StatelessWidget {
     return Card(
       color: color ?? appbarColor(context),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 5),
         child: Directionality(
           textDirection: TextDirection.rtl,
           child: Row(
@@ -36,7 +36,7 @@ class Header extends StatelessWidget {
               rightBtn != null
                 ? rightBtn
                 : Container(width: 0),
-              Expanded(child: Text('$title', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Nazanin', fontSize: 22, fontWeight: FontWeight.bold),)),
+              Expanded(child: Text('$title', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Nazanin', fontSize: 20, fontWeight: FontWeight.bold),)),
               leftBtn != null
                 ? leftBtn
                 : Container(width: 0),

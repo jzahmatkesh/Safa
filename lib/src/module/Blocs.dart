@@ -7,6 +7,15 @@ import 'package:rxdart/subjects.dart';
 import 'class.dart';
 import 'functions.dart';
 
+class IntBloc{
+  IntBloc();
+
+  BehaviorSubject<int> _value = BehaviorSubject<int>();
+  Stream<int> get stream$ => _value.stream;
+  int get value => _value.value;
+
+  setValue(int i)=>_value.add(i);
+}
 abstract class Bloc{
   final BuildContext context;
   final String api;
@@ -25,7 +34,7 @@ abstract class Bloc{
     _rows.add(rowsValue$);
   }
 
-  fetchData() async{
+  fetchData({bool waiting = false}) async{
     try{
       Future.delayed(Duration.zero, () => showWaiting(context));
       try{
@@ -83,15 +92,19 @@ abstract class Bloc{
       try{
         body.putIfAbsent('token', () => this.token);
         Map<String, dynamic> _data = await delToServer(api: '${this.api}', body: jsonEncode(body));
-        if (_data['msg'] == "Success")
+        if (_data['msg'] == "Success"){
+          Navigator.of(context).pop();
           this.fetchData();
-        else
+        }
+        else{
+          Navigator.of(context).pop();
           throw Exception(_data['msg']);
+        }
       }
       catch(e){
+        Navigator.of(context).pop();
         analyzeError(context, '$e');
       }
-      Navigator.of(context).pop();
     });
   }
 
@@ -214,6 +227,11 @@ class SanadBloc extends Bloc{
   }
 
   showSanad(Mainclass rec)=>_sanad.add(rec);
+  copySanad(BuildContext context, int id){
+    confirmMessage(context, 'کپی سند', 'آیا مایل به کپی سند شماره $id به سند جدید می باشید؟', yesclick: (){
+      Navigator.pop(context);
+    });
+  }
 
   newSanad() async{
     try{
