@@ -228,16 +228,31 @@ class SanadBloc extends Bloc{
 
   showSanad(Mainclass rec)=>_sanad.add(rec);
   copySanad(BuildContext context, int id){
-    confirmMessage(context, 'کپی سند', 'آیا مایل به کپی سند شماره $id به سند جدید می باشید؟', yesclick: (){
+    confirmMessage(context, 'کپی سند', 'آیا مایل به کپی سند شماره $id به سند جدید می باشید؟', yesclick: () async{
       Navigator.pop(context);
+      try{
+        Map<String, dynamic> _data = await postToServer(api: 'Asnad/Copy', body: jsonEncode({'id': id, 'token': this.token}));
+        if (_data['msg'] == "Success"){
+          fetchData();
+          showSanad(Mainclass.fromJson(_data['body']));
+        }
+        else
+          throw Exception(_data['msg']);
+      }
+      catch(e){
+        analyzeError(context, '$e');
+      }
     });
   }
 
   newSanad() async{
     try{
       var _data = await postToServer(api: 'Asnad/NewSanad', body: jsonEncode({'token': this.token}));
-      if (_data['msg'] == "Success")
+      if (_data['msg'] == "Success"){
         showSanad(Mainclass.fromJson(_data['body']));
+        _rows.value.rows.insert(0, Mainclass.fromJson(_data['body']));
+        _rows.add(_rows.value);
+      }
       else
         throw Exception(_data['msg']);
     }
@@ -250,8 +265,15 @@ class SanadBloc extends Bloc{
     try{
       Mainclass _res = await saveData(context: context, data: Mainclass(id: id), secapi: 'Asnad/Reg');
       if (_res != null){
-        sanadValue.reg = _res.reg;
-        _sanad.add(_res);
+        if (sanadValue != null){
+          sanadValue.reg = _res.reg;
+          _sanad.add(_res);
+        }
+        rowsValue$.rows.forEach((element) {
+          if (element.id == id)
+            element.reg = _res.reg;
+        });
+        _rows.add(_rows.value);
       }
     }
     catch(e){

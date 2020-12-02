@@ -8,6 +8,7 @@ import '../module/Widgets.dart';
 import '../module/class.dart';
 import '../module/functions.dart';
 
+ArtyklBloc _artykl;
 
 TextEditingController _sanadid = TextEditingController();
 TextEditingController _date = TextEditingController();
@@ -110,14 +111,14 @@ class PnAsnad extends StatelessWidget {
               Field('${moneySeprator(rw.bes)}'),
               Field(
                 rw.bed>0 && rw.bes == rw.bed && !rw.reg 
-                  ? IButton(icon: Icon(CupertinoIcons.hand_thumbsdown), hint: 'ثبت سند', onPressed: (){})
+                  ? IButton(icon: Icon(CupertinoIcons.hand_thumbsdown), hint: 'ثبت سند', onPressed: ()=>asnad.registerSanad(context, rw.id))
                   : rw.reg
-                    ? IButton(icon: Icon(CupertinoIcons.hand_thumbsup), hint: 'خروج از ثبت', onPressed: (){})
+                    ? IButton(icon: Icon(CupertinoIcons.hand_thumbsup), hint: 'خروج از ثبت', onPressed: ()=>asnad.registerSanad(context, rw.id))
                     : rw.bed==0 && rw.bes==0
                       ? IButton(icon: Icon(CupertinoIcons.trash), hint: 'حذف سند', onPressed: ()=>asnad.delData(context: context, msg: 'سند شماره ${rw.id}', body: {'id': rw.id}))
                       : Container(width: 40,)
               ),
-              Field(IButton(icon: Icon(CupertinoIcons.doc_on_doc), hint: 'کپی سند', onPressed: ()=>asnad.copySanad(context, rw.id))),
+              rw.bed > 0 || rw.bes > 0 ? Field(IButton(icon: Icon(CupertinoIcons.doc_on_doc), hint: 'کپی سند', onPressed: ()=>asnad.copySanad(context, rw.id))) : Field(Container()),
               Field(IButton(icon: Icon(CupertinoIcons.viewfinder), hint: 'مشاهده سند', onPressed: ()=>asnad.showSanad(rw))),
             ],
             color: rw.bed==0 && rw.bes == 0 
@@ -162,18 +163,24 @@ class PnSanad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ArtyklBloc _artykl = ArtyklBloc(context: context, api: 'Asnad/Artykl', token: prov.currentUser.token, body: {'id': sanad.id});
+
+    if (_artykl == null)
+      _artykl = ArtyklBloc(context: context, api: 'Asnad/Artykl', token: prov.currentUser.token, body: {'id': sanad.id});
 
     _changeTafFocus(int i){
-      if ((_artykl.tafLevel.rowsValue$.rows ?? []).where((element) => element.active && element.id==i).length > 0){
-        if (i==1) focusChange(context, _ftaf1);
-        else if (i==2) focusChange(context, _ftaf2);
-        else if (i==3) focusChange(context, _ftaf3);
-        else if (i==4) focusChange(context, _ftaf4);
-        else if (i==5) focusChange(context, _ftaf5);
-        else if (i==6) focusChange(context, _ftaf6);
-      }
-      else
+      bool setfocus = true;
+      (_artykl.tafLevel.rowsValue$.rows ?? []).forEach((element){
+        if (element.active && element.id>=i && setfocus){
+          setfocus = false;
+          if (element.id==1) FocusScope.of(context).requestFocus(_ftaf1);
+          else if (element.id==2) focusChange(context, _ftaf2);
+          else if (element.id==3) focusChange(context, _ftaf3);
+          else if (element.id==4) focusChange(context, _ftaf4);
+          else if (element.id==5) focusChange(context, _ftaf5);
+          else if (element.id==6) focusChange(context, _ftaf6);
+        }
+      });
+      if (setfocus)
         focusChange(context, _fartnote);
     }
 
@@ -281,7 +288,7 @@ class PnSanad extends StatelessWidget {
           builder: (context, snap){
             return snap.connectionState != ConnectionState.active || snap.data.rows == null ? Field(CupertinoActivityIndicator()) : GridRow([
               Field(Edit(hint: 'کد کل', controller: _kol, focus: _fkol, onSubmitted: (val)=>focusChange(context, _fmoin), autofocus: true, f2key: 'Kol')),
-              Field(Edit(hint: 'کد معین', controller: _moin, focus: _fmoin, onSubmitted: (val)=>focusChange(context, _ftaf1), f2key: 'Moin', f2value: _kol)),
+              Field(Edit(hint: 'کد معین', controller: _moin, focus: _fmoin, onSubmitted: (val)=>_changeTafFocus(1), f2key: 'Moin', f2value: _kol)),
               ...snap.data.rows.where((element) => element.active).map(
                   (e) => e.id==1 
                     ? Field(Edit(hint: '${e.name}', controller: _taf1, focus: _ftaf1, onSubmitted: (val)=>_changeTafFocus(2), f2key: 'Tafsili', f2value: 1))
