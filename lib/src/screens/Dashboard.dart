@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safa/src/module/Blocs.dart';
+import 'package:safa/src/screens/Coding.dart';
 
 import '../module/MyProvider.dart';
 import '../module/Widgets.dart';
@@ -52,10 +53,7 @@ class Dashboard extends StatelessWidget {
                   builder: (context, snap){
                     if  (snap.hasData){
                       if (snap.data == 1) return Asnad(asnad: _asnad);
-                      // if (snap.data == 2) return Analyze();
-                      // if (snap.data == 3) return FmSanad(); //sanad: Mainclass(old: 0, id: 0, date: '', note: '', reg: false),;
-                      // if (snap.data == 4) return PnAccGroup();
-                      // if (snap.data == 5) return TafLevel();
+                      if (snap.data == 3) return FmCoding();
                     }
                     return Text('none');
                   },
@@ -101,7 +99,7 @@ class SideBar extends StatelessWidget {
                 Menu(icon: Icon(CupertinoIcons.rectangle_stack), title: 'اسناد حسابداری', selected: snap.data == 1, onTap: ()=> prov.setDashMenuItem(1)),
                 Menu(icon: Icon(CupertinoIcons.rectangle_3_offgrid), title: 'آنالیز حساب ها', selected: snap.data == 2, onTap: ()=> prov.setDashMenuItem(2)),
                 Spacer(),
-                Menu(icon: Icon(CupertinoIcons.house_alt), title: 'خروج از سیستم', onTap: ()=>prov.signOut(), hoverColor: Colors.red.withOpacity(0.25),),
+                Menu(icon: Icon(CupertinoIcons.house_alt), title: 'خروج از سیستم', onTap: (){_asnad=null; prov.signOut();}, hoverColor: Colors.red.withOpacity(0.25),),
               ],
             );
           }

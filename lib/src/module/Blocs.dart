@@ -290,3 +290,70 @@ class ArtyklBloc extends Bloc{
   }
 
 }
+
+class CodingBloc extends Bloc{
+  PublicBloc tafLevel;
+  CodingBloc({@required BuildContext context, @required String api, @required String token, @required Map<String, dynamic> body}): super(context: context, api: api, token: token, body: body){
+      tafLevel = PublicBloc(context: context, api: 'Coding/AccLevel', token: token, body: {});
+  }
+
+  BehaviorSubject<DataModel> _kolrows = BehaviorSubject<DataModel>.seeded(DataModel(status: Status.Loading));
+  Stream<DataModel> get kolrowsStream$ => _kolrows.stream;
+  DataModel get kolrowsValue$ => _kolrows.value;
+
+  BehaviorSubject<DataModel> _moinrows = BehaviorSubject<DataModel>.seeded(DataModel(status: Status.Loading));
+  Stream<DataModel> get moinrowsStream$ => _moinrows.stream;
+  DataModel get moinrowsValue$ => _moinrows.value;
+
+  loadKol(int grp, {bool loadmoin = false}) async{
+    try{
+      rowsValue$.rows.forEach((element) {
+        element.selected = element.id == grp;
+      });
+      _rows.add(rowsValue$);
+      Future.delayed(Duration.zero, () => showWaiting(context));
+      try{
+        _kolrows.add(DataModel(status: Status.Loading));
+        Map<String, dynamic> _data = await postToServer(api: 'Coding/Kol', body: jsonEncode({'token': token,'grpid': grp}));
+        if (_data['msg'] == "Success"){
+          _kolrows.add(DataModel(status: Status.Loaded, rows: _data['body'].map<Mainclass>((data) => Mainclass.fromJson(json.decode(data))).toList()));
+          if (loadmoin)
+            loadMoin(kolrowsValue$.rows[0].id);
+        }
+        else
+          throw Exception(_data['msg']);
+      }
+      catch(e){
+        _kolrows.add(DataModel(status: Status.Error, msg: '$e'));
+      }
+    }
+    finally{
+      hideWaiting(context);
+    }
+  }
+
+  loadMoin(int kol) async{
+    try{
+      kolrowsValue$.rows.forEach((element) {
+        element.selected = element.id == kol;
+      });
+      _kolrows.add(kolrowsValue$);
+      Future.delayed(Duration.zero, () => showWaiting(context));
+      try{
+        _moinrows.add(DataModel(status: Status.Loading));
+        Map<String, dynamic> _data = await postToServer(api: 'Coding/Moin', body: jsonEncode({'token': token,'kolid': kol}));
+        if (_data['msg'] == "Success"){
+          _moinrows.add(DataModel(status: Status.Loaded, rows: _data['body'].map<Mainclass>((data) => Mainclass.fromJson(json.decode(data))).toList()));
+        }
+        else
+          throw Exception(_data['msg']);
+      }
+      catch(e){
+        _kolrows.add(DataModel(status: Status.Error, msg: '$e'));
+      }
+    }
+    finally{
+      hideWaiting(context);
+    }
+  }
+}

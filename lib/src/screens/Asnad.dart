@@ -254,7 +254,7 @@ class PnSanad extends StatelessWidget {
         Header(
           rightBtn: sanad.reg ? null : IButton(type: Btn.Save, onPressed: (){}),
           title: 'سند حسابداری',
-          leftBtn: IButton(type: Btn.Exit, onPressed: (){_artykl=null; asnad.showSanad(null);}),
+          leftBtn: IButton(type: Btn.Exit, onPressed: (){_artykl=null; asnad.showSanad(null); asnad.fetchData();}),
           color: sanad.reg ? Colors.green.withOpacity(0.15) : null,
         ),
         SizedBox(height: 10),
