@@ -113,6 +113,7 @@ abstract class Bloc{
       rowsValue$.rows.forEach((element){ 
         if (element.id==art.id){
           element.edit = false;
+          element.name = art.name;
           element.kolid = art.kolid;
           element.kolname = art.kolname;
           element.moinid = art.moinid;

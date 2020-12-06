@@ -7,6 +7,9 @@ import '../module/class.dart';
 import '../module/functions.dart';
 
 CodingBloc _bloc;
+int _id = 0;
+TextEditingController _edname = TextEditingController();
+FocusNode _fgrpname = FocusNode();
 
 class FmCoding extends StatelessWidget {
   const FmCoding({Key key}) : super(key: key);
@@ -15,7 +18,7 @@ class FmCoding extends StatelessWidget {
   Widget build(BuildContext context) {
     MyProvider _prov = Provider.of<MyProvider>(context);
     if (_bloc == null)
-      _bloc = CodingBloc(context: context, api: 'Coding/Group', token: _prov.currentUser.token);
+      _bloc = CodingBloc(context: context, api: 'Coding/Group', token: _prov.currentUser.token, body: {});
     var _menu = IntBloc()..setValue(1);
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -75,7 +78,14 @@ class PnGroup extends StatelessWidget {
             children: [
               Container(
                 width: screenWidth(context) * 0.25,
-                child: Edit(hint: 'گروه حساب جدید', onChange: (val){})
+                child: Edit(hint: 'گروه حساب جدید', controller: _edname, focus: _fgrpname, onSubmitted: (val) async{
+                  Mainclass _rw = await _bloc.saveData(context: context, data: Mainclass(id: _id, name: val), msg: true);
+                  if (_rw != null){
+                    _id = 0;
+                    _edname.clear();
+                    _bloc.updateRow(_rw);                  
+                  }
+                })
               ),
               IButton(type: Btn.Save, onPressed: (){})
             ],
@@ -88,8 +98,18 @@ class PnGroup extends StatelessWidget {
                 [
                   Field('${rw.id}'),
                   Field('${rw.name}'),
-                  Field(IButton(type: Btn.Edit, onPressed: (){})),
-                  Field(IButton(type: Btn.Del, onPressed: (){})),
+                  Field(
+                    IButton(
+                      type: Btn.Edit, 
+                      onPressed: (){
+                        _id = rw.id;
+                        _edname.text = rw.name;
+                        _bloc.editMode(rw.id);
+                        focusChange(context, _fgrpname);
+                      }
+                    )
+                  ),
+                  Field(IButton(type: Btn.Del, onPressed: ()=>_bloc.delData(context: context, msg: 'گروه حساب ${rw.name}', body: {'id': rw.id}))),
                 ],
                 color: rw.edit ? editRowColor() : _bloc.rowsValue$.rows.indexOf(rw).isOdd ? rowColor(context) : Colors.transparent,
               )
