@@ -8,8 +8,15 @@ import '../module/functions.dart';
 
 CodingBloc _bloc;
 int _id = 0;
+TextEditingController _edid = TextEditingController();
 TextEditingController _edname = TextEditingController();
 FocusNode _fgrpname = FocusNode();
+FocusNode _fkolid = FocusNode();
+FocusNode _fkolname = FocusNode();
+FocusNode _fmoinid = FocusNode();
+FocusNode _fmoinname = FocusNode();
+FocusNode _ftafid = FocusNode();
+FocusNode _ftafname = FocusNode();
 
 class FmCoding extends StatelessWidget {
   const FmCoding({Key key}) : super(key: key);
@@ -175,9 +182,9 @@ class PnKol extends StatelessWidget {
                 Row(
                   children: [
                     SizedBox(width: 10),
-                    Expanded(child: Edit(hint: 'کد کل', onChange: (val){})),
+                    Expanded(child: Edit(hint: 'کد کل', controller: _edid, focus: _fkolid, onChange: (val){}, onSubmitted: (val)=>focusChange(context, _fkolname))),
                     SizedBox(width: 10),
-                    Expanded(flex: 2,child: Edit(hint: 'عنوان کل', onChange: (val){})),
+                    Expanded(flex: 2,child: Edit(hint: 'عنوان کل', controller: _edname, focus: _fkolname, onChange: (val){}, onSubmitted: (val)=>focusChange(context, _fkolid))),
                     SizedBox(width: 10),
                     Field(IButton(type: Btn.Save, onPressed: (){})),
                     SizedBox(width: 10),

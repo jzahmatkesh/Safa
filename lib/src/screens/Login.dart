@@ -10,6 +10,14 @@ import '../module/Blocs.dart';
 
 
 
+var _edmobile = TextEditingController();
+var _sms1 = FocusNode();
+var _sms2 = FocusNode();
+var _sms3 = FocusNode();
+var _sms4 = FocusNode();
+var _sms5 = FocusNode();
+var _sms6 = FocusNode();
+
 IntBloc flg = IntBloc();
 class Login extends StatelessWidget {
   const Login({Key key}) : super(key: key);
@@ -102,8 +110,10 @@ class PnRegister extends StatelessWidget {
       padding: EdgeInsets.all(8),
       child: Column(
         children: [
-          Header(title: 'ثبت نام حسابداری رایگان صفا', color: accentcolor(context).withOpacity(0.15),),
           SizedBox(height: 25),
+          Text('لطفا اطلاعات ذیل را تکمیل نمایید', style: TextStyle(fontFamily: 'Nazanin', fontSize: 18, fontWeight: FontWeight.bold),),
+          // Header(title: 'ثبت نام حسابداری رایگان صفا', color: accentcolor(context).withOpacity(0.15),),
+          SizedBox(height: 35),
           Row(
             children: [
               Expanded(child: Edit(hint: 'عنوان شرکت/کسب و کار', autofocus: true)),
@@ -116,7 +126,7 @@ class PnRegister extends StatelessWidget {
             children: [
               Expanded(child: Edit(hint: 'نام و نام خانوادگی')),
               SizedBox(width: 5),
-              Expanded(child: Edit(hint: 'شماره همراه')),
+              Expanded(child: Edit(hint: 'شماره همراه', controller: _edmobile,)),
             ]
           ),
           SizedBox(height: 15),
@@ -130,7 +140,10 @@ class PnRegister extends StatelessWidget {
           SizedBox(height: 20),
           Row(
             children: [
-              OButton(caption: 'مرحله بعد', icon: Icon(CupertinoIcons.arrow_right), onPressed: ()=>flg.setValue(21)),
+              OButton(caption: 'مرحله بعد', icon: Icon(CupertinoIcons.arrow_right), onPressed: (){
+                // sendSms(context, _edmobile.text, 'خب یره بزنگ دیگه');
+                flg.setValue(21);
+              }),
               Spacer(),
               FlatButton(child: Text('قبلا ثبت نام کرده ام'), onPressed: ()=>flg.setValue(1))
             ],
@@ -161,16 +174,32 @@ class PnRegister2 extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Edit(hint: 'رمز عبور پیامک شده', autofocus: true),
-            SizedBox(height: 15),
+            Text('کد شش رقمی پیامک شده را وارد نمایید', style: TextStyle(fontWeight: FontWeight.bold, color: headlineColor(context)),),
+            SizedBox(height: 35),
             Row(
               children: [
-                OButton(caption: 'ثبت نام', icon: Icon(CupertinoIcons.pencil_ellipsis_rectangle), onPressed: (){}),
-                Spacer(),
-                FlatButton(child: Text('ویرایش اطلاعات'), onPressed: ()=>flg.setValue(2)),
-                Icon(CupertinoIcons.arrow_left, size: 12,)
-,              ],
-            )
+                Expanded(child: Edit(maxlength: 1, numbersonly: true, focus: _sms6)),
+                SizedBox(width: 1),
+                Expanded(child: Edit(maxlength: 1, numbersonly: true, focus: _sms5, onChange: (String val){if (val.isNotEmpty) focusChange(context, _sms6);},)),
+                SizedBox(width: 1),
+                Expanded(child: Edit(maxlength: 1, numbersonly: true, focus: _sms4, onChange: (String val){if (val.isNotEmpty) focusChange(context, _sms5);},)),
+                SizedBox(width: 1),
+                Expanded(child: Edit(maxlength: 1, numbersonly: true, focus: _sms3, onChange: (String val){if (val.isNotEmpty) focusChange(context, _sms4);},)),
+                SizedBox(width: 1),
+                Expanded(child: Edit(maxlength: 1, numbersonly: true, focus: _sms2, onChange: (String val){if (val.isNotEmpty) focusChange(context, _sms3);},)),
+                SizedBox(width: 1),
+                Expanded(child: Edit(autofocus: true, maxlength: 1, numbersonly: true, focus: _sms1, onChange: (String val){if (val.isNotEmpty) focusChange(context, _sms2);})),
+              ],
+            ),
+            SizedBox(height: 15),
+//             Row(
+//               children: [
+//                 OButton(caption: 'ثبت نام', icon: Icon(CupertinoIcons.pencil_ellipsis_rectangle), onPressed: (){}),
+//                 Spacer(),
+//                 FlatButton(child: Text('ویرایش اطلاعات'), onPressed: ()=>flg.setValue(2)),
+//                 Icon(CupertinoIcons.arrow_left, size: 12,)
+// ,              ],
+//             )
           ],
         ),
       ),

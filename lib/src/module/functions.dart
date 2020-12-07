@@ -41,7 +41,7 @@ final appThemeData = {
 
 
 String serverIP(){
-  return "185.4.30.85";
+  return "127.0.0.1";
 }
 
 Future<Map<String, dynamic>> postToServer({String api, dynamic body, Map<String,String> header}) async{
@@ -237,10 +237,12 @@ String moneySeprator(double newValue){
 
 TextStyle alertButtonStyle()=> TextStyle(fontSize: 15,fontFamily: 'lalezar',color: Colors.white);
 Color scaffoldcolor(BuildContext context)=> Theme.of(context).scaffoldBackgroundColor;
+Color bottomAppbarColor(BuildContext context)=> Theme.of(context).bottomAppBarColor;
 Color appbarColor(BuildContext context)=> Theme.of(context).bottomAppBarColor;
 Color backgroundColor(BuildContext context)=> Theme.of(context).backgroundColor;
 Color accentcolor(BuildContext context)=> Theme.of(context).accentColor;
 Color textColor(BuildContext context)=> Theme.of(context).buttonColor;
+Color headlineColor(BuildContext context)=> Theme.of(context).textTheme.headline1.color;
 TextStyle gridFieldStyle()=> TextStyle(fontSize: 15,fontFamily: 'lalezar');
 
 Color editRowColor() => Colors.deepOrange.withOpacity(0.15);
@@ -269,7 +271,36 @@ showFormAsDialog({@required BuildContext context, @required Widget form, Functio
   });
 }
 
-
+void sendSms(BuildContext context, String number, String msg) async{
+  try{
+    var res = await http.post("https://RestfulSms.com/api/Token", headers: {'Content-Type': 'application/json'}, body: jsonEncode({"UserApiKey":"b60b459c21eb9446a001459c", "SecretKey":"P@ssw0rds**!@"}));
+    if (res.statusCode == 201){
+      var _tokenkey = json.decode(utf8.decode(res.bodyBytes))['TokenKey'];
+      var res2 = await http.post("https://RestfulSms.com/api/MessageSend", 
+      headers: <String, String>{
+        "content-type":  "application/json; charset=UTF-8", 
+        "x-sms-ir-secure-token": "$_tokenkey",
+        'Access-Control-Allow-Origin': '*',
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
+        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
+      }, 
+        body: jsonEncode({
+          "Messages":["$msg"],
+          "MobileNumbers": ["$number"],
+          "LineNumber": "30002577625785",
+          "SendDateTime": "",
+          "CanContinueInCaseOfError": "false",
+        })
+      );  
+      print('${res2.statusCode}');
+      print('${json.decode(utf8.decode(res2.bodyBytes))}');
+    }
+  }
+  catch(e){
+    print('$e');
+    analyzeError(context, '$e');
+  }
+}
 
 
 
