@@ -4,7 +4,6 @@ import 'class.dart';
 import 'functions.dart';
 
 class Repository{
-  
   Future<User> authenticate(String mobile, String pass) async{
     Map<String, dynamic> _data = await postToServer(api: 'User/Authenticate', body: jsonEncode({"mobile": mobile, "pass": generateMd5(pass)}));
     if (_data['msg'] == "Success")
@@ -38,6 +37,13 @@ class Repository{
   //     return Mainclass.fromJson(_data['body']);
   //   throw Exception(_data['msg']);
   // }
+
+  Future<bool> register(Map<String, dynamic> body) async{
+    Map<String, dynamic> _data = await putToServer(api: 'User/Register', body: jsonEncode(body));
+    if (_data['msg'] == "Success")
+      return true;
+    throw Exception(_data['msg']);
+  }
 
   Future<bool> delData(String token, String api, Map<String, dynamic> body) async{
     body.putIfAbsent('token', () => token);

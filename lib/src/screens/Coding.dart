@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../module/Blocs.dart';
 import '../module/MyProvider.dart';
 import '../module/Widgets.dart';
-import '../module/Blocs.dart';
 import '../module/class.dart';
 import '../module/functions.dart';
 
@@ -295,9 +296,9 @@ class PnMoin extends StatelessWidget {
                 Row(
                   children: [
                     SizedBox(width: 10),
-                    Expanded(child: Edit(hint: 'کد معین', onChange: (val){})),
+                    Expanded(child: Edit(hint: 'کد معین', focus: _fmoinid, onSubmitted: (val)=>focusChange(context, _fmoinname), onChange: (val){})),
                     SizedBox(width: 10),
-                    Expanded(flex: 2,child: Edit(hint: 'عنوان معین', onChange: (val){})),
+                    Expanded(flex: 2,child: Edit(hint: 'عنوان معین', focus: _fmoinname, onSubmitted: (val)=>focusChange(context, _fmoinid), onChange: (val){})),
                     SizedBox(width: 10),
                     Field(IButton(type: Btn.Save, onPressed: (){})),
                     SizedBox(width: 10),
@@ -352,9 +353,9 @@ class PnTafsili extends StatelessWidget {
           Row(
             children: [
               SizedBox(width: 10),
-              Expanded(child: Edit(hint: 'کد تفصیلی', onChange: (val){})),
+              Expanded(child: Edit(hint: 'کد تفصیلی', focus: _ftafid, onSubmitted: (val)=>focusChange(context, _ftafname), onChange: (val){})),
               SizedBox(width: 10),
-              Expanded(flex: 2,child: Edit(hint: 'عنوان تفصیلی', onChange: (val){})),
+              Expanded(flex: 2,child: Edit(hint: 'عنوان تفصیلی', focus: _ftafname, onSubmitted: (val)=>focusChange(context, _ftafid), onChange: (val){})),
               SizedBox(width: 10),
               Field(IButton(type: Btn.Save, onPressed: (){})),
               SizedBox(width: 10),

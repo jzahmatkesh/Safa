@@ -271,34 +271,35 @@ showFormAsDialog({@required BuildContext context, @required Widget form, Functio
   });
 }
 
-void sendSms(BuildContext context, String number, String msg) async{
+Future<bool> sendSms(BuildContext context, String number, String msg) async{
   try{
-    var res = await http.post("https://RestfulSms.com/api/Token", headers: {'Content-Type': 'application/json'}, body: jsonEncode({"UserApiKey":"b60b459c21eb9446a001459c", "SecretKey":"P@ssw0rds**!@"}));
-    if (res.statusCode == 201){
-      var _tokenkey = json.decode(utf8.decode(res.bodyBytes))['TokenKey'];
-      var res2 = await http.post("https://RestfulSms.com/api/MessageSend", 
-      headers: <String, String>{
-        "content-type":  "application/json; charset=UTF-8", 
-        "x-sms-ir-secure-token": "$_tokenkey",
-        'Access-Control-Allow-Origin': '*',
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
-      }, 
-        body: jsonEncode({
-          "Messages":["$msg"],
-          "MobileNumbers": ["$number"],
-          "LineNumber": "30002577625785",
-          "SendDateTime": "",
-          "CanContinueInCaseOfError": "false",
-        })
-      );  
-      print('${res2.statusCode}');
-      print('${json.decode(utf8.decode(res2.bodyBytes))}');
-    }
+print("http://parsasms.com/tools/urlservice/send/?username=rayan-paya&password=Arman&from=3000500222&to=$number&message=$msg");
+    var res = await http.post("http://parsasms.com/tools/urlservice/send/?username=rayan-paya&password=Arman&from=3000500222&to=$number&message=$msg", headers: {'Content-Type': 'application/json'});
+    if (res.statusCode == 200)
+      return true;
+    return false;
+    // var res = await http.post("https://RestfulSms.com/api/Token", headers: {'Content-Type': 'application/json'}, body: jsonEncode({"UserApiKey":"b60b459c21eb9446a001459c", "SecretKey":"P@ssw0rds**!@"}));
+    // if (res.statusCode == 201){
+    //   var _tokenkey = json.decode(utf8.decode(res.bodyBytes))['TokenKey'];
+      // var res2 = await http.post("https://RestfulSms.com/api/MessageSend", 
+      // headers: <String, String>{
+      //   "content-type":  "application/json", 
+      //   "x-sms-ir-secure-token": "Bearer: $_tokenkey",
+      // }, 
+      //   body: jsonEncode({
+      //     "Messages":["$msg"],
+      //     "MobileNumbers": ["$number"],
+      //     "LineNumber": "30002577625785",
+      //     "SendDateTime": "",
+      //     "CanContinueInCaseOfError": "false",
+      //   })
+      // );  
+
+    // }
   }
   catch(e){
-    print('$e');
     analyzeError(context, '$e');
+    return false;
   }
 }
 

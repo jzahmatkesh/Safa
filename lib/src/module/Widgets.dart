@@ -352,7 +352,7 @@ class MoneyTextFormatter extends TextInputFormatter {
 }
 
 class Edit extends StatelessWidget {
-  const Edit({Key key, this.value, this.onChange, this.controller, this.onSubmitted, this.autofocus = false, this.hint, this.password = false, this.focus, this.date=false, this.money=false, this.numbersonly=false, this.timeonly=false, this.readonly = false, this.onEditingComplete, this.maxlength, this.f2key, this.f2value}) : super(key: key);
+  const Edit({Key key, this.value, this.onChange, this.controller, this.onSubmitted, this.autofocus = false, this.hint, this.password = false, this.focus, this.date=false, this.money=false, this.numbersonly=false, this.timeonly=false, this.readonly = false, this.onEditingComplete, this.maxlength, this.f2key, this.f2value, this.notempty=false, this.validator}) : super(key: key);
 
   final bool autofocus;
   final String value;
@@ -371,6 +371,8 @@ class Edit extends StatelessWidget {
   final int maxlength;
   final String f2key;
   final dynamic f2value;
+  final bool notempty;
+  final Function(String) validator;
 
   @override
   Widget build(BuildContext context) {
@@ -383,6 +385,11 @@ class Edit extends StatelessWidget {
       onChanged: this.onChange,
       decoration: textDecoration(this.hint),
       obscureText: this.password,
+      validator: validator != null ? validator : (val){
+        if ((val.isEmpty || val.trim() == "0") && notempty) 
+          return 'مقدار فیلد اجباری است';
+        return null;
+      },
       onFieldSubmitted: this.f2key == null ? this.onSubmitted : (val){
         if (val.isEmpty && (f2value == null || !(f2value is TextEditingController) || (f2value as TextEditingController).text.isNotEmpty))
           showFormAsDialog(context: context, form: ForeignKey(controller: controller, onSubmitted: this.onSubmitted, f2key: this.f2key, relationvalue: f2value is TextEditingController ? (f2value as TextEditingController).text : f2value));
