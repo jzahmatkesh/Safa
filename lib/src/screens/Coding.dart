@@ -8,6 +8,7 @@ import '../module/class.dart';
 import '../module/functions.dart';
 
 CodingBloc _bloc;
+PublicBloc _tafsili;
 int _id = 0;
 TextEditingController _edid = TextEditingController();
 TextEditingController _edname = TextEditingController();
@@ -39,10 +40,10 @@ class FmCoding extends StatelessWidget {
               Header(title: 'سرفصل حسابها'),
               Row(
                 children: [
-                  Expanded(child: Menu(title: 'گروه حساب', inCard: true, selected: i==1, selectedColor: accentcolor(context).withOpacity(0.15), onTap: ()=>_menu.setValue(1))),
-                  Expanded(child: Menu(title: 'حساب کل', inCard: true, selected: i==2, selectedColor: accentcolor(context).withOpacity(0.15), onTap: ()=>_menu.setValue(2))),
-                  Expanded(child: Menu(title: 'حساب معین', inCard: true, selected: i==3, selectedColor: accentcolor(context).withOpacity(0.15), onTap: ()=>_menu.setValue(3))),
-                  Expanded(child: Menu(title: 'حساب تفصیلی', inCard: true, selected: i==4, selectedColor: accentcolor(context).withOpacity(0.15), onTap: ()=>_menu.setValue(4))),
+                  Expanded(child: Menu(title: 'گروه حساب', inCard: true, selected: i==1, selectedColor: accentcolor(context).withOpacity(0.15), onTap: (){_id=0; _menu.setValue(1);})),
+                  Expanded(child: Menu(title: 'حساب کل', inCard: true, selected: i==2, selectedColor: accentcolor(context).withOpacity(0.15), onTap: (){_id=0; _menu.setValue(2);})),
+                  Expanded(child: Menu(title: 'حساب معین', inCard: true, selected: i==3, selectedColor: accentcolor(context).withOpacity(0.15), onTap: (){_id=0; _menu.setValue(3);})),
+                  Expanded(child: Menu(title: 'حساب تفصیلی', inCard: true, selected: i==4, selectedColor: accentcolor(context).withOpacity(0.15), onTap: (){_id=0; _menu.setValue(4);})),
                 ],
               ),
               i == 1
@@ -185,9 +186,9 @@ class PnKol extends StatelessWidget {
                     SizedBox(width: 10),
                     Expanded(child: Edit(hint: 'کد کل', controller: _edid, focus: _fkolid, onChange: (val){}, onSubmitted: (val)=>focusChange(context, _fkolname))),
                     SizedBox(width: 10),
-                    Expanded(flex: 2,child: Edit(hint: 'عنوان کل', controller: _edname, focus: _fkolname, onChange: (val){}, onSubmitted: (val)=>focusChange(context, _fkolid))),
+                    Expanded(flex: 2,child: Edit(hint: 'عنوان کل', controller: _edname, focus: _fkolname, onChange: (val){}, onSubmitted: (val)=>saveKol(context))),
                     SizedBox(width: 10),
-                    Field(IButton(type: Btn.Save, onPressed: (){})),
+                    Field(IButton(type: Btn.Save, onPressed: ()=>saveKol(context))),
                     SizedBox(width: 10),
                   ],
                 ),
@@ -199,7 +200,7 @@ class PnKol extends StatelessWidget {
                       [
                         Field('${rw.id}'),
                         Field('${rw.name}'),
-                        Field(IButton(type: Btn.Edit, onPressed: (){})),
+                        Field(IButton(type: Btn.Edit, onPressed: ()=>editkol(context, rw))),
                         Field(IButton(type: Btn.Del, onPressed: (){})),
                       ],
                       color: rw.edit ? editRowColor() : _bloc.kolrowsValue$.rows.indexOf(rw).isOdd ? rowColor(context) : Colors.transparent,
@@ -296,11 +297,11 @@ class PnMoin extends StatelessWidget {
                 Row(
                   children: [
                     SizedBox(width: 10),
-                    Expanded(child: Edit(hint: 'کد معین', focus: _fmoinid, onSubmitted: (val)=>focusChange(context, _fmoinname), onChange: (val){})),
+                    Expanded(child: Edit(hint: 'کد معین', focus: _fmoinid, controller: _edid, onSubmitted: (val)=>focusChange(context, _fmoinname))),
                     SizedBox(width: 10),
-                    Expanded(flex: 2,child: Edit(hint: 'عنوان معین', focus: _fmoinname, onSubmitted: (val)=>focusChange(context, _fmoinid), onChange: (val){})),
+                    Expanded(flex: 2,child: Edit(hint: 'عنوان معین', focus: _fmoinname, controller: _edname, onSubmitted: (val)=>saveMoin(context))),
                     SizedBox(width: 10),
-                    Field(IButton(type: Btn.Save, onPressed: (){})),
+                    Field(IButton(type: Btn.Save, onPressed: ()=>saveMoin(context))),
                     SizedBox(width: 10),
                   ],
                 ),
@@ -312,7 +313,7 @@ class PnMoin extends StatelessWidget {
                       [
                         Field('${rw.id}'),
                         Field('${rw.name}'),
-                        Field(IButton(type: Btn.Edit, onPressed: (){})),
+                        Field(IButton(type: Btn.Edit, onPressed: ()=>editmoin(context, rw))),
                         Field(IButton(type: Btn.Del, onPressed: (){})),
                       ],
                       color: rw.edit ? editRowColor() : _bloc.moinrowsValue$.rows.indexOf(rw).isOdd ? rowColor(context) : Colors.transparent,
@@ -335,7 +336,8 @@ class PnTafsili extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    PublicBloc _tafsili = PublicBloc(context: context, api: 'Coding/Tafsili', token: prov.currentUser.token, body: {});
+    if (_tafsili == null)
+      _tafsili = PublicBloc(context: context, api: 'Coding/Tafsili', token: prov.currentUser.token, body: {});
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Column(
@@ -353,11 +355,11 @@ class PnTafsili extends StatelessWidget {
           Row(
             children: [
               SizedBox(width: 10),
-              Expanded(child: Edit(hint: 'کد تفصیلی', focus: _ftafid, onSubmitted: (val)=>focusChange(context, _ftafname), onChange: (val){})),
+              Expanded(child: Edit(hint: 'کد تفصیلی', focus: _ftafid, controller: _edid, onSubmitted: (val)=>focusChange(context, _ftafname))),
               SizedBox(width: 10),
-              Expanded(flex: 2,child: Edit(hint: 'عنوان تفصیلی', focus: _ftafname, onSubmitted: (val)=>focusChange(context, _ftafid), onChange: (val){})),
+              Expanded(flex: 2,child: Edit(hint: 'عنوان تفصیلی', focus: _ftafname, controller: _edname, onSubmitted: (val)=>saveTafsili(context))),
               SizedBox(width: 10),
-              Field(IButton(type: Btn.Save, onPressed: (){})),
+              Field(IButton(type: Btn.Save, onPressed: ()=>saveTafsili(context))),
               SizedBox(width: 10),
             ],
           ),
@@ -380,7 +382,7 @@ class PnTafsili extends StatelessWidget {
                       ) : Container()
                     )
                   ),
-                  Field(IButton(type: Btn.Edit, onPressed: (){})),
+                  Field(IButton(type: Btn.Edit, onPressed: ()=>edittafsili(context, rw))),
                   Field(IButton(type: Btn.Del, onPressed: (){})),
                 ],
                 color: rw.edit ? editRowColor() : _tafsili.rowsValue$.rows.indexOf(rw).isOdd ? rowColor(context) : Colors.transparent,
@@ -392,3 +394,71 @@ class PnTafsili extends StatelessWidget {
     );
   }
 }
+
+
+void saveKol(BuildContext context) async{
+  if (_edid.text.isEmpty)
+    myAlert(context: context, title: 'مقادیر اجباری', message: 'کد حساب کل مشخص نشده است');
+  else if (_edname.text.isEmpty)
+    myAlert(context: context, title: 'مقادیر اجباری', message: 'عنوان حساب کل مشخص نشده است');
+  else{
+    if (await _bloc.saveKol(context, Mainclass(old: _id, id: int.parse(_edid.text), name: _edname.text)) != null){
+      _edid.clear();
+      _edname.clear();
+      focusChange(context, _fkolid);
+    }
+  }
+}
+
+void saveMoin(BuildContext context) async{
+  if (_edid.text.isEmpty)
+    myAlert(context: context, title: 'مقادیر اجباری', message: 'کد حساب معین مشخص نشده است');
+  else if (_edname.text.isEmpty)
+    myAlert(context: context, title: 'مقادیر اجباری', message: 'عنوان حساب معین مشخص نشده است');
+  else{
+    if (await _bloc.saveMoin(context, Mainclass(old: _id, id: int.parse(_edid.text), name: _edname.text)) != null){
+      _edid.clear();
+      _edname.clear();
+      focusChange(context, _fmoinid);
+    }
+  }
+}
+
+void saveTafsili(BuildContext context) async{
+  if (_edid.text.isEmpty)
+    myAlert(context: context, title: 'مقادیر اجباری', message: 'کد تفصیلی مشخص نشده است');
+  else if (_edname.text.isEmpty)
+    myAlert(context: context, title: 'مقادیر اجباری', message: 'عنوان تفصیلی مشخص نشده است');
+  else{
+    if (await _tafsili.saveData(context: context, data: Mainclass(old: _id, id: int.parse(_edid.text), name: _edname.text), addtorows: true) != null){
+      _edid.clear();
+      _edname.clear();
+      focusChange(context, _ftafid);
+    }
+  }
+}
+
+void editkol(BuildContext context, Mainclass rw){
+  _edid.text = rw.id.toString();
+  _edname.text = rw.name;
+  _id = rw.id;
+  _bloc.editKol(rw.id);
+  focusChange(context, _fkolname);
+}
+
+void editmoin(BuildContext context, Mainclass rw){
+  _edid.text = rw.id.toString();
+  _edname.text = rw.name;
+  _id = rw.id;
+  _bloc.editMoin(rw.id);
+  focusChange(context, _fmoinname);
+}
+
+void edittafsili(BuildContext context, Mainclass rw){
+  _edid.text = rw.id.toString();
+  _edname.text = rw.name;
+  _id = rw.id;
+  _tafsili.editMode(rw.id);
+  focusChange(context, _ftafname);
+}
+

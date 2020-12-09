@@ -59,7 +59,7 @@ abstract class Bloc{
     }
   }
 
-  Future<Mainclass> saveData({BuildContext context, Mainclass data, bool msg = false, String secapi}) async{
+  Future<Mainclass> saveData({BuildContext context, Mainclass data, bool msg = false, String secapi, bool addtorows = false}) async{
     Map<String, dynamic> _data;
     try{
       showWaiting(context);
@@ -70,6 +70,21 @@ abstract class Bloc{
         if (_data['msg'] == "Success"){
           if (msg)
             myAlert(context: context, msgType: Msg.Success, title: 'ذخیره', message: 'ذخیره اطلاعات با موفقیت انجام گردید');
+          if (addtorows){
+            bool nval = true;
+            rowsValue$.rows.forEach((element) {
+              if (element.id == data.old){
+                element.old  = data.id;
+                element.name = data.name;
+                element.edit = false;
+                nval = false;
+              }
+            });
+            data.old = data.id;
+            if (nval)
+              rowsValue$.rows.insert(0, data);
+            _rows.add(rowsValue$);
+          }
           return Mainclass.fromJson(_data['body']);
         }
         throw Exception(_data['msg']);
@@ -293,6 +308,9 @@ class ArtyklBloc extends Bloc{
 }
 
 class CodingBloc extends Bloc{
+  int _groupid = 0;
+  int _kolid = 0;
+
   PublicBloc tafLevel;
   CodingBloc({@required BuildContext context, @required String api, @required String token, @required Map<String, dynamic> body}): super(context: context, api: api, token: token, body: body){
       tafLevel = PublicBloc(context: context, api: 'Coding/AccLevel', token: token, body: {});
@@ -306,8 +324,9 @@ class CodingBloc extends Bloc{
   Stream<DataModel> get moinrowsStream$ => _moinrows.stream;
   DataModel get moinrowsValue$ => _moinrows.value;
 
-  loadKol(int grp, {bool loadmoin = false}) async{
+  void loadKol(int grp, {bool loadmoin = false}) async{
     try{
+      _groupid = grp;
       rowsValue$.rows.forEach((element) {
         element.selected = element.id == grp;
       });
@@ -333,8 +352,31 @@ class CodingBloc extends Bloc{
     }
   }
 
-  loadMoin(int kol) async{
+  Future<Mainclass> saveKol(BuildContext context, Mainclass data) async{
+    data.grpid = _groupid;
+    if( await saveData(context: context, secapi: 'Coding/Kol', data: data) != null){
+      bool _nv = true;
+      kolrowsValue$.rows.forEach((element) {
+        if (element.id == data.old){
+          element.id = data.id;
+          element.name = data.name;
+          element.edit = false;
+          _nv = false;
+        }
+      });
+      data.old = data.id;
+      if (_nv)
+        kolrowsValue$.rows.insert(0, data);
+      _kolrows.add(kolrowsValue$);
+      return data;
+    }
+    else
+      return null;
+  }
+
+  void loadMoin(int kol) async{
     try{
+      _kolid = kol;
       kolrowsValue$.rows.forEach((element) {
         element.selected = element.id == kol;
       });
@@ -356,5 +398,42 @@ class CodingBloc extends Bloc{
     finally{
       hideWaiting(context);
     }
+  }
+
+  Future<Mainclass> saveMoin(BuildContext context, Mainclass data) async{
+    data.kolid = _kolid;
+print('old; ${data.old}');
+    if( await saveData(context: context, secapi: 'Coding/Moin', data: data) != null){
+      bool _nv = true;
+      moinrowsValue$.rows.forEach((element) {
+        if (element.id == data.old){
+          element.id = data.id;
+          element.name = data.name;
+          element.edit = false;
+          _nv = false;
+        }
+      });
+      data.old = data.id;
+      if (_nv)
+        moinrowsValue$.rows.insert(0, data);
+      _moinrows.add(moinrowsValue$);
+      return data;
+    }
+    else
+      return null;
+  }
+
+  void editKol(int id){
+    kolrowsValue$.rows.forEach((element) {
+      element.edit = element.id == id;
+    });
+    _kolrows.add(kolrowsValue$);
+  }
+
+  void editMoin(int id){
+    moinrowsValue$.rows.forEach((element) {
+      element.edit = element.id == id;
+    });
+    _moinrows.add(moinrowsValue$);
   }
 }

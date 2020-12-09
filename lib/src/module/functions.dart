@@ -51,7 +51,7 @@ Future<Map<String, dynamic>> postToServer({String api, dynamic body, Map<String,
     if(res.statusCode == 200)
       return {"msg": "Success", "body": json.decode(utf8.decode(res.bodyBytes))};
     else
-      return {"msg": utf8.decode(res.bodyBytes)};
+      return {"msg": json.decode(utf8.decode(res.bodyBytes))};
 }
 
 Future<List<Mainclass>> fetchListFromServer({String api, dynamic body, Map<String,String> header}) async{
@@ -61,7 +61,7 @@ Future<List<Mainclass>> fetchListFromServer({String api, dynamic body, Map<Strin
     if(res.statusCode == 200){
       return (json.decode(utf8.decode(res.bodyBytes)) as List).map((e) => Mainclass.fromJson(json.decode(e))).toList();
     }
-    throw Exception(utf8.decode(res.bodyBytes));
+    throw Exception(json.decode(utf8.decode(res.bodyBytes)));
 }
 
 Future<Map<String, dynamic>> putToServer({String api, dynamic body, Map<String,String> header}) async{
@@ -86,7 +86,7 @@ Future<Map<String, dynamic>> delToServer({String api, dynamic body, Map<String,S
   if(res.statusCode == 200)
     return res.stream.toBytes().then((value) => {"msg": "Success", "body": json.decode(utf8.decode((value)))});
   else
-    return res.stream.toBytes().then((value) => {"msg": utf8.decode((value))});
+    return res.stream.toBytes().then((value) => {"msg": json.decode(utf8.decode((value)))});
 }
 
 generateMd5(String data) {
