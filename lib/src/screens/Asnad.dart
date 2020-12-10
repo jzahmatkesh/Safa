@@ -320,7 +320,7 @@ class PnSanad extends StatelessWidget {
               Field('${moneySeprator(rw.bed)}'),
               Field('${moneySeprator(rw.bes)}'),
               Field(IButton(type: Btn.Edit, onPressed: ()=>editArtykl(rw))),
-              Field(IButton(type: Btn.Del, onPressed: ()=>_artykl.delData(context: context, msg: 'آرتیکل', body: {'sanadid': sanad.id, 'id': rw.id})))
+              Field(IButton(type: Btn.Del, onPressed: ()=>_artykl.delArtykl(context, sanad.id, rw.id)))
             ],
             color: rw.edit ? editRowColor() : _artykl.rowsValue$.rows.indexOf(rw).isOdd ? rowColor(context) : Colors.transparent,
           )),

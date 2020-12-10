@@ -102,19 +102,19 @@ abstract class Bloc{
       return null;
   }
 
-  void delData({BuildContext context, String msg, Map<String, dynamic> body}){
+  void delData({BuildContext context, String msg, Map<String, dynamic> body, String secapi, Function done}){
     confirmMessage(context, 'تایید حذف', 'آیا مایل به حذف $msg می باشید؟', yesclick: () async{
       try{
         body.putIfAbsent('token', () => this.token);
-        Map<String, dynamic> _data = await delToServer(api: '${this.api}', body: jsonEncode(body));
+        Map<String, dynamic> _data = await delToServer(api: '${secapi ?? this.api}', body: jsonEncode(body));
         if (_data['msg'] == "Success"){
           Navigator.of(context).pop();
-          this.fetchData();
+          if (done != null)
+            done();
+          myAlert(context: context, title: 'حذف', message: '$msg با موفقیت حذف گردید', msgType: Msg.Success);
         }
-        else{
-          Navigator.of(context).pop();
+        else
           throw Exception(_data['msg']);
-        }
       }
       catch(e){
         Navigator.of(context).pop();
@@ -305,6 +305,12 @@ class ArtyklBloc extends Bloc{
       tafLevel = PublicBloc(context: context, api: 'Coding/AccLevel', token: token, body: {});
   }
 
+  delArtykl(BuildContext context, int sanadid, int artid){
+    delData(context: context, body: {'sanadid': sanadid, 'id': artid}, msg: 'آرتیکل', done: (){
+      rowsValue$.rows.removeWhere((element) => element.id == artid);
+      _rows.add(rowsValue$);
+    });
+  }
 }
 
 class CodingBloc extends Bloc{
@@ -374,6 +380,13 @@ class CodingBloc extends Bloc{
       return null;
   }
 
+  void delKol(BuildContext context, int id, String name) async{
+    delData(context: context, secapi: 'Coding/Kol', body: {"id": id}, msg: "$name", done: (){
+      kolrowsValue$.rows.removeWhere((element) => element.id==id);
+      _kolrows.add(kolrowsValue$);
+    });
+  }
+
   void loadMoin(int kol) async{
     try{
       _kolid = kol;
@@ -402,7 +415,6 @@ class CodingBloc extends Bloc{
 
   Future<Mainclass> saveMoin(BuildContext context, Mainclass data) async{
     data.kolid = _kolid;
-print('old; ${data.old}');
     if( await saveData(context: context, secapi: 'Coding/Moin', data: data) != null){
       bool _nv = true;
       moinrowsValue$.rows.forEach((element) {
@@ -423,6 +435,13 @@ print('old; ${data.old}');
       return null;
   }
 
+  void delMoin(BuildContext context, int kol, int id, String name) async{
+    delData(context: context, secapi: 'Coding/Moin', body: {"kolid": kol, "id": id}, msg: "$name", done: (){
+      moinrowsValue$.rows.removeWhere((element) => element.id==id);
+      _moinrows.add(moinrowsValue$);
+    });
+  }
+
   void editKol(int id){
     kolrowsValue$.rows.forEach((element) {
       element.edit = element.id == id;
@@ -435,5 +454,12 @@ print('old; ${data.old}');
       element.edit = element.id == id;
     });
     _moinrows.add(moinrowsValue$);
+  }
+
+ void delGroup(BuildContext context, int id, String name) async{
+    delData(context: context, body: {"id": id}, msg: "$name", done: (){
+      rowsValue$.rows.removeWhere((element) => element.id==id);
+      _rows.add(rowsValue$);
+    });
   }
 }

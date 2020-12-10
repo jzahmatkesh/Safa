@@ -118,7 +118,7 @@ class PnGroup extends StatelessWidget {
                       }
                     )
                   ),
-                  Field(IButton(type: Btn.Del, onPressed: ()=>_bloc.delData(context: context, msg: 'گروه حساب ${rw.name}', body: {'id': rw.id}))),
+                  Field(IButton(type: Btn.Del, onPressed: ()=>_bloc.delGroup(context, rw.id, rw.name))),
                 ],
                 color: rw.edit ? editRowColor() : _bloc.rowsValue$.rows.indexOf(rw).isOdd ? rowColor(context) : Colors.transparent,
               )
@@ -201,7 +201,7 @@ class PnKol extends StatelessWidget {
                         Field('${rw.id}'),
                         Field('${rw.name}'),
                         Field(IButton(type: Btn.Edit, onPressed: ()=>editkol(context, rw))),
-                        Field(IButton(type: Btn.Del, onPressed: (){})),
+                        Field(IButton(type: Btn.Del, onPressed: ()=>_bloc.delKol(context, rw.id, rw.name))),
                       ],
                       color: rw.edit ? editRowColor() : _bloc.kolrowsValue$.rows.indexOf(rw).isOdd ? rowColor(context) : Colors.transparent,
                     )
@@ -314,7 +314,7 @@ class PnMoin extends StatelessWidget {
                         Field('${rw.id}'),
                         Field('${rw.name}'),
                         Field(IButton(type: Btn.Edit, onPressed: ()=>editmoin(context, rw))),
-                        Field(IButton(type: Btn.Del, onPressed: (){})),
+                        Field(IButton(type: Btn.Del, onPressed: ()=>_bloc.delMoin(context, rw.kolid, rw.id, rw.name))),
                       ],
                       color: rw.edit ? editRowColor() : _bloc.moinrowsValue$.rows.indexOf(rw).isOdd ? rowColor(context) : Colors.transparent,
                     )
@@ -383,7 +383,7 @@ class PnTafsili extends StatelessWidget {
                     )
                   ),
                   Field(IButton(type: Btn.Edit, onPressed: ()=>edittafsili(context, rw))),
-                  Field(IButton(type: Btn.Del, onPressed: (){})),
+                  Field(IButton(type: Btn.Del, onPressed: ()=>_tafsili.delData(context: context, body: {"id": rw.id}, msg: "تفصیلی ${rw.name}"))),
                 ],
                 color: rw.edit ? editRowColor() : _tafsili.rowsValue$.rows.indexOf(rw).isOdd ? rowColor(context) : Colors.transparent,
               )

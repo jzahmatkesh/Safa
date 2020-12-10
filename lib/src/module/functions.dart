@@ -86,7 +86,7 @@ Future<Map<String, dynamic>> delToServer({String api, dynamic body, Map<String,S
   if(res.statusCode == 200)
     return res.stream.toBytes().then((value) => {"msg": "Success", "body": json.decode(utf8.decode((value)))});
   else
-    return res.stream.toBytes().then((value) => {"msg": json.decode(utf8.decode((value)))});
+    return res.stream.toBytes().then((value) => json.decode(utf8.decode((value))));
 }
 
 generateMd5(String data) {
@@ -273,11 +273,25 @@ showFormAsDialog({@required BuildContext context, @required Widget form, Functio
 
 Future<bool> sendSms(BuildContext context, String number, String msg) async{
   try{
-print("http://parsasms.com/tools/urlservice/send/?username=rayan-paya&password=Arman&from=3000500222&to=$number&message=$msg");
-    var res = await http.post("http://parsasms.com/tools/urlservice/send/?username=rayan-paya&password=Arman&from=3000500222&to=$number&message=$msg", headers: {'Content-Type': 'application/json'});
-    if (res.statusCode == 200)
+    var res = await postToServer(api: "User/SMS", body: jsonEncode({"family": msg, "mobile": number}));
+print("res: $res");
+    if (res['msg'] == "Success" && res['body']['result'] == "success")
       return true;
+    else if (res['msg'] == "Success" && res['body']['result'] == "error"){
+      if (res['body']['messageids'] == 5) myAlert(context: context, title: 'خطا', message: "امکان گرفتن پیام وجود ندارد");
+      if (res['body']['messageids'] == 7) myAlert(context: context, title: 'خطا', message: "امکان دسترسی به خط مورد نظر وجود ندارد");
+      if (res['body']['messageids'] == 8) myAlert(context: context, title: 'خطا', message: "شماره همراه وارد شده صحیح نمی باشد");
+      if (res['body']['messageids'] == 10) myAlert(context: context, title: 'خطا', message: "خطایی در سیستم رخ داده است . دوباره سعی کنید");
+      if (res['body']['messageids'] == 11) myAlert(context: context, title: 'خطا', message: "نامعتبر می باشد . IP");
+      if (res['body']['messageids'] == 20) myAlert(context: context, title: 'خطا', message: "شماره مخاطب جهت دریافت پیامک فیلتر شده می باشد");
+      if (res['body']['messageids'] == 21) myAlert(context: context, title: 'خطا', message: "ارتباط با سرویس دهنده قطع می باشد");
+    }
     return false;
+    // var res = await http.post("http://parsasms.com/tools/urlservice/send/?username=rayan-paya&password=Arman&from=3000500222&to=$number&message=$msg", headers: {'Content-Type': 'application/json'});
+    // if (res.statusCode == 200)
+    //   return true;
+    // return false;
+
     // var res = await http.post("https://RestfulSms.com/api/Token", headers: {'Content-Type': 'application/json'}, body: jsonEncode({"UserApiKey":"b60b459c21eb9446a001459c", "SecretKey":"P@ssw0rds**!@"}));
     // if (res.statusCode == 201){
     //   var _tokenkey = json.decode(utf8.decode(res.bodyBytes))['TokenKey'];
@@ -298,6 +312,7 @@ print("http://parsasms.com/tools/urlservice/send/?username=rayan-paya&password=A
     // }
   }
   catch(e){
+    print('$e');
     analyzeError(context, '$e');
     return false;
   }
