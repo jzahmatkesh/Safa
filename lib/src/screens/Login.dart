@@ -158,7 +158,12 @@ class PnRegister extends StatelessWidget {
             SizedBox(height: 20),
             Row(
               children: [
-                OButton(caption: 'مرحله بعد', icon: Icon(CupertinoIcons.arrow_right), onPressed: (){if (_formKey.currentState.validate())  _prov.register(context, _edcmp.text, _edjob.text, _edfamily.text, _edmobile.text, _edpass1.text, _edpass2.text);}),
+                StreamWidget(
+                  stream: _prov.inProgressStream$, 
+                  itemBuilder: (int idx)=>idx == 2 
+                    ? OButton(caption: 'مرحله بعد', type: Btn.Loading)
+                    : OButton(caption: 'مرحله بعد', icon: Icon(CupertinoIcons.arrow_right), onPressed: (){if (_formKey.currentState.validate())  _prov.register(context, _edcmp.text, _edjob.text, _edfamily.text, _edmobile.text, _edpass1.text, _edpass2.text);}),
+                ),
                 Spacer(),
                 FlatButton(child: Text('قبلا ثبت نام کرده ام'), onPressed: ()=>_prov.setLoginIdx(1))
               ],
@@ -209,14 +214,14 @@ class PnRegister2 extends StatelessWidget {
               ],
             ),
             SizedBox(height: 15),
-//             Row(
-//               children: [
-//                 OButton(caption: 'ثبت نام', icon: Icon(CupertinoIcons.pencil_ellipsis_rectangle), onPressed: (){}),
-//                 Spacer(),
-//                 FlatButton(child: Text('ویرایش اطلاعات'), onPressed: ()=>flg.setValue(2)),
-//                 Icon(CupertinoIcons.arrow_left, size: 12,)
-// ,              ],
-//             )
+            Row(
+              children: [
+                FlatButton(child: Text('ارسال مجدد پیامک'), onPressed: ()=>_prov.reSendSms(context, _edmobile.text)),
+                Spacer(),
+                FlatButton(child: Text('ویرایش اطلاعات'), onPressed: ()=>_prov.setLoginIdx(2)),
+                Icon(CupertinoIcons.arrow_left, size: 12,)
+,              ],
+            )
           ],
         ),
       ),

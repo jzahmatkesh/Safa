@@ -224,7 +224,7 @@ class Field extends StatelessWidget {
   }
 
   Widget widget(){
-    return Text('$data', textAlign: this.center ? TextAlign.center : TextAlign.start, style: this.bold ? TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Lalezar', fontSize: 14) : null,);
+    return Text('$data', textAlign: this.center ? TextAlign.center : TextAlign.start, style: this.bold ? TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Lalezar', fontSize: 14) : null);
   }
 }
 
@@ -449,7 +449,7 @@ class GridRow extends StatelessWidget {
         children: [
           ...fields.map((e){
             if (e.data is String)
-              return Expanded(flex: e.flex, child: e);
+              return Expanded(child: e);
             else if (e.data is Edit) // || e.data is F2Edit
               return Expanded(flex: e.flex, child: Container(margin: EdgeInsets.symmetric(vertical: 5, horizontal: 3), child: e.data));
             else 
@@ -535,12 +535,10 @@ class StreamListWidget extends StatelessWidget {
         if (snap.hasData)
           if (snap.data.status == Status.Error)
             return Center(child: Text('${snap.data.msg}'));
-          else if (snap.data.status == Status.Loaded)             
+          else if (snap.data.status == Status.Loaded)
             return ListView.builder(
               itemCount: snap.data.rows.length,
-              itemBuilder: (context, idx){
-                return itembuilder(snap.data.rows[idx]);
-            },
+              itemBuilder: (context, idx) => itembuilder(snap.data.rows[idx])
             );
         return Center(child: CupertinoActivityIndicator());
       },
@@ -633,6 +631,57 @@ class ForeignKey extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class GridError extends StatelessWidget {
+  const GridError({Key key, @required this.msg, this.color}) : super(key: key);
+
+  final dynamic msg;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      // height: 75,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: this.color ?? Colors.red.withOpacity(0.5)
+      ),
+      margin: EdgeInsets.all(8),
+      padding: EdgeInsets.all(12),
+      child: msg is String 
+        ? Text('$msg', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontFamily: 'Lalezar'))
+        : this.msg,
+    );
+  }
+}
+
+class Button extends StatelessWidget {
+  const Button({Key key, @required this.caption, @required this.icon, @required this.onTap}) : super(key: key);
+
+  final String caption;
+  final Icon icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: MaterialButton(
+          child: Row(
+            children: [
+              icon,
+              SizedBox(width: 5),
+              Text('$caption'),
+            ],
+          ), 
+          onPressed: this.onTap
+        ),
+      )
     );
   }
 }

@@ -1,4 +1,8 @@
+import 'package:excel/excel.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../module/Blocs.dart';
@@ -9,6 +13,7 @@ import '../module/functions.dart';
 
 CodingBloc _bloc;
 PublicBloc _tafsili;
+IntBloc _menu = IntBloc()..setValue(1);
 int _id = 0;
 TextEditingController _edid = TextEditingController();
 TextEditingController _edname = TextEditingController();
@@ -26,9 +31,8 @@ class FmCoding extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     MyProvider _prov = Provider.of<MyProvider>(context);
-    if (_bloc == null)
+    if (_bloc == null || _bloc.token != _prov.currentUser.token)
       _bloc = CodingBloc(context: context, api: 'Coding/Group', token: _prov.currentUser.token, body: {});
-    var _menu = IntBloc()..setValue(1);
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Container(
@@ -37,6 +41,16 @@ class FmCoding extends StatelessWidget {
           stream: _menu.stream$, 
           itemBuilder: (int i)=>Column(
             children: [
+              GridError(
+                msg: Row(
+                  children: [
+                    _prov.currentUser.kolcount == 0 ? Button(caption: 'درج سرفصل های استاندارد', icon: Icon(CupertinoIcons.gear), onTap: (){}) : Container(),
+                    SizedBox(width: 5),
+                    Button(caption: 'دریافت از فایل اکسل', icon: Icon(FontAwesomeIcons.fileExcel), onTap: ()=>importfromexcel(context, _prov.currentUser.token))
+                  ]
+                ),
+                color: accentcolor(context).withOpacity(0.35),
+              ),
               Header(title: 'سرفصل حسابها'),
               Row(
                 children: [
@@ -49,9 +63,9 @@ class FmCoding extends StatelessWidget {
               i == 1
                 ? Expanded(child: PnGroup(prov: _prov,))
                 : i == 2
-                  ? Expanded(child: PnKol(prov: _prov,))
+                  ? Expanded(child: PnKol(prov: _prov, menu: _menu,))
                   : i == 3
-                    ? Expanded(child: PnMoin(prov: _prov,))
+                    ? Expanded(child: PnMoin(prov: _prov, menu: _menu,))
                     : Expanded(child: PnTafsili(prov: _prov))
             ],
           )
@@ -131,13 +145,19 @@ class PnGroup extends StatelessWidget {
 }
 
 class PnKol extends StatelessWidget {
-  const PnKol({Key key, @required this.prov}) : super(key: key);
+  const PnKol({Key key, @required this.prov, @required this.menu}) : super(key: key);
 
   final MyProvider prov;
+  final IntBloc menu;
 
   @override
   Widget build(BuildContext context) {
-    if (_bloc.rowsValue$.rows.where((element)=>element.selected).length == 0)
+    if (_bloc.rowsValue$.rows.length == 0)
+      Future.delayed(Duration(milliseconds: 1)).then((value){
+        myAlert(context: context, title: 'هشدار', message: 'گروه حساب تعریف نشده است', msgType: Msg.Warning);
+        menu.setValue(1);
+      });
+    else if (_bloc.rowsValue$.rows.where((element)=>element.selected).length == 0)
       _bloc.loadKol(_bloc.rowsValue$.rows[0].id);
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -217,15 +237,23 @@ class PnKol extends StatelessWidget {
 }
 
 class PnMoin extends StatelessWidget {
-  const PnMoin({Key key, @required this.prov}) : super(key: key);
+  const PnMoin({Key key, @required this.prov, @required this.menu}) : super(key: key);
 
   final MyProvider prov;
+  final IntBloc menu;
 
   @override
   Widget build(BuildContext context) {
-    if (_bloc.rowsValue$.rows.where((element)=>element.selected).length == 0)
+
+
+    if (_bloc.rowsValue$.rows.length == 0)
+      Future.delayed(Duration(milliseconds: 1)).then((value){
+        myAlert(context: context, title: 'هشدار', message: 'گروه حساب تعریف نشده است', msgType: Msg.Warning);
+        menu.setValue(1);
+      });
+    else if (_bloc.rowsValue$.rows.where((element)=>element.selected).length == 0)
       _bloc.loadKol(_bloc.rowsValue$.rows[0].id, loadmoin: true);
-    else if (_bloc.kolrowsValue$.rows.where((element)=>element.selected).length == 0)
+    else if (_bloc.kolrowsValue$.rows.where((element)=>element.selected).length == 0 && _bloc.kolrowsValue$.rows.length > 0)
       _bloc.loadMoin(_bloc.kolrowsValue$.rows[0].id);
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -462,3 +490,134 @@ void edittafsili(BuildContext context, Mainclass rw){
   focusChange(context, _ftafname);
 }
 
+void importfromexcel(BuildContext context, String token) async{
+  FilePickerResult result = await FilePicker.platform.pickFiles();
+  if(result != null) {
+    // File file = File(result.files.single.path);
+    var bytes = result.files.first.bytes;//file.readAsBytesSync();
+    var excel = Excel.decodeBytes(bytes);
+
+    showFormAsDialog(context: context, form: FmImportExcel(excel: excel, token: token));
+    
+    // for (var table in excel.tables.keys) {
+    //   print(table); //sheet Name
+    //   print(excel.tables[table].maxCols);
+    //   print(excel.tables[table].maxRows);
+    //   for (var row in excel.tables[table].rows) {
+    //     print("$row");
+    //   }
+    // }
+  }
+}
+
+class FmImportExcel extends StatelessWidget {
+  const FmImportExcel({Key key, @required this.excel, @required this.token}) : super(key: key);
+
+  final Excel excel;
+  final String token;
+
+  @override
+  Widget build(BuildContext context) {
+    var table  = excel.tables.keys.first;
+    bool grpid = false, grpname = false, kolid = false, kolname = false, moinid = false, moinname = false;
+    excel.tables[table].rows[0].forEach((element) {
+      grpid = grpid || element=="کد گروه";
+      grpname = grpname || element=="عنوان گروه";
+      kolid = kolid || element=="کد کل";
+      kolname = kolname || element=="عنوان کل";
+      moinid = moinid || element=="کد معین";
+      moinname = moinname || element=="عنوان معین";
+    });
+    ExcelBloc _excelBloc = ExcelBloc(rows: excel.tables[table].rows);
+    void importFromExcel() async{
+      bool res;
+      try{
+        showWaiting(context);
+        if (_excelBloc.value.where((element) => element.check).length == 0)
+          myAlert(context: context, title: 'هشدار', message: 'رکوردی انتخاب نشده است');
+        else{
+          _excelBloc.value.asMap().forEach((idx, element) async{
+            if (idx > 0 && element.check){
+              if ((res ?? true))
+                if (!(element.cells[0] is int)){
+                  _excelBloc.checkRow(idx, false); myAlert(context: context, title: 'خطا', message: '${element.cells[0]} عددی نیست و قابل درج در کد گروه نمی باشد');}
+                else if (!(element.cells[2] is int)){
+                  _excelBloc.checkRow(idx, false); myAlert(context: context, title: 'خطا', message: '${element.cells[2]} عددی نیست و قابل درج در کد کل نمی باشد');}
+                else if (!(element.cells[4] is int)){
+                  _excelBloc.checkRow(idx, false); myAlert(context: context, title: 'خطا', message: '${element.cells[4]} عددی نیست و قابل درج در کد معین نمی باشد');}
+                else{
+                  res = await _excelBloc.exportToDB(
+                    context: context, 
+                    api: 'Coding/ImportExcel', 
+                    data: {
+                      'token': this.token,
+                      'grpid': element.cells[0],
+                      'grpname': element.cells[1],
+                      'kolid': element.cells[2],
+                      'kolname': element.cells[3],
+                      'moinid': element.cells[4],
+                      'moinname': element.cells[5],
+                    }
+                  );
+                  if (res)
+                    _excelBloc.checkRow(idx, null);
+                }
+            }
+          });
+          _bloc.fetchData();
+          _id=0; 
+          _menu.setValue(1);
+        }
+      }
+      finally{
+        hideWaiting(context);
+      }
+    }
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Container(
+        width: screenWidth(context) * 0.75,
+        height: screenHeight(context) * 0.75,
+        child: Column(
+          children: [
+            Header(title: 'دریافت اطلاعات سرفصل حساب از اکسل', leftBtn: IButton(type: Btn.Exit), rightBtn: grpid && grpname && kolid && kolname && moinid && moinname ? IButton(hint: 'درج ردیف های انتخابی در بانک اطلاعات', icon: Icon(CupertinoIcons.layers_alt), onPressed: ()=>importFromExcel()) : null,),
+            SizedBox(height: 15),
+            !grpid || !grpname || !kolid || !kolname || !moinid || !moinname ? Container(width: screenWidth(context) * 0.50, child: Image(image: AssetImage('images/excel-coding.png'),)) : Container(),
+            SizedBox(height: 15),
+            Expanded(
+              child: StreamBuilder<List<ExcelRow>>(
+                stream: _excelBloc.stream$, 
+                builder: (context, snap)=> snap.connectionState==ConnectionState.active ? ListView.builder(
+                  itemCount: snap.data.length,
+                  itemBuilder: (context, idx)=>GridRow([
+                    Field(grpid && grpname && kolid && kolname && moinid && moinname ? snap.data[idx].check==null ? Icon(CupertinoIcons.checkmark_square, color: Colors.green) : Checkbox(value: snap.data[idx].check, onChanged: (val)=>_excelBloc.checkRow(idx, val)) : Container(height: 35,)),
+                    Field(SizedBox(width: 10)),
+                    ... snap.data[idx].cells.map((e) => 
+                      idx == 0
+                        ? snap.data[idx].cells.indexOf(e)==0 && !grpid 
+                          ? Field(Expanded(child: Row(children: [Tooltip(message: 'عنوان فیلد صحیح نمی باشد به فایل اکسل نمونه توجه فرمایید', child: Icon(CupertinoIcons.hand_thumbsdown, color: Colors.red, size: 14)), SizedBox(width: 5), Expanded(child: Text('$e'))])))
+                          : snap.data[idx].cells.indexOf(e)==1 && !grpname
+                            ? Field(Expanded(child: Row(children: [Tooltip(message: 'عنوان فیلد صحیح نمی باشد به فایل اکسل نمونه توجه فرمایید', child: Icon(CupertinoIcons.hand_thumbsdown, color: Colors.red, size: 14)), SizedBox(width: 5), Expanded(child: Text('$e'))])))
+                            : snap.data[idx].cells.indexOf(e)==2 && !kolid 
+                              ? Field(Expanded(child: Row(children: [Tooltip(message: 'عنوان فیلد صحیح نمی باشد به فایل اکسل نمونه توجه فرمایید', child: Icon(CupertinoIcons.hand_thumbsdown, color: Colors.red, size: 14)), SizedBox(width: 5), Expanded(child: Text('$e'))])))
+                              : snap.data[idx].cells.indexOf(e)==3 && !kolname 
+                                ? Field(Expanded(child: Row(children: [Tooltip(message: 'عنوان فیلد صحیح نمی باشد به فایل اکسل نمونه توجه فرمایید', child: Icon(CupertinoIcons.hand_thumbsdown, color: Colors.red, size: 14)), SizedBox(width: 5), Expanded(child: Text('$e'))])))
+                                : snap.data[idx].cells.indexOf(e)==4 && !moinid 
+                                  ? Field(Expanded(child: Row(children: [Tooltip(message: 'عنوان فیلد صحیح نمی باشد به فایل اکسل نمونه توجه فرمایید', child: Icon(CupertinoIcons.hand_thumbsdown, color: Colors.red, size: 14)), SizedBox(width: 5), Expanded(child: Text('$e'))])))
+                                  : snap.data[idx].cells.indexOf(e)==5 && !moinname 
+                                    ? Field(Expanded(child: Row(children: [Tooltip(message: 'عنوان فیلد صحیح نمی باشد به فایل اکسل نمونه توجه فرمایید', child: Icon(CupertinoIcons.hand_thumbsdown, color: Colors.red, size: 14)), SizedBox(width: 5), Expanded(child: Text('$e'))])))
+                                    : snap.data[idx].cells.indexOf(e)==6 && !moinname 
+                                      ? Field(Expanded(child: Row(children: [Tooltip(message: 'عنوان فیلد صحیح نمی باشد به فایل اکسل نمونه توجه فرمایید', child: Icon(CupertinoIcons.hand_thumbsdown, color: Colors.red, size: 14)), SizedBox(width: 5), Expanded(child: Text('$e'))])))
+                                      : Field('$e')
+                        : Field('$e')
+                    )
+                  ], header: idx==0)
+                ) : Center(child: CupertinoActivityIndicator(),)
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}

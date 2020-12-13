@@ -40,7 +40,7 @@ final appThemeData = {
 };
 
 
-String serverIP(){
+String serverIP(){  
   return "127.0.0.1";
 }
 
@@ -51,7 +51,7 @@ Future<Map<String, dynamic>> postToServer({String api, dynamic body, Map<String,
     if(res.statusCode == 200)
       return {"msg": "Success", "body": json.decode(utf8.decode(res.bodyBytes))};
     else
-      return {"msg": json.decode(utf8.decode(res.bodyBytes))};
+      return json.decode(utf8.decode(res.bodyBytes));
 }
 
 Future<List<Mainclass>> fetchListFromServer({String api, dynamic body, Map<String,String> header}) async{
@@ -273,20 +273,21 @@ showFormAsDialog({@required BuildContext context, @required Widget form, Functio
 
 Future<bool> sendSms(BuildContext context, String number, String msg) async{
   try{
-    var res = await postToServer(api: "User/SMS", body: jsonEncode({"family": msg, "mobile": number}));
-print("res: $res");
-    if (res['msg'] == "Success" && res['body']['result'] == "success")
-      return true;
-    else if (res['msg'] == "Success" && res['body']['result'] == "error"){
-      if (res['body']['messageids'] == 5) myAlert(context: context, title: 'خطا', message: "امکان گرفتن پیام وجود ندارد");
-      if (res['body']['messageids'] == 7) myAlert(context: context, title: 'خطا', message: "امکان دسترسی به خط مورد نظر وجود ندارد");
-      if (res['body']['messageids'] == 8) myAlert(context: context, title: 'خطا', message: "شماره همراه وارد شده صحیح نمی باشد");
-      if (res['body']['messageids'] == 10) myAlert(context: context, title: 'خطا', message: "خطایی در سیستم رخ داده است . دوباره سعی کنید");
-      if (res['body']['messageids'] == 11) myAlert(context: context, title: 'خطا', message: "نامعتبر می باشد . IP");
-      if (res['body']['messageids'] == 20) myAlert(context: context, title: 'خطا', message: "شماره مخاطب جهت دریافت پیامک فیلتر شده می باشد");
-      if (res['body']['messageids'] == 21) myAlert(context: context, title: 'خطا', message: "ارتباط با سرویس دهنده قطع می باشد");
-    }
-    return false;
+    // var res = await postToServer(api: "User/SMS", body: jsonEncode({"family": msg, "mobile": number}));
+    // if (res['msg'] == "Success" && res['body']['result'] == "success")
+    //   return true;
+    // else if (res['msg'] == "Success" && res['body']['result'] == "error"){
+    //   if (res['body']['messageids'] == 5) myAlert(context: context, title: 'خطا', message: "امکان گرفتن پیام وجود ندارد");
+    //   if (res['body']['messageids'] == 7) myAlert(context: context, title: 'خطا', message: "امکان دسترسی به خط مورد نظر وجود ندارد");
+    //   if (res['body']['messageids'] == 8) myAlert(context: context, title: 'خطا', message: "شماره همراه وارد شده صحیح نمی باشد");
+    //   if (res['body']['messageids'] == 10) myAlert(context: context, title: 'خطا', message: "خطایی در سیستم رخ داده است . دوباره سعی کنید");
+    //   if (res['body']['messageids'] == 11) myAlert(context: context, title: 'خطا', message: "نامعتبر می باشد . IP");
+    //   if (res['body']['messageids'] == 20) myAlert(context: context, title: 'خطا', message: "شماره مخاطب جهت دریافت پیامک فیلتر شده می باشد");
+    //   if (res['body']['messageids'] == 21) myAlert(context: context, title: 'خطا', message: "ارتباط با سرویس دهنده قطع می باشد");
+    // }
+    // return false;
+    print('sms send: $msg');
+    return await Future.delayed(Duration(seconds: 5)).then((value) => true);
     // var res = await http.post("http://parsasms.com/tools/urlservice/send/?username=rayan-paya&password=Arman&from=3000500222&to=$number&message=$msg", headers: {'Content-Type': 'application/json'});
     // if (res.statusCode == 200)
     //   return true;
@@ -317,6 +318,4 @@ print("res: $res");
     return false;
   }
 }
-
-
 

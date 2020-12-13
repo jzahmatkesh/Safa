@@ -29,7 +29,11 @@ class MyProvider with ChangeNotifier {
   BehaviorSubject<int> _loginIdx = BehaviorSubject<int>.seeded(1);
   Stream<int> get loginIdxStream$ => _loginIdx.stream;
   int get loginIdx$ => _loginIdx.stream.value;
-  
+
+  BehaviorSubject<int> _inProgress = BehaviorSubject<int>.seeded(1);
+  Stream<int> get inProgressStream$ => _inProgress.stream;
+  int get inProgress$ => _inProgress.stream.value;
+
   String _token = "";
   String _smsToken = "";
 
@@ -87,6 +91,8 @@ class MyProvider with ChangeNotifier {
     _user.add(User(id: 0));
     try{
       _user.add(await _repo.authenticate(mobile, pass));
+      if (currentUser.moincount == 0)
+        setDashMenuItem(3);
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString("token", _user.value.token);
     }
@@ -111,8 +117,11 @@ class MyProvider with ChangeNotifier {
         _menuItem.add(prefs.getInt('menu'));
 
       String token = prefs.getString("token") ?? "";
-      if (token.isNotEmpty)
+      if (token.isNotEmpty){
         _user.value = await _repo.verify(token);
+        if (currentUser.moincount == 0)
+          setDashMenuItem(3);
+      }
     }
     catch(e){
     }
@@ -132,37 +141,47 @@ class MyProvider with ChangeNotifier {
   
   void register(BuildContext context, String cmpname, String job, String family, String mobile, String pass1, String pass2, {String smstoken}) async{
     try{
-      if (pass1.trim() != pass2.trim())
-        myAlert(context: context, title: 'خطا', message: 'تکرار کلمه عبور صحیح نمی باشد');
-      else if (pass1.trim().length < 6)
-        myAlert(context: context, title: 'خطا', message: 'کلمه عبور می بایست حداقل ۶ کاراکتر باشد');
-      else if (pass1.trim().contains("123456") || pass1.trim().contains("234567") || pass1.trim().contains("345678") || pass1.trim().contains("password") || pass1.trim().contains("abcdef"))
-        myAlert(context: context, title: 'خطا', message: 'لطفا از کلمه عبور پیچیده تری استفاده نمایید');
-      else if (smstoken == null){
-        var rng = new Random();
-        var code = rng.nextInt(900000) + 100000;
-        _smsToken = code.toString();
-        if (await sendSms(context, mobile, 'رمز تایید $_smsToken'))
-          _loginIdx.add(21);
+      try{
+        _inProgress.add(2);
+        if (pass1.trim() != pass2.trim())
+          myAlert(context: context, title: 'خطا', message: 'تکرار کلمه عبور صحیح نمی باشد');
+        else if (pass1.trim().length < 6)
+          myAlert(context: context, title: 'خطا', message: 'کلمه عبور می بایست حداقل ۶ کاراکتر باشد');
+        else if (pass1.trim().contains("123456") || pass1.trim().contains("234567") || pass1.trim().contains("345678") || pass1.trim().contains("password") || pass1.trim().contains("abcdef"))
+          myAlert(context: context, title: 'خطا', message: 'لطفا از کلمه عبور پیچیده تری استفاده نمایید');
+        else if (smstoken == null){
+          var rng = new Random();
+          var code = rng.nextInt(900000) + 100000;
+          _smsToken = code.toString();
+          if (await sendSms(context, mobile, 'رمز تایید $_smsToken'))
+            _loginIdx.add(21);
+        }
+        else if (smstoken != _smsToken)
+            myAlert(context: context, title: 'خطا', message: 'رمز پیامکی صحیح نمی باشد');
+        else{
+          bool _res = await _repo.register(
+            {
+              "cmpname": "$cmpname",
+              "jobtitle": "$job",
+              "family": "$family",
+              "mobile": "$mobile",
+              "pass": "${generateMd5(pass1)}"
+            }
+          );
+          if (_res)
+            authenticate(context, mobile, pass1);
+        }
       }
-      else if (smstoken != _smsToken)
-          myAlert(context: context, title: 'خطا', message: 'رمز پیامکی صحیح نمی باشد');
-      else{
-        bool _res = await _repo.register(
-          {
-            "cmpname": "$cmpname",
-            "jobtitle": "$job",
-            "family": "$family",
-            "mobile": "$mobile",
-            "pass": "${generateMd5(pass1)}"
-          }
-        );
-        if (_res)
-          authenticate(context, mobile, pass1);
+      finally{
+        _inProgress.add(1);
       }
     }
     catch(e){
       analyzeError(context, '$e');
     }
+  }
+
+  void reSendSms(BuildContext context, String mobile) async{
+    await sendSms(context, mobile, 'رمز تایید $_smsToken');
   }
 }

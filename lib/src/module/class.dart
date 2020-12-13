@@ -16,6 +16,12 @@ class User{
     String family;
     String mobile;
     bool admin;
+    
+    int sanadcount;
+    int kolcount;
+    int moincount;
+    int tafsilicount;
+
     String semat;
     AppTheme theme;
     String token;
@@ -30,6 +36,10 @@ class User{
         admin = json['admin'] == 1,
         semat = json['semat'],
         token = json['token'],
+        sanadcount = json['sanadcount'],
+        kolcount = json['kolcount'],
+        moincount = json['moincount'],
+        tafsilicount = json['tafsilicount'],
         theme = AppTheme.Light;
  
     Map<String, dynamic> toJson(){
@@ -229,4 +239,11 @@ class DataModel{
   String msg;
 
   DataModel({@required this.status, this.rows, this.msg});
+}
+
+class ExcelRow{
+  bool check;
+  List<dynamic> cells;
+
+  ExcelRow({@required this.check, @required this.cells});
 }

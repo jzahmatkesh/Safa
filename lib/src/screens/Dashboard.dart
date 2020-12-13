@@ -1,14 +1,15 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:safa/src/module/Blocs.dart';
-import 'package:safa/src/screens/Coding.dart';
 
+import '../module/Blocs.dart';
 import '../module/MyProvider.dart';
 import '../module/Widgets.dart';
 import '../module/class.dart';
 import '../module/functions.dart';
 import 'Asnad.dart';
+import 'Coding.dart';
 
 
 SanadBloc _asnad;
@@ -48,15 +49,21 @@ class Dashboard extends StatelessWidget {
               Visibility(visible: screenWidth(context) > 800, child: Expanded(child: SideBar(prov: _prov))),
               Expanded(
                 flex: 5, 
-                child: StreamBuilder<int>(
-                  stream: _prov.menuitemStream$,
-                  builder: (context, snap){
-                    if  (snap.hasData){
-                      if (snap.data == 1) return Asnad(asnad: _asnad);
-                      if (snap.data == 3) return FmCoding();
-                    }
-                    return Text('none');
-                  },
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: StreamBuilder<int>(
+                        stream: _prov.menuitemStream$,
+                        builder: (context, snap){
+                          if  (snap.hasData){
+                            if (snap.data == 1) return Asnad(asnad: _asnad);
+                            if (snap.data == 3) return FmCoding();
+                          }
+                          return Text('none');
+                        },
+                      ),
+                    ),
+                  ],
                 )
               ),
             ],
@@ -108,5 +115,3 @@ class SideBar extends StatelessWidget {
     );
   }
 }
-
-
