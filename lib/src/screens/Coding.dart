@@ -529,22 +529,23 @@ class FmImportExcel extends StatelessWidget {
       moinname = moinname || element=="عنوان معین";
     });
     ExcelBloc _excelBloc = ExcelBloc(rows: excel.tables[table].rows);
+    
     void importFromExcel() async{
-      bool res;
+      bool res, messaged = false;
       try{
         showWaiting(context);
-        if (_excelBloc.value.where((element) => element.check).length == 0)
+        if (_excelBloc.value.where((element) => (element.check ?? false) && !element.imported).length == 0)
           myAlert(context: context, title: 'هشدار', message: 'رکوردی انتخاب نشده است');
         else{
           _excelBloc.value.asMap().forEach((idx, element) async{
-            if (idx > 0 && element.check){
+            if (idx > 0 && (element.check ?? false) && !element.imported){
               if ((res ?? true))
-                if (!(element.cells[0] is int)){
-                  _excelBloc.checkRow(idx, false); myAlert(context: context, title: 'خطا', message: '${element.cells[0]} عددی نیست و قابل درج در کد گروه نمی باشد');}
-                else if (!(element.cells[2] is int)){
-                  _excelBloc.checkRow(idx, false); myAlert(context: context, title: 'خطا', message: '${element.cells[2]} عددی نیست و قابل درج در کد کل نمی باشد');}
-                else if (!(element.cells[4] is int)){
-                  _excelBloc.checkRow(idx, false); myAlert(context: context, title: 'خطا', message: '${element.cells[4]} عددی نیست و قابل درج در کد معین نمی باشد');}
+                if (!(element.cells[0] is int))
+                  _excelBloc.checkRow(idx, null, error: '${element.cells[0]} عددی نیست و قابل درج در کد گروه نمی باشد'); 
+                else if (!(element.cells[2] is int))
+                  _excelBloc.checkRow(idx, null, error: '${element.cells[2]} عددی نیست و قابل درج در کد کل نمی باشد');
+                else if (!(element.cells[4] is int))
+                  _excelBloc.checkRow(idx, null, error: '${element.cells[4]} عددی نیست و قابل درج در کد معین نمی باشد');
                 else{
                   res = await _excelBloc.exportToDB(
                     context: context, 
@@ -560,7 +561,12 @@ class FmImportExcel extends StatelessWidget {
                     }
                   );
                   if (res)
-                    _excelBloc.checkRow(idx, null);
+                    _excelBloc.imported(idx);
+                  if (_excelBloc.value.where((element) => !element.imported).length == 1 && !messaged){
+                    messaged = true;
+                    Navigator.of(context).pop();
+                    myAlert(context: context, title: 'موفقیت آمیز', message: '${_excelBloc.value.where((element) => element.imported).length} رکورد با موفقیت در بانک  اطلاعاتی درج گردید', msgType: Msg.Success);
+                  }
                 }
             }
           });
@@ -573,6 +579,7 @@ class FmImportExcel extends StatelessWidget {
         hideWaiting(context);
       }
     }
+    
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Container(
@@ -582,15 +589,20 @@ class FmImportExcel extends StatelessWidget {
           children: [
             Header(title: 'دریافت اطلاعات سرفصل حساب از اکسل', leftBtn: IButton(type: Btn.Exit), rightBtn: grpid && grpname && kolid && kolname && moinid && moinname ? IButton(hint: 'درج ردیف های انتخابی در بانک اطلاعات', icon: Icon(CupertinoIcons.layers_alt), onPressed: ()=>importFromExcel()) : null,),
             SizedBox(height: 15),
-            !grpid || !grpname || !kolid || !kolname || !moinid || !moinname ? Container(width: screenWidth(context) * 0.50, child: Image(image: AssetImage('images/excel-coding.png'),)) : Container(),
+            !grpid || !grpname || !kolid || !kolname || !moinid || !moinname ? Container(width: screenWidth(context) * 0.65 > 600 ? 600 : screenWidth(context) * 0.50, child: Image(image: AssetImage('images/excel-coding.png'),)) : Container(),
             SizedBox(height: 15),
             Expanded(
               child: StreamBuilder<List<ExcelRow>>(
                 stream: _excelBloc.stream$, 
                 builder: (context, snap)=> snap.connectionState==ConnectionState.active ? ListView.builder(
                   itemCount: snap.data.length,
-                  itemBuilder: (context, idx)=>GridRow([
-                    Field(grpid && grpname && kolid && kolname && moinid && moinname ? snap.data[idx].check==null ? Icon(CupertinoIcons.checkmark_square, color: Colors.green) : Checkbox(value: snap.data[idx].check, onChanged: (val)=>_excelBloc.checkRow(idx, val)) : Container(height: 35,)),
+                  itemBuilder: (context, idx)=>snap.data[idx].imported ? Container() : GridRow([
+                    Field(grpid && grpname && kolid && kolname && moinid && moinname 
+                      ? snap.data[idx].error != null 
+                        ? Padding(padding: const EdgeInsets.all(4.0),child: Tooltip(message: '${snap.data[idx].error}', child: Icon(CupertinoIcons.xmark_square, color: Colors.red))) 
+                        : Checkbox(value: snap.data[idx].check, onChanged: (val)=>_excelBloc.checkRow(idx, val)) 
+                      : Container(height: 38,)
+                    ),
                     Field(SizedBox(width: 10)),
                     ... snap.data[idx].cells.map((e) => 
                       idx == 0
@@ -611,7 +623,7 @@ class FmImportExcel extends StatelessWidget {
                                       : Field('$e')
                         : Field('$e')
                     )
-                  ], header: idx==0)
+                  ], header: idx==0, color: snap.data[idx].error != null ? Colors.red.withOpacity(0.15) : null)
                 ) : Center(child: CupertinoActivityIndicator(),)
               ),
             )

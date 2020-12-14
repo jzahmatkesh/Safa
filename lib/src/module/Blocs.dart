@@ -30,11 +30,16 @@ class ExcelBloc{
   Stream<List<ExcelRow>> get stream$ => _rows.stream;
   List<ExcelRow> get value => _rows.value;
 
-  checkRow(int idx, bool val){
+  checkRow(int idx, bool val, {String error}){
     if (idx==0)
       value.forEach((element)=>element.check=val);
     else
       value[idx].check = val;
+    value[idx].error = error;
+    _rows.add(value);
+  }
+  imported(int idx){
+    value[idx].imported = true;
     _rows.add(value);
   }
 
