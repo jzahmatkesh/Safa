@@ -449,7 +449,7 @@ class GridRow extends StatelessWidget {
         children: [
           ...fields.map((e){
             if (e.data is String)
-              return Expanded(child: e);
+              return Expanded(child: e, flex: e.flex ?? 1,);
             else if (e.data is Edit) // || e.data is F2Edit
               return Expanded(flex: e.flex, child: Container(margin: EdgeInsets.symmetric(vertical: 5, horizontal: 3), child: e.data));
             else 

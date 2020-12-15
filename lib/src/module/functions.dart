@@ -41,7 +41,7 @@ final appThemeData = {
 
 
 String serverIP(){  
-  return "185.4.30.85";
+  return "127.0.0.1";
 }
 
 Future<Map<String, dynamic>> postToServer({String api, dynamic body, Map<String,String> header}) async{

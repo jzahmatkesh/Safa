@@ -10,6 +10,7 @@ import '../module/class.dart';
 import '../module/functions.dart';
 import 'Asnad.dart';
 import 'Coding.dart';
+import 'Level.dart';
 
 
 SanadBloc _asnad;
@@ -58,6 +59,7 @@ class Dashboard extends StatelessWidget {
                           if  (snap.hasData){
                             if (snap.data == 1) return Asnad(asnad: _asnad);
                             if (snap.data == 3) return FmCoding();
+                            if (snap.data == 4) return FmLevel();
                           }
                           return Text('none');
                         },

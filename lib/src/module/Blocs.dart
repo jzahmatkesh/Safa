@@ -16,6 +16,7 @@ class IntBloc{
 
   setValue(int i)=>_value.add(i);
 }
+
 class ExcelBloc{
   ExcelBloc({@required this.rows}){
     this.rows.forEach((element) {
@@ -56,6 +57,7 @@ class ExcelBloc{
     }
   }
 }
+
 abstract class Bloc{
   final BuildContext context;
   final String api;
@@ -263,6 +265,7 @@ abstract class Bloc{
 class PublicBloc extends Bloc{
   PublicBloc({@required BuildContext context,@required String api, @required String token, @required Map<String, dynamic> body}): super(context: context, api: api, token: token, body: body);
 }
+
 class SanadBloc extends Bloc{
   SanadBloc({@required BuildContext context, @required String api, @required String token}): super(context: context, api: api, token: token, body: {'filter': 0});
 
