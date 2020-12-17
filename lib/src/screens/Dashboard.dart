@@ -8,6 +8,7 @@ import '../module/MyProvider.dart';
 import '../module/Widgets.dart';
 import '../module/class.dart';
 import '../module/functions.dart';
+import 'Analyze.dart';
 import 'Asnad.dart';
 import 'Coding.dart';
 import 'Level.dart';
@@ -58,6 +59,7 @@ class Dashboard extends StatelessWidget {
                         builder: (context, snap){
                           if  (snap.hasData){
                             if (snap.data == 1) return Asnad(asnad: _asnad);
+                            if (snap.data == 2) return FmAnalyze();
                             if (snap.data == 3) return FmCoding();
                             if (snap.data == 4) return FmLevel();
                           }

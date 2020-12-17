@@ -101,6 +101,31 @@ abstract class Bloc{
     }
   }
 
+  fetchOtherData({String secapi, Map<String, dynamic> body, bool waiting = false}) async{
+    try{
+      Future.delayed(Duration.zero, () => showWaiting(context));
+      try{
+        _rows.add(DataModel(status: Status.Loading));
+        if (body == null)
+          body = {'token': token};
+        else
+          body.putIfAbsent('token', () => token);
+        Map<String, dynamic> _data = await postToServer(api: '${secapi ?? api}', body: jsonEncode(body));
+        if (_data['msg'] == "Success"){
+          _rows.add(DataModel(status: Status.Loaded, rows: _data['body'].map<Mainclass>((data) => Mainclass.fromJson(json.decode(data))).toList()));
+        }
+        else
+          throw Exception(_data['msg']);
+      }
+      catch(e){
+        _rows.add(DataModel(status: Status.Error, msg: '$e'));
+      }
+    }
+    finally{
+      hideWaiting(context);
+    }
+  }
+
   Future<Mainclass> saveData({BuildContext context, Mainclass data, bool msg = false, String secapi, bool addtorows = false}) async{
     Map<String, dynamic> _data;
     try{
@@ -201,6 +226,10 @@ abstract class Bloc{
     rowsValue$.rows.forEach((element) {element.edit = element.id == id;});
     _rows.add(DataModel(status: Status.Loaded, rows: rowsValue$.rows));
   }
+  setActive(int id){
+    rowsValue$.rows.forEach((element) {element.active = element.id == id || id==0;});
+    reload();
+  }
 
   findByName(String val){
     rowsValue$.rows.forEach((element) {
@@ -258,6 +287,11 @@ abstract class Bloc{
       });
       selectRow(i-1);
     }
+    reload();
+  }
+
+  emptyList(){
+    rowsValue$.rows = [];
     reload();
   }
 }
@@ -504,5 +538,179 @@ class CodingBloc extends Bloc{
       rowsValue$.rows.removeWhere((element) => element.id==id);
       _rows.add(rowsValue$);
     });
+  }
+}
+
+class AnalyzeBloc extends Bloc{
+  PublicBloc _moinBloc;
+  PublicBloc _taf1Bloc;
+  PublicBloc _taf2Bloc;
+  PublicBloc _taf3Bloc;
+  PublicBloc _taf4Bloc;
+  PublicBloc _taf5Bloc;
+  PublicBloc _taf6Bloc;
+  PublicBloc tafLevel;
+
+  AnalyzeBloc({@required BuildContext context,@required String api, @required String token, @required Map<String, dynamic> body}): super(context: context, api: api, token: token, body: body){
+    _moinBloc = PublicBloc(context: this.context, token: this.token, api: 'Analyze/Moin', body: {});
+    _taf1Bloc = PublicBloc(context: this.context, token: this.token, api: 'Analyze/Tafsili', body: {});
+    _taf2Bloc = PublicBloc(context: this.context, token: this.token, api: 'Analyze/Tafsili', body: {});
+    _taf3Bloc = PublicBloc(context: this.context, token: this.token, api: 'Analyze/Tafsili', body: {});
+    _taf4Bloc = PublicBloc(context: this.context, token: this.token, api: 'Analyze/Tafsili', body: {});
+    _taf5Bloc = PublicBloc(context: this.context, token: this.token, api: 'Analyze/Tafsili', body: {});
+    _taf6Bloc = PublicBloc(context: this.context, token: this.token, api: 'Analyze/Tafsili', body: {});
+    tafLevel = PublicBloc(context: context, api: 'Coding/AccLevel', token: token, body: {});
+    _analyzeBloc.setValue(1);
+  }
+
+  int tafid = 0, lev = 0, kolid = 0, moinid = 0, taf1 = 0, taf2 = 0, taf3 = 0, taf4 = 0, taf5 = 0, taf6 = 0;
+
+  IntBloc _analyzeBloc = IntBloc();
+  Stream<int> get analyzeStream$ => _analyzeBloc.stream$;
+
+  Stream<DataModel> get moinStream$ => _moinBloc==null ? null : _moinBloc.rowsStream$;
+  DataModel get moinrows$ => _moinBloc==null ? null : _moinBloc.rowsValue$;
+  Stream<DataModel> get taf1Stream$ => _taf1Bloc==null ? null : _taf1Bloc.rowsStream$;
+  DataModel get taf1rows$ => _taf1Bloc==null ? null : _taf1Bloc.rowsValue$;
+  Stream<DataModel> get taf2Stream$ => _taf2Bloc==null ? null : _taf2Bloc.rowsStream$;
+  DataModel get taf2rows$ => _taf2Bloc==null ? null : _taf2Bloc.rowsValue$;
+  Stream<DataModel> get taf3Stream$ => _taf3Bloc==null ? null : _taf3Bloc.rowsStream$;
+  DataModel get taf3rows$ => _taf3Bloc==null ? null : _taf3Bloc.rowsValue$;
+  Stream<DataModel> get taf4Stream$ => _taf4Bloc==null ? null : _taf4Bloc.rowsStream$;
+  DataModel get taf4rows$ => _taf4Bloc==null ? null : _taf4Bloc.rowsValue$;
+  Stream<DataModel> get taf5Stream$ => _taf5Bloc==null ? null : _taf5Bloc.rowsStream$;
+  DataModel get taf5rows$ => _taf5Bloc==null ? null : _taf5Bloc.rowsValue$;
+  Stream<DataModel> get taf6Stream$ => _taf6Bloc==null ? null : _taf6Bloc.rowsStream$;
+  DataModel get taf6rows$ => _taf6Bloc==null ? null : _taf6Bloc.rowsValue$;
+  List<Mainclass> get taflevel$ => tafLevel.rowsValue$.rows;
+
+  loadMoin(int kol){
+    kolid = kol;
+    if (kol == 0){
+      moinid=0;
+      taf1=0;
+      taf2=0;
+      taf3=0;
+      taf4=0;
+      taf5=0;
+      taf6=0;
+      _moinBloc.emptyList();
+      _taf1Bloc.emptyList();
+      _taf2Bloc.emptyList();
+      _taf3Bloc.emptyList();
+      _taf4Bloc.emptyList();
+      _taf5Bloc.emptyList();
+      _taf6Bloc.emptyList();
+    }
+    else
+      _moinBloc.fetchOtherData(body: {'tafid': tafid, 'lev': lev, 'kolid': kolid});
+    _analyzeBloc.setValue(_analyzeBloc.value+1);
+    setActive(kol);
+  }
+  loadTafsili(int id){
+    if (moinid == 0){
+      moinid = id;
+      _moinBloc.setActive(id);
+      _taf1Bloc.fetchOtherData(body: {'tafid': tafid, 'lev': lev, 'kolid': kolid, 'moinid': moinid});
+    }
+    else if (taf1 == 0){
+      taf1 = id;
+      _taf1Bloc.setActive(id);
+      _taf2Bloc.fetchOtherData(body: {'tafid': tafid, 'lev': lev, 'kolid': kolid, 'moinid': moinid, 'taf1': taf1});
+    }
+    else if (taf2 == 0){
+      taf2 = id;
+      _taf2Bloc.setActive(id);
+      _taf3Bloc.fetchOtherData(body: {'tafid': tafid, 'lev': lev, 'kolid': kolid, 'moinid': moinid, 'taf1': taf1, 'taf2': taf2});
+    }
+    else if (taf3 == 0){
+      taf3 = id;
+      _taf3Bloc.setActive(id);
+      _taf4Bloc.fetchOtherData(body: {'tafid': tafid, 'lev': lev, 'kolid': kolid, 'moinid': moinid, 'taf1': taf1, 'taf2': taf2, 'taf3': taf3});
+    }
+    else if (taf4 == 0){
+      taf4 = id;
+      _taf4Bloc.setActive(id);
+      _taf5Bloc.fetchOtherData(body: {'tafid': tafid, 'lev': lev, 'kolid': kolid, 'moinid': moinid, 'taf1': taf1, 'taf2': taf2, 'taf3': taf3, 'taf4': taf4});
+    }
+    else if (taf5 == 0){
+      taf5 = id;
+      _taf5Bloc.setActive(id);
+      _taf6Bloc.fetchOtherData(body: {'tafid': tafid, 'lev': lev, 'kolid': kolid, 'moinid': moinid, 'taf1': taf1, 'taf2': taf2, 'taf3': taf3, 'taf4': taf4, 'taf5': taf5});
+    }
+    _analyzeBloc.setValue(_analyzeBloc.value+1);
+  }
+
+  backtoMoin(){
+    moinid=0;
+    taf1=0;
+    taf2=0;
+    taf3=0;
+    taf4=0;
+    taf5=0;
+    taf6=0;
+    _taf1Bloc.emptyList();
+    _taf2Bloc.emptyList();
+    _taf3Bloc.emptyList();
+    _taf4Bloc.emptyList();
+    _taf5Bloc.emptyList();
+    _taf6Bloc.emptyList();
+    _moinBloc.setActive(0);
+    _analyzeBloc.setValue(_analyzeBloc.value+1);
+  }
+  backtoTaf1(){
+    taf1=0;
+    taf2=0;
+    taf3=0;
+    taf4=0;
+    taf5=0;
+    taf6=0;
+    _taf2Bloc.emptyList();
+    _taf3Bloc.emptyList();
+    _taf4Bloc.emptyList();
+    _taf5Bloc.emptyList();
+    _taf6Bloc.emptyList();
+    _taf1Bloc.setActive(0);
+    _analyzeBloc.setValue(_analyzeBloc.value+1);
+  }
+  backtoTaf2(){
+    taf2=0;
+    taf3=0;
+    taf4=0;
+    taf5=0;
+    taf6=0;
+    _taf3Bloc.emptyList();
+    _taf4Bloc.emptyList();
+    _taf5Bloc.emptyList();
+    _taf6Bloc.emptyList();
+    _taf2Bloc.setActive(0);
+    _analyzeBloc.setValue(_analyzeBloc.value+1);
+  }
+  backtoTaf3(){
+    taf3=0;
+    taf4=0;
+    taf5=0;
+    taf6=0;
+    _taf4Bloc.emptyList();
+    _taf5Bloc.emptyList();
+    _taf6Bloc.emptyList();
+    _taf3Bloc.setActive(0);
+    _analyzeBloc.setValue(_analyzeBloc.value+1);
+  }
+  backtoTaf4(){
+    taf4=0;
+    taf5=0;
+    taf6=0;
+    _taf5Bloc.emptyList();
+    _taf6Bloc.emptyList();
+    _taf4Bloc.setActive(0);
+    _analyzeBloc.setValue(_analyzeBloc.value+1);
+  }
+  backtoTaf5(){
+    taf5=0;
+    taf6=0;
+    _taf6Bloc.emptyList();
+    _taf5Bloc.setActive(0);
+    _analyzeBloc.setValue(_analyzeBloc.value+1);
   }
 }

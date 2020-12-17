@@ -25,7 +25,7 @@ FocusNode _fmoinname = FocusNode();
 FocusNode _ftafid = FocusNode();
 FocusNode _ftafname = FocusNode();
 
-class FmCoding extends StatelessWidget {
+class FmCoding extends StatelessWidget { 
   const FmCoding({Key key}) : super(key: key);
 
   @override
@@ -493,20 +493,9 @@ void edittafsili(BuildContext context, Mainclass rw){
 void importfromexcel(BuildContext context, String token) async{
   FilePickerResult result = await FilePicker.platform.pickFiles();
   if(result != null) {
-    // File file = File(result.files.single.path);
     var bytes = result.files.first.bytes;//file.readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
-
     showFormAsDialog(context: context, form: FmImportExcel(excel: excel, token: token));
-    
-    // for (var table in excel.tables.keys) {
-    //   print(table); //sheet Name
-    //   print(excel.tables[table].maxCols);
-    //   print(excel.tables[table].maxRows);
-    //   for (var row in excel.tables[table].rows) {
-    //     print("$row");
-    //   }
-    // }
   }
 }
 
