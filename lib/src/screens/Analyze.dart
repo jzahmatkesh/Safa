@@ -73,19 +73,19 @@ class PnKol extends StatelessWidget {
             stream: _bloc.rowsStream$,
             itembuilder: (rw)=> rw.active ? Stack(
               children: [
-                this.header ? Container() : Positioned(top: 0, left: 0, child: Chip(label: Text('کل', style: gridFieldStyle()), padding: EdgeInsets.zero,)),
                 GridRow(
                   [
                     Field('${rw.id}'),
                     Field('${rw.name}', flex: 2),
-                    Field('${moneySeprator(rw.bed)}'),
-                    Field('${moneySeprator(rw.bes)}'),
-                    Field('${moneySeprator(rw.mandebed)}'),
-                    Field('${moneySeprator(rw.mandebes)}'),
+                    Field('${moneySeprator(rw.bed)}', color: Colors.red.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.bes)}', color: Colors.green.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebed)}', color: Colors.blue.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebes)}', color: Colors.purple.withOpacity(0.2)),
                   ],
-                  onTap: ()=> _bloc.loadMoin(this.header ? rw.id  : 0),
-                  color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.rowsValue$.rows.indexOf(rw).isEven ? rowColor(context) : null,
+                  color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.rowsValue$.rows.indexOf(rw).isOdd ? rowColor(context) : null,
+                  onTap: ()=>this.header ? _bloc.loadMoin(rw.id) : _bloc.loadMoin(0)
                 ),
+                this.header ? Container() : Align(alignment: Alignment.centerLeft, child: Chip(backgroundColor: Colors.green.withOpacity(0.25), label: Text('کل', style: gridFieldStyle()), padding: EdgeInsets.zero,)),
               ],
             ) : Container(),
           ),
@@ -117,19 +117,19 @@ class PnMoin extends StatelessWidget {
             stream: _bloc.moinStream$,
             itembuilder: (rw)=> rw.active ? Stack(
               children: [
-                this.header ? Container() : Positioned(top: 0, left: 0, child: Chip(label: Text('معین', style: gridFieldStyle()), padding: EdgeInsets.zero,)),
                 GridRow(
                   [
                     Field('${rw.id}'),
                     Field('${rw.name}', flex: 2),
-                    Field('${moneySeprator(rw.bed)}'),
-                    Field('${moneySeprator(rw.bes)}'),
-                    Field('${moneySeprator(rw.mandebed)}'),
-                    Field('${moneySeprator(rw.mandebes)}'),
+                    Field('${moneySeprator(rw.bed)}', color: Colors.red.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.bes)}', color: Colors.green.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebed)}', color: Colors.blue.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebes)}', color: Colors.purple.withOpacity(0.2)),
                   ],
+                  color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.moinrows$.rows.indexOf(rw).isOdd ? rowColor(context) : null,
                   onTap: ()=>this.header ? _bloc.loadTafsili(rw.id) : _bloc.backtoMoin(),
-                  color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.moinrows$.rows.indexOf(rw).isEven ? rowColor(context) : null,
                 ),
+                this.header ? Container() : Align(alignment: Alignment.centerLeft, child: Chip(backgroundColor: Colors.green.withOpacity(0.25), label: Text('معین', style: gridFieldStyle()), padding: EdgeInsets.zero,)),
               ],
             ) : Container(),
           ),
@@ -150,7 +150,7 @@ class PnTaf1 extends StatelessWidget {
       children: [
         this.header ? GridRow([
           Field('کد تفصیلی', bold: true,),
-          Field('عنوان تفصیلی', flex: 2, bold: true,),
+          Field('${_bloc.taflevel$[0].name}', flex: 2, bold: true,),
           Field('گردش بدهکار', bold: true,),
           Field('گردش بستانکار', bold: true,),
           Field('مانده بدهکار', bold: true,),
@@ -159,19 +159,22 @@ class PnTaf1 extends StatelessWidget {
         Expanded(
           child: StreamListWidget(
             stream: _bloc.taf1Stream$,
-            itembuilder: (rw)=> rw.active ? GridRow(
-              [
-                this.header ? Field(SizedBox(width: 1))  :  Field(Chip(label: Text('${_bloc.taflevel$[0].name}'), padding: EdgeInsets.zero,)),
-                Field(SizedBox(width: 5)),
-                Field('${rw.id}'),
-                Field('${rw.name}', flex: 2),
-                Field('${moneySeprator(rw.bed)}'),
-                Field('${moneySeprator(rw.bes)}'),
-                Field('${moneySeprator(rw.mandebed)}'),
-                Field('${moneySeprator(rw.mandebes)}'),
+            itembuilder: (rw)=> rw.active ? Stack(
+              children: [
+                GridRow(
+                  [
+                    Field('${rw.id}'),
+                    Field('${rw.name}', flex: 2),
+                    Field('${moneySeprator(rw.bed)}', color: Colors.red.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.bes)}', color: Colors.green.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebed)}', color: Colors.blue.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebes)}', color: Colors.purple.withOpacity(0.2)),
+                  ],
+                  onTap: ()=>this.header  ? _bloc.loadTafsili(rw.id) : _bloc.backtoTaf1(),
+                  color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.taf1rows$.rows.indexOf(rw).isOdd ? rowColor(context) : null,
+                ),
+                this.header ? Container() : Align(alignment: Alignment.centerLeft, child: Chip(backgroundColor: Colors.green.withOpacity(0.25), label: Text('${_bloc.taflevel$[0].name}', style: gridFieldStyle()), padding: EdgeInsets.zero,)),
               ],
-              onTap: ()=>this.header  ? _bloc.loadTafsili(rw.id) : _bloc.backtoTaf1(),
-              color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.moinrows$.rows.indexOf(rw).isEven ? rowColor(context) : null,
             ) : Container(),
           ),
         ),
@@ -191,7 +194,7 @@ class PnTaf2 extends StatelessWidget {
       children: [
         this.header ? GridRow([
           Field('کد تفصیلی', bold: true,),
-          Field('عنوان تفصیلی', flex: 2, bold: true,),
+          Field('${_bloc.taflevel$[1].name}', flex: 2, bold: true,),
           Field('گردش بدهکار', bold: true,),
           Field('گردش بستانکار', bold: true,),
           Field('مانده بدهکار', bold: true,),
@@ -200,18 +203,22 @@ class PnTaf2 extends StatelessWidget {
         Expanded(
           child: StreamListWidget(
             stream: _bloc.taf2Stream$,
-            itembuilder: (rw)=> rw.active ? GridRow(
-              [
-                this.header ? Field(SizedBox(width: 1))  :  Field('${_bloc.taflevel$[1].name}', bold: true),
-                Field('${rw.id}'),
-                Field('${rw.name}', flex: 2),
-                Field('${moneySeprator(rw.bed)}'),
-                Field('${moneySeprator(rw.bes)}'),
-                Field('${moneySeprator(rw.mandebed)}'),
-                Field('${moneySeprator(rw.mandebes)}'),
+            itembuilder: (rw)=> rw.active ? Stack(
+              children: [
+                GridRow(
+                  [
+                    Field('${rw.id}'),
+                    Field('${rw.name}', flex: 2),
+                    Field('${moneySeprator(rw.bed)}', color: Colors.red.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.bes)}', color: Colors.green.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebed)}', color: Colors.blue.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebes)}', color: Colors.purple.withOpacity(0.2)),
+                  ],
+                  onTap: ()=>this.header ? _bloc.loadTafsili(rw.id) : _bloc.backtoTaf2(),
+                  color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.taf2rows$.rows.indexOf(rw).isOdd ? rowColor(context) : null,
+                ),
+                this.header ? Container() : Align(alignment: Alignment.centerLeft, child: Chip(backgroundColor: Colors.green.withOpacity(0.25), label: Text('${_bloc.taflevel$[1].name}', style: gridFieldStyle()), padding: EdgeInsets.zero,)),
               ],
-              onTap: ()=>this.header ? _bloc.loadTafsili(rw.id) : _bloc.backtoTaf2(),
-              color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.moinrows$.rows.indexOf(rw).isEven ? rowColor(context) : null,
             ) : Container(),
           ),
         ),
@@ -231,7 +238,7 @@ class PnTaf3 extends StatelessWidget {
       children: [
         this.header ? GridRow([
           Field('کد تفصیلی', bold: true,),
-          Field('عنوان تفصیلی', flex: 2, bold: true,),
+          Field('${_bloc.taflevel$[2].name}', flex: 2, bold: true,),
           Field('گردش بدهکار', bold: true,),
           Field('گردش بستانکار', bold: true,),
           Field('مانده بدهکار', bold: true,),
@@ -240,18 +247,22 @@ class PnTaf3 extends StatelessWidget {
         Expanded(
           child: StreamListWidget(
             stream: _bloc.taf3Stream$,
-            itembuilder: (rw)=> rw.active ? GridRow(
-              [
-                this.header ? Field(SizedBox(width: 1))  :  Field('${_bloc.taflevel$[2].name}', bold: true),
-                Field('${rw.id}'),
-                Field('${rw.name}', flex: 2),
-                Field('${moneySeprator(rw.bed)}'),
-                Field('${moneySeprator(rw.bes)}'),
-                Field('${moneySeprator(rw.mandebed)}'),
-                Field('${moneySeprator(rw.mandebes)}'),
+            itembuilder: (rw)=> rw.active ? Stack(
+              children: [
+                GridRow(
+                  [
+                    Field('${rw.id}'),
+                    Field('${rw.name}', flex: 2),
+                    Field('${moneySeprator(rw.bed)}', color: Colors.red.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.bes)}', color: Colors.green.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebed)}', color: Colors.blue.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebes)}', color: Colors.purple.withOpacity(0.2)),
+                  ],
+                  onTap: ()=>this.header ? _bloc.loadTafsili(rw.id) : _bloc.backtoTaf3(),
+                  color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.taf3rows$.rows.indexOf(rw).isOdd ? rowColor(context) : null,
+                ),
+                this.header ? Container() : Align(alignment: Alignment.centerLeft, child: Chip(backgroundColor: Colors.green.withOpacity(0.25), label: Text('${_bloc.taflevel$[2].name}', style: gridFieldStyle()), padding: EdgeInsets.zero,)),
               ],
-              onTap: ()=>this.header ? _bloc.loadTafsili(rw.id) : _bloc.backtoTaf3(),
-              color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.moinrows$.rows.indexOf(rw).isEven ? rowColor(context) : null,
             ) : Container(),
           ),
         ),
@@ -271,7 +282,7 @@ class PnTaf4 extends StatelessWidget {
       children: [
         this.header ? GridRow([
           Field('کد تفصیلی', bold: true,),
-          Field('عنوان تفصیلی', flex: 2, bold: true,),
+          Field('${_bloc.taflevel$[3].name}', flex: 2, bold: true,),
           Field('گردش بدهکار', bold: true,),
           Field('گردش بستانکار', bold: true,),
           Field('مانده بدهکار', bold: true,),
@@ -280,18 +291,22 @@ class PnTaf4 extends StatelessWidget {
         Expanded(
           child: StreamListWidget(
             stream: _bloc.taf4Stream$,
-            itembuilder: (rw)=> rw.active ? GridRow(
-              [
-                this.header ? Field(SizedBox(width: 1))  :  Field('${_bloc.taflevel$[3].name}', bold: true),
-                Field('${rw.id}'),
-                Field('${rw.name}', flex: 2),
-                Field('${moneySeprator(rw.bed)}'),
-                Field('${moneySeprator(rw.bes)}'),
-                Field('${moneySeprator(rw.mandebed)}'),
-                Field('${moneySeprator(rw.mandebes)}'),
+            itembuilder: (rw)=> rw.active ? Stack(
+              children: [
+                GridRow(
+                  [
+                    Field('${rw.id}'),
+                    Field('${rw.name}', flex: 2),
+                    Field('${moneySeprator(rw.bed)}', color: Colors.red.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.bes)}', color: Colors.green.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebed)}', color: Colors.blue.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebes)}', color: Colors.purple.withOpacity(0.2)),
+                  ],
+                  onTap: ()=>this.header ? _bloc.loadTafsili(rw.id) : _bloc.backtoTaf4(),
+                  color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.taf4rows$.rows.indexOf(rw).isOdd ? rowColor(context) : null,
+                ),
+                this.header ? Container() : Align(alignment: Alignment.centerLeft, child: Chip(backgroundColor: Colors.green.withOpacity(0.25), label: Text('${_bloc.taflevel$[3].name}', style: gridFieldStyle()), padding: EdgeInsets.zero,)),
               ],
-              onTap: ()=>this.header ? _bloc.loadTafsili(rw.id) : _bloc.backtoTaf4(),
-              color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.moinrows$.rows.indexOf(rw).isEven ? rowColor(context) : null,
             ) : Container(),
           ),
         ),
@@ -311,7 +326,7 @@ class PnTaf5 extends StatelessWidget {
       children: [
         this.header ? GridRow([
           Field('کد تفصیلی', bold: true,),
-          Field('عنوان تفصیلی', flex: 2, bold: true,),
+          Field('${_bloc.taflevel$[4].name}', flex: 2, bold: true,),
           Field('گردش بدهکار', bold: true,),
           Field('گردش بستانکار', bold: true,),
           Field('مانده بدهکار', bold: true,),
@@ -320,18 +335,22 @@ class PnTaf5 extends StatelessWidget {
         Expanded(
           child: StreamListWidget(
             stream: _bloc.taf5Stream$,
-            itembuilder: (rw)=> rw.active ? GridRow(
-              [
-                this.header ? Field(SizedBox(width: 1))  :  Field('${_bloc.taflevel$[4].name}', bold: true),
-                Field('${rw.id}'),
-                Field('${rw.name}', flex: 2),
-                Field('${moneySeprator(rw.bed)}'),
-                Field('${moneySeprator(rw.bes)}'),
-                Field('${moneySeprator(rw.mandebed)}'),
-                Field('${moneySeprator(rw.mandebes)}'),
+            itembuilder: (rw)=> rw.active ? Stack(
+              children: [
+                GridRow(
+                  [
+                    Field('${rw.id}'),
+                    Field('${rw.name}', flex: 2),
+                    Field('${moneySeprator(rw.bed)}', color: Colors.red.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.bes)}', color: Colors.green.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebed)}', color: Colors.blue.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebes)}', color: Colors.purple.withOpacity(0.2)),
+                  ],
+                  onTap: ()=>this.header ? _bloc.loadTafsili(rw.id) : _bloc.backtoTaf5(),
+                  color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.taf5rows$.rows.indexOf(rw).isOdd ? rowColor(context) : null,
+                ),
+                this.header ? Container() : Align(alignment: Alignment.centerLeft, child: Chip(backgroundColor: Colors.green.withOpacity(0.25), label: Text('${_bloc.taflevel$[4].name}', style: gridFieldStyle()), padding: EdgeInsets.zero,)),
               ],
-              onTap: ()=>this.header ? _bloc.loadTafsili(rw.id) : _bloc.backtoTaf5(),
-              color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.moinrows$.rows.indexOf(rw).isEven ? rowColor(context) : null,
             ) : Container(),
           ),
         ),
@@ -351,7 +370,7 @@ class PnTaf6 extends StatelessWidget {
       children: [
         this.header ? GridRow([
           Field('کد تفصیلی', bold: true,),
-          Field('عنوان تفصیلی', flex: 2, bold: true,),
+          Field('${_bloc.taflevel$[5].name}', flex: 2, bold: true,),
           Field('گردش بدهکار', bold: true,),
           Field('گردش بستانکار', bold: true,),
           Field('مانده بدهکار', bold: true,),
@@ -362,16 +381,15 @@ class PnTaf6 extends StatelessWidget {
             stream: _bloc.taf6Stream$,
             itembuilder: (rw)=> rw.active ? GridRow(
               [
-                this.header ? Field(SizedBox(width: 1))  :  Field('${_bloc.taflevel$[5].name}', bold: true),
                 Field('${rw.id}'),
                 Field('${rw.name}', flex: 2),
-                Field('${moneySeprator(rw.bed)}'),
-                Field('${moneySeprator(rw.bes)}'),
-                Field('${moneySeprator(rw.mandebed)}'),
-                Field('${moneySeprator(rw.mandebes)}'),
+                Field('${moneySeprator(rw.bed)}', color: Colors.red.withOpacity(0.2)),
+                Field('${moneySeprator(rw.bes)}', color: Colors.green.withOpacity(0.2)),
+                Field('${moneySeprator(rw.mandebed)}', color: Colors.blue.withOpacity(0.2)),
+                Field('${moneySeprator(rw.mandebes)}', color: Colors.purple.withOpacity(0.2)),
               ],
               onTap: ()=>_bloc.loadTafsili(rw.id),
-              color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.moinrows$.rows.indexOf(rw).isEven ? rowColor(context) : null,
+              color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.taf6rows$.rows.indexOf(rw).isOdd ? rowColor(context) : null,
             ) : Container(),
           ),
         ),

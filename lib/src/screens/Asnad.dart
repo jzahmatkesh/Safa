@@ -104,11 +104,11 @@ class PnAsnad extends StatelessWidget {
         Expanded(
           child: StreamListWidget(stream: asnad.rowsStream$, itembuilder: (rw) =>GridRow(
             [
-              Field('${rw.id}'),
-              Field('${rw.date}'),
-              Field('${rw.note}', flex: 2,),
-              Field('${moneySeprator(rw.bed)}'),
-              Field('${moneySeprator(rw.bes)}'),
+              Field('${rw.id}', color: sanadColor(rw)),
+              Field('${rw.date}', color: sanadColor(rw)),
+              Field('${rw.note}', flex: 2, color: sanadColor(rw)),
+              Field('${moneySeprator(rw.bed)}', color: Colors.blue.withOpacity(0.15)),
+              Field('${moneySeprator(rw.bes)}', color: Colors.deepOrange.withOpacity(0.15)),
               Field(
                 rw.bed>0 && rw.bes == rw.bed && !rw.reg 
                   ? IButton(icon: Icon(CupertinoIcons.hand_thumbsdown), hint: 'ثبت سند', onPressed: ()=>asnad.registerSanad(context, rw.id))
@@ -116,20 +116,11 @@ class PnAsnad extends StatelessWidget {
                     ? IButton(icon: Icon(CupertinoIcons.hand_thumbsup), hint: 'خروج از ثبت', onPressed: ()=>asnad.registerSanad(context, rw.id))
                     : rw.bed==0 && rw.bes==0
                       ? IButton(icon: Icon(CupertinoIcons.trash), hint: 'حذف سند', onPressed: ()=>asnad.delData(context: context, msg: 'سند شماره ${rw.id}', body: {'id': rw.id}))
-                      : Container(width: 40,)
+                      : Container(width: 40,),
               ),
-              rw.bed > 0 || rw.bes > 0 ? Field(IButton(icon: Icon(CupertinoIcons.doc_on_doc), hint: 'کپی سند', onPressed: ()=>asnad.copySanad(context, rw.id))) : Field(Container()),
+              rw.bed > 0 || rw.bes > 0 ? Field(IButton(icon: Icon(CupertinoIcons.doc_on_doc), hint: 'کپی سند', onPressed: ()=>asnad.copySanad(context, rw.id))) : Field(Container(width: 40)),
               Field(IButton(icon: Icon(CupertinoIcons.viewfinder), hint: 'مشاهده سند', onPressed: ()=>asnad.showSanad(rw))),
             ],
-            color: rw.bed==0 && rw.bes == 0 
-              ? Colors.yellow.withOpacity(0.15)
-              : rw.bed != rw.bes
-                ? Colors.red.withOpacity(0.15)
-                : rw.reg 
-                  ? Colors.green.withOpacity(0.15)
-                  : rw.bed>0 && rw.bes == rw.bed && !rw.reg
-                    ? Colors.lightBlue.withOpacity(0.25)
-                    :  null,
             onDoubleTap: (){},
           ))
         ),
@@ -356,4 +347,14 @@ class PnSanad extends StatelessWidget {
 }
 
 
-
+Color sanadColor(Mainclass rw){
+  return rw.bed==0 && rw.bes == 0 
+    ? Colors.yellow.withOpacity(0.05)
+    : rw.bed != rw.bes
+      ? Colors.red.withOpacity(0.05)
+      : rw.reg 
+        ? Colors.green.withOpacity(0.05)
+        : rw.bed>0 && rw.bes == rw.bed && !rw.reg
+          ? Colors.lightBlue.withOpacity(0.05)
+          :  null;
+}

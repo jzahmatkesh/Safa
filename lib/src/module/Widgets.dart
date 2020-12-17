@@ -202,13 +202,16 @@ class Menu extends StatelessWidget {
 }
 
 class Field extends StatelessWidget {
-  const Field(this.data,{Key key, this.bold = false, this.flex = 1, this.sort, this.center = false}) : super(key: key);
+  const Field(this.data,{Key key, this.bold = false, this.flex = 1, this.sort, this.center = false, this.padding, this.height=44, this.color = Colors.transparent}) : super(key: key);
 
   final dynamic data;
   final bool bold;
   final int flex;
   final Sort sort;
   final bool center;
+  final EdgeInsetsGeometry padding;
+  final double height;
+  final Color color;
   // final bool editable;
   // final String json;
 
@@ -220,11 +223,70 @@ class Field extends StatelessWidget {
         : this.sort == Sort.Asc
           ? Row(children: [Icon(CupertinoIcons.sort_up, size: 20), SizedBox(width: 3,), widget()],)
           : Row(children: [Icon(CupertinoIcons.sort_down, size: 20), SizedBox(width: 3,), widget()],)
-      : data as Widget;
+      : data is Edit
+        ? Expanded(child: data as Widget)
+        : data as Widget;
   }
 
   Widget widget(){
-    return Text('$data', textAlign: this.center ? TextAlign.center : TextAlign.start, style: this.bold ? TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Lalezar', fontSize: 14) : null);
+    return Expanded(
+      flex: this.flex,
+      child: Container(
+        padding: this.padding ?? EdgeInsets.all(8), 
+        margin: EdgeInsets.zero,
+        height: this.height, 
+        child: Text('$data', style: this.bold ? TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Lalezar', fontSize: 14) : null), 
+        color: this.color
+      )
+    );
+  }
+}
+
+class GridRow extends StatelessWidget {
+  const GridRow(this.fields, {Key key, this.color, this.onTap, this.header = false, this.onDoubleTap}) : super(key: key);
+
+  final List<Field> fields;
+  final Color color;
+  final VoidCallback onTap;
+  final bool header;
+  final VoidCallback onDoubleTap;
+
+  @override
+  Widget build(BuildContext context) {
+    // bool icn = fields.where((e) => !(e.data is String)).length > 0;
+    return this.onTap != null
+      ? Card(
+        child: ListTile(
+          contentPadding: EdgeInsets.zero,
+          minVerticalPadding: 0,
+          dense: true,
+          title: widget(context),
+          onTap: this.onTap,
+        ),
+        // color: this.color ?? (this.header ? appbarColor(context) : Colors.transparent),
+      )
+      : GestureDetector(
+        onDoubleTap: this.onDoubleTap,
+        child: Card(
+          // color: this.color ?? (this.header ? appbarColor(context) : Colors.transparent),
+          child: widget(context)
+        ),
+      );
+  }
+
+  Widget widget(BuildContext context){
+    return Container(
+      color: this.color,
+      padding: EdgeInsets.zero,
+      margin: EdgeInsets.zero,
+      child: Row(
+        children: [
+          SizedBox(width: 10),
+          ...fields.map((e) => e),
+          SizedBox(width: 10),
+        ]
+      )
+    );
   }
 }
 
@@ -410,89 +472,6 @@ class Edit extends StatelessWidget {
               : <TextInputFormatter>[],
     );
   }
-}
-
-class GridRow extends StatelessWidget {
-  const GridRow(this.fields, {Key key, this.color, this.header = false, this.onTap, this.onDoubleTap}) : super(key: key);
-
-  final List<Field> fields;
-  final Color color;
-  final bool header;
-  final VoidCallback onTap;
-  final VoidCallback onDoubleTap;
-
-  @override
-  Widget build(BuildContext context) {
-    bool icn = fields.where((e) => !(e.data is String)).length > 0;
-    return this.onTap != null
-      ? Card(
-        child: ListTile(
-          dense: true,
-          title: widget(context, icn),
-          onTap: this.onTap,
-        ),
-        color: this.color ?? (this.header ? appbarColor(context) : Colors.transparent),
-      )
-      : GestureDetector(
-        onDoubleTap: this.onDoubleTap,
-        child: Card(
-          color: this.color ?? (this.header ? appbarColor(context) : Colors.transparent),
-          child: widget(context, icn)
-        ),
-      );
-  }
-
-  Widget widget(BuildContext context, bool icn){
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: header ? 12 : icn ? 0 : 12, horizontal: 8),
-      child: Row(
-        children: [
-          ...fields.map((e){
-            if (e.data is String)
-              return Expanded(child: e, flex: e.flex ?? 1,);
-            else if (e.data is Edit) // || e.data is F2Edit
-              return Expanded(flex: e.flex, child: Container(margin: EdgeInsets.symmetric(vertical: 5, horizontal: 3), child: e.data));
-            else 
-              return e.data;
-          })
-        ],
-      ),
-    );
-  }
-  // @override
-  // Widget build(BuildContext context) {
-  //   bool icn = fields.where((e) => !(e.data is String)).length > 0;
-  //   return this.onTap != null
-  //     ? ListTile(
-  //       title: widget(context, icn),
-  //       onTap: this.onTap,
-  //     )
-  //     : GestureDetector(
-  //       onDoubleTap: this.onDoubleTap,
-  //       child: widget(context, icn),
-  //     );
-  // }
-
-  // Widget widget(BuildContext context, bool icn){
-  //   return Card(
-  //     color: this.color ?? (this.header ? appbarColor(context) : Colors.transparent),
-  //     child: Padding(
-  //       padding: EdgeInsets.symmetric(vertical: header ? 12 : icn ? 0 : 12, horizontal: 8),
-  //       child: Row(
-  //         children: [
-  //           ...fields.map((e){
-  //             if (e.data is String)
-  //               return Expanded(flex: e.flex, child: e);
-  //             else if (e.data is Edit || e.data is F2Edit)
-  //               return Expanded(flex: e.flex, child: Container(margin: EdgeInsets.symmetric(vertical: 5, horizontal: 3), child: e.data));
-  //             else 
-  //               return e.data;
-  //           })
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 }
 
 class FilterItem extends StatelessWidget {

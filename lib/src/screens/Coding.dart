@@ -75,7 +75,6 @@ class FmCoding extends StatelessWidget {
   }
 }
 
-
 class PnGroup extends StatelessWidget {
   const PnGroup({Key key, @required this.prov}) : super(key: key);
 
@@ -405,7 +404,7 @@ class PnTafsili extends StatelessWidget {
                         message: e.name, 
                         child: Checkbox(
                           value: e.id==1 ? rw.lev1 : e.id==2 ? rw.lev2 : e.id==3 ? rw.lev3 : e.id==4 ? rw.lev4 : e.id==5 ? rw.lev5 : rw.lev6,
-                          onChanged: (val){}
+                          onChanged: (val)=>setTafToLev(context, rw.id, e.id)
                         )
                       ) : Container()
                     )
@@ -464,6 +463,12 @@ void saveTafsili(BuildContext context) async{
       focusChange(context, _ftafid);
     }
   }
+}
+
+void setTafToLev(BuildContext context, int tafid, int lev) async{
+print('$tafid - $lev');
+  if (await _tafsili.saveData(context: context, secapi: 'Coding/TaftoLevel', data: Mainclass(id: tafid, levid: lev)) != null)
+    _tafsili.fetchData();
 }
 
 void editkol(BuildContext context, Mainclass rw){
