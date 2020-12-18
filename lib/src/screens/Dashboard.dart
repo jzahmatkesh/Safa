@@ -2,6 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../module/Blocs.dart';
 import '../module/MyProvider.dart';
@@ -110,11 +111,83 @@ class SideBar extends StatelessWidget {
                 Menu(icon: Icon(CupertinoIcons.rectangle_stack), title: 'اسناد حسابداری', selected: snap.data == 1, onTap: ()=> prov.setDashMenuItem(1)),
                 Menu(icon: Icon(CupertinoIcons.rectangle_3_offgrid), title: 'آنالیز حساب ها', selected: snap.data == 2, onTap: ()=> prov.setDashMenuItem(2)),
                 Spacer(),
+                Menu(icon: Icon(CupertinoIcons.money_dollar_circle), title: 'کمک مالی', onTap: ()=>showFormAsDialog(context: context, form: PnDonate())),
+                Spacer(),
                 Menu(icon: Icon(CupertinoIcons.house_alt), title: 'خروج از سیستم', onTap: (){_asnad=null; prov.signOut();}, hoverColor: Colors.red.withOpacity(0.25),),
               ],
             );
           }
         )
+      ),
+    );
+  }
+}
+
+class PnDonate extends StatelessWidget {
+  const PnDonate({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Container(
+        width: screenWidth(context) * 0.75,
+        height: screenHeight(context) * 0.75,
+        padding: EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          image: DecorationImage(image: AssetImage('images/donate.png'))
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('اهدای کمک مالی', style: TextStyle(fontFamily: 'Lalezar', fontSize: 30, fontWeight: FontWeight.bold, color: Colors.grey),),
+                  SizedBox(height: 10),
+                  Text('اهدای کمک مالی کاملا اختیاری می باشد. چنانچه از مجموع امکانات و خدمات ما در حسابداری صفا راضی هستید می توانید با اهدای کمک مالی ما را در ادامه این راه همیاری نمایید. ', style: TextStyle(fontFamily: 'parastoo', fontSize: 14, color: Colors.grey),),
+                  Text('تشکر و سپاس از طرف مجموعه حسابداری رایگان صفا', style: TextStyle(fontFamily: 'parastoo', fontSize: 14, color: Colors.grey),),
+                ],
+              ),
+            ),
+            SizedBox(width: 100),
+            Expanded(
+              flex: 1,
+              child: Column(
+                children: [
+                  Card(
+                    color: Colors.red.withOpacity(0.5),
+                    child: ListTile(
+                      title: Text('بیست هزار تومان'),
+                      leading: Icon(CupertinoIcons.money_dollar_circle),
+                      onTap: ()=>launchUrl("https://zarinp.al/349377"),
+                      hoverColor: Colors.redAccent,
+                    ),
+                  ),
+                  Card(
+                    color: Colors.green.withOpacity(0.5),
+                    child: ListTile(
+                      title: Text('پنجاه هزار تومان'),
+                      leading: Icon(CupertinoIcons.money_dollar_circle),
+                      onTap: ()=>launchUrl("https://zarinp.al/349378"),
+                      hoverColor: Colors.greenAccent,
+                    ),
+                  ),
+                  Card(
+                    color: Colors.blue.withOpacity(0.5),
+                    child: ListTile(
+                      title: Text('یکصد هزار تومان'),
+                      leading: Icon(CupertinoIcons.money_dollar_circle),
+                      onTap: ()=>launchUrl("https://zarinp.al/349379"),
+                      hoverColor: Colors.blueAccent,
+                    ),
+                  )                    
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

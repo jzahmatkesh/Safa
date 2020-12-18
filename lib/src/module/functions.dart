@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../screens/Login.dart';
 import 'class.dart';
@@ -319,3 +320,10 @@ Future<bool> sendSms(BuildContext context, String number, String msg) async{
   }
 }
 
+launchUrl(String url) async{
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }                      
+}
