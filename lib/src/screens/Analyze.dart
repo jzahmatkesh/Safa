@@ -1,14 +1,21 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
 
 import '../module/Blocs.dart';
 import '../module/MyProvider.dart';
 import '../module/Widgets.dart';
+import '../module/class.dart';
 import '../module/functions.dart';
 
-AnalyzeBloc _bloc;
 
+AnalyzeBloc _bloc;
 class FmAnalyze extends StatelessWidget {
   const FmAnalyze({Key key}) : super(key: key);
 
@@ -69,6 +76,7 @@ class PnKol extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        IButton(icon: Icon(CupertinoIcons.printer), hint: 'پرینت', onPressed: ()=>showFormAsDialog(context: context, form: PdfViewer())),
         this.header ? GridRow([
           Field('کد کل', bold: true,),
           Field('عنوان کل', flex: 2, bold: true,),
@@ -472,4 +480,80 @@ class StartLev extends StatelessWidget {
       ),
     );
   }
+}
+
+class PdfViewer extends StatelessWidget {
+  const PdfViewer({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: screenWidth(context)*0.85,
+      child: PdfPreview(
+        build: (format) => _generatePdf(format, 'آنالیز حساب - گردش حساب کل', _bloc.rowsValue$.rows),
+      ),
+    );
+  }
+}
+
+Future<Uint8List> _generatePdf(PdfPageFormat format, String title, List<Mainclass> data) async {
+  final pdf = pw.Document();
+  final font = await rootBundle.load("fonts/NAZANIN.ttf");
+  final ttf = pw.Font.ttf(font);
+
+  pdf.addPage(
+    pw.Page(
+      theme: pw.ThemeData.withFont(
+          base: ttf,
+      ),
+      // pageFormat: format,
+      build: (context) {
+        return pw.Table.fromTextArray(
+          cellStyle: pw.TextStyle(font: ttf),
+          headerStyle: pw.TextStyle(font: ttf),
+          cellAlignment: pw.Alignment.centerRight,
+          context: context, 
+          data: [
+            [
+              'مانده بستانکار',
+              'مانده بدهکار',
+              'بستانکار',
+               'بدهکار',
+              'عنوان کل',
+              'کد کل',
+            ],
+            ...data.map((e) => ['${moneySeprator(e.mandebes)}', '${moneySeprator(e.mandebed)}', '${moneySeprator(e.bes)}', '${moneySeprator(e.bed)}', '${e.name}', '${e.id}'])
+          ]
+        );
+        // return pw.Container(
+        //     child: pw.Column(
+        //       children: [
+        //         pw.Text('$title', style: pw.TextStyle(font: ttf)),
+        //         ...data.map((e) => pw.Container(
+        //           margin: pw.EdgeInsets.all(12),
+        //           child: pw.Row(
+        //             children: [
+        //               pw.Expanded(child: pw.Text('${moneySeprator(e.mandebes)}', style: pw.TextStyle(font: ttf))),
+        //               pw.SizedBox(width: 5),
+        //               pw.Expanded(child: pw.Text('${moneySeprator(e.mandebed)}', style: pw.TextStyle(font: ttf))),
+        //               pw.SizedBox(width: 5),
+        //               pw.Expanded(child: pw.Text('${moneySeprator(e.bes)}', style: pw.TextStyle(font: ttf))),
+        //               pw.SizedBox(width: 5),
+        //               pw.Expanded(child: pw.Text('${moneySeprator(e.bed)}', style: pw.TextStyle(font: ttf))),
+        //               pw.SizedBox(width: 5),
+        //               pw.Expanded(child: pw.Text('${e.name}', textDirection: pw.TextDirection.rtl), flex: 2),
+        //               pw.SizedBox(width: 5),
+        //               pw.Expanded(child: pw.Text('${e.id}', style: pw.TextStyle(font: ttf))),
+        //             ]
+        //           )
+        //         ))
+        //       ]
+        //     )
+        //   // )
+        // );
+      },
+    ),
+  );
+
+  return pdf.save();
 }
