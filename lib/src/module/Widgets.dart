@@ -28,7 +28,7 @@ class Header extends StatelessWidget {
     return Card(
       color: color ?? appbarColor(context),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 5),
+        padding: EdgeInsets.symmetric(vertical: rightBtn==null && leftBtn==null ? 15 : 5, horizontal: 5),
         child: Directionality(
           textDirection: TextDirection.rtl,
           child: Row(

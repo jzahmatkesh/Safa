@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -22,7 +23,15 @@ class FmAnalyze extends StatelessWidget {
         stream: _bloc.analyzeStream$,
         itemBuilder: (data)=> Column(
           children: [
-            _bloc.kolid == 0 ? Expanded(child: PnKol()) : Container(height: 55, child: PnKol(header: false)),
+            Header(title: 'آنالیز حساب', rightBtn: IButton(icon: Icon(CupertinoIcons.rectangle_on_rectangle), hint: 'انتخاب سطح شروع', onPressed: ()=>showFormAsDialog(context: context, form: StartLev()))),
+            _bloc.lev > 0 
+              ? _bloc.tafid == 0
+                ? Expanded(child: PnStartTaf()) 
+                : Container(height: 55, child: PnStartTaf(header: false))
+              : Container(),
+            (_bloc.lev > 0 && _bloc.tafid>0) || (_bloc.lev == 0)
+              ? _bloc.kolid == 0 ? Expanded(child: PnKol()) : Container(height: 55, child: PnKol(header: false))
+              : Container(),
             _bloc.kolid > 0
               ? _bloc.moinid == 0 ? Expanded(child: PnMoin()) : Container(height: 55, child: PnMoin(header: false))
               : Container(),
@@ -394,6 +403,73 @@ class PnTaf6 extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class PnStartTaf extends StatelessWidget {
+  const PnStartTaf({Key key, this.header = true}) : super(key: key);
+
+  final bool header;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        this.header ? GridRow([
+          Field('کد تفصیلی', bold: true,),
+          Field('${_bloc.taflevel$[_bloc.lev].name}', flex: 2, bold: true,),
+          Field('گردش بدهکار', bold: true,),
+          Field('گردش بستانکار', bold: true,),
+          Field('مانده بدهکار', bold: true,),
+          Field('مانده بستانکار', bold: true,),
+        ], header: true) :  Container(),
+        Expanded(
+          child: StreamListWidget(
+            stream: _bloc.startTafStream$,
+            itembuilder: (rw)=> rw.active ? Stack(
+              children: [
+                GridRow(
+                  [
+                    Field('${rw.id}'),
+                    Field('${rw.name}', flex: 2),
+                    Field('${moneySeprator(rw.bed)}', color: Colors.red.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.bes)}', color: Colors.green.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebed)}', color: Colors.blue.withOpacity(0.2)),
+                    Field('${moneySeprator(rw.mandebes)}', color: Colors.purple.withOpacity(0.2)),
+                  ],
+                  color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.taf1rows$.rows.indexOf(rw).isOdd ? rowColor(context) : null,
+                  onTap: ()=>this.header  ? _bloc.loadTafsili(rw.id) : _bloc.backtoTaf1(),
+                ),
+                this.header ? Container() : Align(alignment: Alignment.centerLeft, child: Chip(backgroundColor: Colors.green.withOpacity(0.25), label: Text('${_bloc.taflevel$[0].name}', style: gridFieldStyle()), padding: EdgeInsets.zero,)),
+              ],
+            ) : Container(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class StartLev extends StatelessWidget {
+  const StartLev({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Container(
+        width: 350,
+        // padding: EdgeInsets.all(8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Header(title: 'سطح مورد نظر را انتخاب نمایید'),
+            Card(child: ListTile(title: Text('حساب کل'), onTap: ()=>_bloc.setStartLev(0))),
+            ..._bloc.taflevel$.map((e) => Card(child: ListTile(title: Text(e.name), onTap: ()=>_bloc.setStartLev(e.id))))
+          ],
+        )
+      ),
     );
   }
 }

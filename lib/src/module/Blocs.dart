@@ -542,6 +542,7 @@ class CodingBloc extends Bloc{
 }
 
 class AnalyzeBloc extends Bloc{
+  PublicBloc _startTafBloc;
   PublicBloc _moinBloc;
   PublicBloc _taf1Bloc;
   PublicBloc _taf2Bloc;
@@ -552,6 +553,7 @@ class AnalyzeBloc extends Bloc{
   PublicBloc tafLevel;
 
   AnalyzeBloc({@required BuildContext context,@required String api, @required String token, @required Map<String, dynamic> body}): super(context: context, api: api, token: token, body: body){
+    _startTafBloc = PublicBloc(context: this.context, token: this.token, api: 'Analyze/StartTaf', body: {});
     _moinBloc = PublicBloc(context: this.context, token: this.token, api: 'Analyze/Moin', body: {});
     _taf1Bloc = PublicBloc(context: this.context, token: this.token, api: 'Analyze/Tafsili', body: {});
     _taf2Bloc = PublicBloc(context: this.context, token: this.token, api: 'Analyze/Tafsili', body: {});
@@ -568,6 +570,8 @@ class AnalyzeBloc extends Bloc{
   IntBloc _analyzeBloc = IntBloc();
   Stream<int> get analyzeStream$ => _analyzeBloc.stream$;
 
+  Stream<DataModel> get startTafStream$ => _startTafBloc==null ? null : _startTafBloc.rowsStream$;
+  DataModel get startTafrows$ => _startTafBloc==null ? null : _startTafBloc.rowsValue$;
   Stream<DataModel> get moinStream$ => _moinBloc==null ? null : _moinBloc.rowsStream$;
   DataModel get moinrows$ => _moinBloc==null ? null : _moinBloc.rowsValue$;
   Stream<DataModel> get taf1Stream$ => _taf1Bloc==null ? null : _taf1Bloc.rowsStream$;
@@ -641,6 +645,11 @@ class AnalyzeBloc extends Bloc{
     _analyzeBloc.setValue(_analyzeBloc.value+1);
   }
 
+  loadStartTafsili(){
+    _startTafBloc.fetchOtherData(body: {"lev": lev});
+    _analyzeBloc.setValue(1);
+  }
+
   backtoMoin(){
     moinid=0;
     taf1=0;
@@ -712,5 +721,17 @@ class AnalyzeBloc extends Bloc{
     _taf6Bloc.emptyList();
     _taf5Bloc.setActive(0);
     _analyzeBloc.setValue(_analyzeBloc.value+1);
+  }
+
+  setStartLev(int lv){
+    if (lv == 0){
+      tafid = 0;
+      lev = 0;
+      loadMoin(0);
+    }
+    else{
+      lev = lv;
+      loadStartTafsili();
+    }
   }
 }
