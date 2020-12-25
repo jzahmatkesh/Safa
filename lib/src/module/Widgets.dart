@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'MyProvider.dart';
 
+import 'Blocs.dart';
+import 'MyProvider.dart';
 import 'class.dart';
 import 'functions.dart';
-import 'Blocs.dart';
 
 enum Btn{
   Add,Save,Exit,Reload,Del,Other,Edit,Loading
@@ -36,7 +37,7 @@ class Header extends StatelessWidget {
               rightBtn != null
                 ? rightBtn
                 : Container(width: 0),
-              Expanded(child: Text('$title', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Nazanin', fontSize: 20, fontWeight: FontWeight.bold),)),
+              Expanded(child: Text('$title', textAlign: TextAlign.center, style: GoogleFonts.mirza(fontSize: 20, fontWeight: FontWeight.bold),)),
               leftBtn != null
                 ? leftBtn
                 : Container(width: 0),
@@ -159,7 +160,7 @@ class OButton extends StatelessWidget {
           children: [
             type == Btn.Loading ? CupertinoActivityIndicator() : _icon,
             SizedBox(width: 10),
-            Text(_hnt, style: TextStyle(fontFamily: 'nazanin', fontSize: 18, fontWeight: FontWeight.bold),),
+            Text(_hnt, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
           ],
         ),
         onPressed: type==Btn.Exit && this.onPressed==null 
@@ -224,7 +225,7 @@ class Field extends StatelessWidget {
           ? Row(children: [Icon(CupertinoIcons.sort_up, size: 20), SizedBox(width: 3,), widget()],)
           : Row(children: [Icon(CupertinoIcons.sort_down, size: 20), SizedBox(width: 3,), widget()],)
       : data is Edit
-        ? Expanded(child: data as Widget)
+        ? Expanded(child: data as Widget, flex: this.flex)
         : data as Widget;
   }
 
@@ -235,7 +236,7 @@ class Field extends StatelessWidget {
         padding: this.padding ?? EdgeInsets.all(8), 
         margin: EdgeInsets.zero,
         height: this.height, 
-        child: Text('$data', style: this.bold ? TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Lalezar', fontSize: 14) : null), 
+        child: Text('$data', style: this.bold ? TextStyle(fontFamily: 'lateef', fontWeight: FontWeight.bold, fontSize: 14) : TextStyle(fontFamily: '${int.tryParse((data as String).replaceAll(',', '').replaceAll('/', '')) == null ? 'lateef' : 'nazanin'}')), 
         color: this.color
       )
     );

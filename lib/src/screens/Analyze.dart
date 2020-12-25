@@ -508,21 +508,27 @@ Future<Uint8List> _generatePdf(PdfPageFormat format, String title, List<Mainclas
       ),
       // pageFormat: format,
       build: (context) {
-        return pw.Table.fromTextArray(
-          cellStyle: pw.TextStyle(font: ttf),
-          headerStyle: pw.TextStyle(font: ttf),
-          cellAlignment: pw.Alignment.centerRight,
-          context: context, 
-          data: [
-            [
-              'مانده بستانکار',
-              'مانده بدهکار',
-              'بستانکار',
-               'بدهکار',
-              'عنوان کل',
-              'کد کل',
-            ],
-            ...data.map((e) => ['${moneySeprator(e.mandebes)}', '${moneySeprator(e.mandebed)}', '${moneySeprator(e.bes)}', '${moneySeprator(e.bed)}', '${e.name}', '${e.id}'])
+        return pw.Column(
+          children: [
+            pw.Text('$title'),
+            pw.SizedBox(height: 35),
+            pw.Table.fromTextArray(
+              cellStyle: pw.TextStyle(font: ttf),
+              headerStyle: pw.TextStyle(font: ttf),
+              cellAlignment: pw.Alignment.centerRight,
+              context: context, 
+              data: [
+                [
+                  'مانده بستانکار',
+                  'مانده بدهکار',
+                  'بستانکار',
+                  'بدهکار',
+                  'عنوان کل',
+                  'کد کل',
+                ],
+                ...data.map((e) => ['${moneySeprator(e.mandebes)}', '${moneySeprator(e.mandebed)}', '${moneySeprator(e.bes)}', '${moneySeprator(e.bed)}', '${e.name}', '${e.id}'])
+              ]
+            ),
           ]
         );
         // return pw.Container(

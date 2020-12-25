@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart' as crypto;
 import 'package:flash/flash.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,6 +14,7 @@ import '../screens/Login.dart';
 import 'class.dart';
 
 
+// google persian fonts   Cairo, Amiri, changa, Almarai, el messiri, markazi, lalezar, mada, lateef, scheherazade, harmattan, rakkas, mirza
 final appThemeData = {
   AppTheme.Light : ThemeData(
       brightness: Brightness.light,
@@ -22,7 +24,7 @@ final appThemeData = {
       scaffoldBackgroundColor: Colors.white,
       bottomAppBarColor: Colors.grey[100],
       textTheme: TextTheme(
-        headline1: TextStyle(color: Colors.grey[600], fontFamily: 'Lalezar', fontSize: 14.0),
+        headline1: GoogleFonts.mirza(color: Colors.grey[600], fontSize: 14.0),
       ),
       fontFamily: 'nazanin',
   ),
@@ -34,7 +36,7 @@ final appThemeData = {
       scaffoldBackgroundColor: Colors.grey[800],
       bottomAppBarColor: Colors.grey[700],
       textTheme: TextTheme(
-        headline1: TextStyle(color: Colors.white70, fontFamily: 'Lalezar', fontSize: 14.0)
+        headline1: GoogleFonts.mirza(color: Colors.grey[600], fontSize: 14.0),
       ),
       fontFamily: 'nazanin',
   ),

@@ -271,6 +271,7 @@ class PnSanad extends StatelessWidget {
               Field('شرح آرتیکل', bold: true, flex: 2),
               Field('بدهکار', bold: true,),
               Field('بستانکار', bold: true,),
+              Field(SizedBox(width: 80))
             ], header: true);
           }
         ),
@@ -319,7 +320,7 @@ class PnSanad extends StatelessWidget {
         StreamWidget(stream: _artykl.rowsStream$, itemBuilder: (DataModel data)=> data.status==Status.Loaded ? GridRow(
           [
             Field('جمع'),
-            Field(Spacer()),
+            Field('', flex: _artykl.tafLevel.rowsValue$.rows.where((element)=>element.active).length+1),
             Field(data.rows.length == 0 ? '0' : moneySeprator(data.rows.reduce((value, element) => Mainclass(bed: value.bed+element.bed)).bed)),
             Field(data.rows.length == 0 ? '0' : moneySeprator(data.rows.reduce((value, element) => Mainclass(bes: value.bes+element.bes)).bes)),
           ], 
@@ -332,7 +333,7 @@ class PnSanad extends StatelessWidget {
             return GridRow(
               [
                 Field('اختلاف'),
-                Field(Spacer()),
+                Field('', flex: _artykl.tafLevel.rowsValue$.rows.where((element)=>element.active).length+1),
                 Field(moneySeprator(_bed > _bes ? _bed - _bes : 0)),
                 Field(moneySeprator(_bed < _bes ? _bes - _bed : 0)),
               ], 

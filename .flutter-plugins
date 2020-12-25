@@ -1,14 +1,16 @@
 # This is a generated file; do not edit or check into version control.
-file_picker=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/file_picker-2.1.1/
+file_picker=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/file_picker-2.1.4/
 flutter_plugin_android_lifecycle=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_plugin_android_lifecycle-1.0.11/
+path_provider=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-1.6.24/
 path_provider_linux=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_linux-0.0.1+2/
-path_provider_windows=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_windows-0.0.4+1/
+path_provider_macos=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_macos-0.0.4+6/
+path_provider_windows=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_windows-0.0.4+3/
 printing=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/printing-3.7.2/
-shared_preferences=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.5.12+2/
-shared_preferences_linux=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_linux-0.0.2+2/
-shared_preferences_macos=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_macos-0.0.1+10/
+shared_preferences=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.5.12+4/
+shared_preferences_linux=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_linux-0.0.2+4/
+shared_preferences_macos=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_macos-0.0.1+11/
 shared_preferences_web=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_web-0.1.2+7/
-shared_preferences_windows=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_windows-0.0.1+1/
+shared_preferences_windows=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_windows-0.0.1+3/
 url_launcher=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/url_launcher-5.7.10/
 url_launcher_linux=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/url_launcher_linux-0.0.1+4/
 url_launcher_macos=/Users/javadzahmatkesh/Developing/flutter/.pub-cache/hosted/pub.dartlang.org/url_launcher_macos-0.0.1+9/
