@@ -160,7 +160,7 @@ class OButton extends StatelessWidget {
           children: [
             type == Btn.Loading ? CupertinoActivityIndicator() : _icon,
             SizedBox(width: 10),
-            Text(_hnt, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+            Text(_hnt, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),),
           ],
         ),
         onPressed: type==Btn.Exit && this.onPressed==null 

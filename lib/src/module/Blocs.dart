@@ -734,4 +734,10 @@ class AnalyzeBloc extends Bloc{
       loadStartTafsili();
     }
   }
+  setStartLevTafsili(int taf){
+    tafid = taf;
+    _startTafBloc.setActive(taf);
+    fetchOtherData(body: {'tafid': tafid, 'lev': lev});
+    _analyzeBloc.setValue(_analyzeBloc.value+1);
+  }
 }

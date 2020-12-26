@@ -76,7 +76,7 @@ class PnKol extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        IButton(icon: Icon(CupertinoIcons.printer), hint: 'پرینت', onPressed: ()=>showFormAsDialog(context: context, form: PdfViewer())),
+        // IButton(icon: Icon(CupertinoIcons.printer), hint: 'پرینت', onPressed: ()=>showFormAsDialog(context: context, form: PdfViewer())),
         this.header ? GridRow([
           Field('کد کل', bold: true,),
           Field('عنوان کل', flex: 2, bold: true,),
@@ -447,7 +447,7 @@ class PnStartTaf extends StatelessWidget {
                     Field('${moneySeprator(rw.mandebes)}', color: Colors.purple.withOpacity(0.2)),
                   ],
                   color: !this.header ? accentcolor(context).withOpacity(0.1) : _bloc.taf1rows$.rows.indexOf(rw).isOdd ? rowColor(context) : null,
-                  onTap: ()=>this.header  ? _bloc.loadTafsili(rw.id) : _bloc.backtoTaf1(),
+                  onTap: ()=>this.header ? _bloc.setStartLevTafsili(rw.id) : _bloc.backtoTaf1(),
                 ),
                 this.header ? Container() : Align(alignment: Alignment.centerLeft, child: Chip(backgroundColor: Colors.green.withOpacity(0.25), label: Text('${_bloc.taflevel$[0].name}', style: gridFieldStyle()), padding: EdgeInsets.zero,)),
               ],
@@ -474,7 +474,10 @@ class StartLev extends StatelessWidget {
           children: [
             Header(title: 'سطح مورد نظر را انتخاب نمایید'),
             Card(child: ListTile(title: Text('حساب کل'), onTap: ()=>_bloc.setStartLev(0))),
-            ..._bloc.taflevel$.map((e) => Card(child: ListTile(title: Text(e.name), onTap: ()=>_bloc.setStartLev(e.id))))
+            ..._bloc.taflevel$.map((e) => Card(child: ListTile(title: Text(e.name), onTap: (){
+              Navigator.of(context).pop();
+              _bloc.setStartLev(e.id);
+            })))
           ],
         )
       ),
