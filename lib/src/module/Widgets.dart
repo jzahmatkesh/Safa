@@ -29,7 +29,7 @@ class Header extends StatelessWidget {
     return Card(
       color: color ?? appbarColor(context),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: rightBtn==null && leftBtn==null ? 15 : 5, horizontal: 5),
+        padding: EdgeInsets.symmetric(vertical: rightBtn==null && leftBtn==null ? 12.5 : 5, horizontal: 5),
         child: Directionality(
           textDirection: TextDirection.rtl,
           child: Row(
@@ -236,7 +236,7 @@ class Field extends StatelessWidget {
         padding: this.padding ?? EdgeInsets.all(8), 
         margin: EdgeInsets.zero,
         height: this.height, 
-        child: Text('$data', style: this.bold ? TextStyle(fontFamily: 'lateef', fontWeight: FontWeight.bold, fontSize: 14) : TextStyle(fontFamily: '${int.tryParse((data as String).replaceAll(',', '').replaceAll('/', '')) == null ? 'lateef' : 'nazanin'}')), 
+        child: Text('$data', style: this.bold ? TextStyle(fontFamily: 'lateef', fontWeight: FontWeight.bold, fontSize: 12) : TextStyle(fontFamily: '${int.tryParse((data as String).replaceAll(',', '').replaceAll('/', '')) == null ? 'lateef' : 'nazanin'}')), 
         color: this.color
       )
     );
@@ -255,7 +255,7 @@ class GridRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // bool icn = fields.where((e) => !(e.data is String)).length > 0;
-    return this.onTap != null
+    return this.onDoubleTap == null
       ? Card(
         child: ListTile(
           contentPadding: EdgeInsets.zero,
@@ -264,12 +264,13 @@ class GridRow extends StatelessWidget {
           title: widget(context),
           onTap: this.onTap,
         ),
-        // color: this.color ?? (this.header ? appbarColor(context) : Colors.transparent),
+        color: this.color ?? (this.header ? appbarColor(context) : Colors.transparent),
       )
       : GestureDetector(
         onDoubleTap: this.onDoubleTap,
+        onTap: this.onTap,
         child: Card(
-          // color: this.color ?? (this.header ? appbarColor(context) : Colors.transparent),
+          color: this.color ?? (this.header ? appbarColor(context) : Colors.transparent),
           child: widget(context)
         ),
       );

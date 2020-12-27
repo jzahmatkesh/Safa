@@ -15,6 +15,15 @@ Content-Type: application/json
     "mobile": "09305105691"
 }
 
+####
+POST http://127.0.0.1:8080/Finance/api/Anbar
+Content-Type: application/json
+
+{
+    "filter": "0", 
+    "token": "2C034071-F9F2-4AFD-864A-35D6DAB11B2E"
+}
+
 
 ###
 POST http://127.0.0.1:8080/PamaApi/api/F2Key/Bank

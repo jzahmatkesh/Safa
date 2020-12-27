@@ -11,6 +11,7 @@ import 'Analyze.dart';
 import 'Asnad.dart';
 import 'Coding.dart';
 import 'Level.dart';
+import 'Product.dart';
 
 
 SanadBloc _asnad;
@@ -61,6 +62,7 @@ class Dashboard extends StatelessWidget {
                             if (snap.data == 2) return FmAnalyze();
                             if (snap.data == 3) return FmCoding();
                             if (snap.data == 4) return FmLevel();
+                            if (snap.data == 5) return FmProduct();
                           }
                           return Text('none');
                         },
@@ -108,6 +110,8 @@ class SideBar extends StatelessWidget {
                 Menu(icon: Icon(CupertinoIcons.rectangle_compress_vertical), title: 'سطوح تفصیلی', selected: snap.data == 4, onTap: ()=> prov.setDashMenuItem(4)),
                 Menu(icon: Icon(CupertinoIcons.rectangle_stack), title: 'اسناد حسابداری', selected: snap.data == 1, onTap: ()=> prov.setDashMenuItem(1)),
                 Menu(icon: Icon(CupertinoIcons.rectangle_3_offgrid), title: 'آنالیز حساب ها', selected: snap.data == 2, onTap: ()=> prov.setDashMenuItem(2)),
+                SizedBox(height: 35,),
+                Menu(icon: Icon(CupertinoIcons.rectangle_3_offgrid), title: 'کالاهای انبار', selected: snap.data == 5, onTap: ()=> prov.setDashMenuItem(5)),
                 Spacer(),
                 Menu(icon: Icon(CupertinoIcons.money_dollar_circle), title: 'کمک مالی', onTap: ()=>showFormAsDialog(context: context, form: PnDonate())),
                 Spacer(),

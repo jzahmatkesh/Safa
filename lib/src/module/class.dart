@@ -78,6 +78,15 @@ class Mainclass{
     int taf4;
     int taf5;
     int taf6;
+    int anbarid;
+    int prdid;
+    int unitid;
+    double mojodi;
+    double buyprice;
+    double sellprice;
+    double min;
+    double max;
+    String unitname;
     String kolname;
     String moinname;
     String taf1name;
@@ -105,7 +114,7 @@ class Mainclass{
     bool reg;
     int errorid;
 
-    Mainclass({this.cmpid,this.cmpname,this.dorehid,this.dorehname,this.userid,this.userfamily,this.sanadid,this.levid,this.tafid,this.grpid,this.kolid,this.moinid,this.old,this.id=0,this.name,this.date,this.note,this.taf1,this.taf2,this.taf3,this.taf4,this.taf5,this.taf6,this.kolname,this.moinname,this.taf1name,this.taf2name,this.taf3name,this.taf4name,this.taf5name,this.taf6name,this.bed,this.bes,this.mandebed,this.mandebes,this.edit=false, this.token, this.selected=false, this.inSearch = true, this.lev1=false,this.lev2=false,this.lev3=false,this.lev4=false,this.lev5=false,this.lev6=false, this.active = true, this.autoins = false, this.reg=false, this.errorid = 0});
+    Mainclass({this.cmpid,this.cmpname,this.dorehid,this.dorehname,this.userid,this.userfamily,this.sanadid,this.levid,this.tafid,this.grpid,this.kolid,this.moinid,this.old,this.id=0,this.name,this.date,this.note,this.taf1,this.taf2,this.taf3,this.taf4,this.taf5,this.taf6,this.kolname,this.moinname,this.taf1name,this.taf2name,this.taf3name,this.taf4name,this.taf5name,this.taf6name,this.bed,this.bes,this.mandebed,this.mandebes,this.edit=false, this.token, this.selected=false, this.inSearch = true, this.lev1=false,this.lev2=false,this.lev3=false,this.lev4=false,this.lev5=false,this.lev6=false, this.active = true, this.autoins = false, this.reg=false, this.errorid = 0, this.anbarid, this.prdid, this.mojodi, this.min, this.max, this.unitid, this.unitname, this.buyprice, this.sellprice});
  
     Mainclass.fromJson(Map<String, dynamic> json):
         cmpid = json['cmpid'],
@@ -137,6 +146,15 @@ class Mainclass{
         lev4 = json['lev4'] == 2 ? null : json['lev4'] == 1,
         lev5 = json['lev5'] == 2 ? null : json['lev5'] == 1,
         lev6 = json['lev6'] == 2 ? null : json['lev6'] == 1,
+        anbarid = json['anbarid'],
+        prdid = json['prdid'],
+        unitid = json['unitid'],
+        mojodi = json['mojodi'],
+        buyprice = json['buyprice'],
+        sellprice = json['sellprice'],
+        min = json['min'],
+        max = json['max'],
+        unitname = json['unitname'],
         kolname = json['kolname'],
         moinname = json['moinname'],
         taf1name = json['taf1name'],
@@ -225,6 +243,26 @@ class Mainclass{
           data['bed'] = this.bed;
         if (this.bes != null)
           data['bes'] = this.bes;
+
+        if (this.anbarid != null)
+          data['anbarid'] = this.anbarid;
+        if (this.prdid != null)
+          data['prdid'] = this.prdid;
+        if (this.unitid != null)
+          data['unitid'] = this.unitid;
+        if (this.mojodi != null)
+          data['mojodi'] = this.mojodi;
+        if (this.min != null)
+          data['min'] = this.min;
+        if (this.max != null)
+          data['max'] = this.max;
+        if (this.unitname != null)
+          data['unitname'] = this.unitname;
+        if (this.buyprice != null)
+          data['buyprice'] = this.buyprice;
+        if (this.sellprice != null)
+          data['sellprice'] = this.sellprice;
+
         data['active'] = this.active ? 1 : 0;
         data['autoins'] = this.autoins ? 1 : 0;
         data['reg'] = this.reg ? 1 : 0;

@@ -148,8 +148,11 @@ abstract class Bloc{
               }
             });
             data.old = data.id;
-            if (nval)
+            if (nval){
+              if (data.id == 0)
+                data.id = _data['body']['id'];
               rowsValue$.rows.insert(0, data);
+            }
             _rows.add(rowsValue$);
           }
           return Mainclass.fromJson(_data['body']);
@@ -169,7 +172,7 @@ abstract class Bloc{
       return null;
   }
 
-  void delData({BuildContext context, String msg, Map<String, dynamic> body, String secapi, Function done}){
+  void delData({BuildContext context, String msg, Map<String, dynamic> body, String secapi, Function done, bool removefromrow = false}){
     confirmMessage(context, 'تایید حذف', 'آیا مایل به حذف $msg می باشید؟', yesclick: () async{
       try{
         body.putIfAbsent('token', () => this.token);
@@ -178,6 +181,10 @@ abstract class Bloc{
           Navigator.of(context).pop();
           if (done != null)
             done();
+          if (removefromrow){
+            rowsValue$.rows.removeWhere((element)=> element.id==body['id']);
+            _rows.add(rowsValue$);
+          }
           myAlert(context: context, title: 'حذف', message: '$msg با موفقیت حذف گردید', msgType: Msg.Success);
         }
         else
@@ -741,3 +748,17 @@ class AnalyzeBloc extends Bloc{
     _analyzeBloc.setValue(_analyzeBloc.value+1);
   }
 }
+
+class AnbarBloc extends Bloc{
+  PublicBloc prdBloc;
+
+  AnbarBloc({@required BuildContext context, @required String api, @required String token}): super(context: context, api: api, token: token, body: {'filter': 0}){
+    prdBloc = PublicBloc(context: this.context, api: 'Anbar/Product', body: {'anbarid': 1}, token: this.token);
+  }
+
+  void loadProduct(int anbar){
+    setActive(anbar);
+    prdBloc.fetchOtherData(body: {'anbarid': anbar});
+  }
+}
+
