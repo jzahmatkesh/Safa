@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../module/Blocs.dart';
@@ -8,7 +10,7 @@ import '../module/class.dart';
 import '../module/functions.dart';
 
 
-AnbarBloc _bloc;
+ProductBloc _bloc;
 
 TextEditingController _anbar = TextEditingController();
 int _editanbarid = 0;
@@ -32,7 +34,7 @@ class FmProduct extends StatelessWidget {
   Widget build(BuildContext context) {
     MyProvider _prov = Provider.of<MyProvider>(context);
     if (_bloc == null)
-      _bloc = AnbarBloc(context: context, api: 'Anbar', token: _prov.currentUser.token);
+      _bloc = ProductBloc(context: context, api: 'Anbar', token: _prov.currentUser.token);
     return Container(
       padding: EdgeInsets.all(12),
       child: Column(
@@ -110,7 +112,10 @@ class FmProduct extends StatelessWidget {
                               Field('${moneySeprator(rec.mojodi)}'),
                               Field('${moneySeprator(rec.buyprice)}'),
                               Field('${moneySeprator(rec.sellprice)}'),
-                            ]
+                              Field(IButton(type: Btn.Del, hint: 'حذف کالا', onPressed: ()=>_bloc.prdBloc.delData(context: context, body: {'anbarid': rec.anbarid,  'id': rec.id}, msg: 'کالای ${rec.name}', removefromrow: true))),
+                            ],
+                            onDoubleTap: ()=>editProduct(rec),
+                            color: rec.edit ? editRowColor() : _bloc.prdBloc.rowsValue$.rows.indexOf(rec).isOdd ? rowColor(context) : Colors.transparent,
                           ),
                         ),
                       )
@@ -126,11 +131,24 @@ class FmProduct extends StatelessWidget {
   }
 }
 
-void productFieldSubmit(BuildContext context, FocusNode focus){
-  // if (focus == _fprdname){
-  //   _bloc.
-  // }
-  if (focus != null)
+void productFieldSubmit(BuildContext context, FocusNode focus) async{
+  int anbar = 0;
+  if (_bloc.rowsValue$.rows.where((element)=>element.active).toList().length > 0)
+    anbar = _bloc.rowsValue$.rows.where((element)=>element.active).toList()[0].id;
+  if (focus == _fprdname){
+    Mainclass _res = await _bloc.checkPrdID(anbar, int.tryParse(_prdid.text) ?? 0);
+    if (_res != null){
+      _editprdid = _res.id;
+      _prdname.text = _res.name;
+      _mojodi.text = _res.mojodi.toString();
+      _bprice.text = _res.buyprice.toString();
+      _sprice.text = _res.sellprice.toString();
+      focusChange(context, _fmojodi);  
+    }
+    else
+      focusChange(context, _fprdname);  
+  }
+  else if (focus != null)
     focusChange(context, focus);
   else{
     _mojodi.text = _mojodi.text.isEmpty ? '0' : _mojodi.text;
@@ -147,5 +165,21 @@ void productFieldSubmit(BuildContext context, FocusNode focus){
         sellprice: double.tryParse(_sprice.text.replaceAll(",", "") ?? 0)
       )
     );
+    _prdid.clear();
+    _prdname.clear();
+    _mojodi.clear();
+    _bprice.clear();
+    _sprice.clear();
+    focusChange(context, _fprdid);
   }
+}
+
+void editProduct(Mainclass rec){
+  _editprdid    = rec.id;
+  _prdid.text   = rec.id.toString();
+  _prdname.text = rec.name;
+  _mojodi.text  = rec.mojodi.toString();
+  _bprice.text  = rec.buyprice.toString();
+  _sprice.text  = rec.sellprice.toString();
+  _bloc.prdBloc.editMode(rec.id);
 }

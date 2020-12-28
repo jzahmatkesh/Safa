@@ -55,7 +55,7 @@ class IButton extends StatelessWidget {
   
   final Btn type;
   final String hint;
-  final Icon icon;
+  final Widget icon;
   final VoidCallback onPressed;
   final double size;
 
@@ -78,8 +78,8 @@ class IButton extends StatelessWidget {
                 ? 'ویرایش'
                 : '';
 
-    Icon _icon = icon != null
-      ? Icon(this.icon.icon, size: this.size)
+    Widget _icon = icon != null
+      ? icon//Icon(this.icon.icon, size: this.size)
       : type == Btn.Add
         ? Icon(CupertinoIcons.plus_app, size: this.size)
         : type == Btn.Del

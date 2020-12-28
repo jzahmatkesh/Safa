@@ -141,10 +141,13 @@ abstract class Bloc{
             bool nval = true;
             rowsValue$.rows.forEach((element) {
               if (element.id == data.old){
-                element.old  = data.id;
-                element.name = data.name;
-                element.edit = false;
-                nval = false;
+                element.old       = data.id;
+                element.name      = data.name;
+                element.mojodi    = data.mojodi;
+                element.buyprice  = data.buyprice;
+                element.sellprice = data.sellprice;
+                element.edit      = false;
+                nval              = false;
               }
             });
             data.old = data.id;
@@ -749,16 +752,28 @@ class AnalyzeBloc extends Bloc{
   }
 }
 
-class AnbarBloc extends Bloc{
+class ProductBloc extends Bloc{
   PublicBloc prdBloc;
 
-  AnbarBloc({@required BuildContext context, @required String api, @required String token}): super(context: context, api: api, token: token, body: {'filter': 0}){
+  ProductBloc({@required BuildContext context, @required String api, @required String token}): super(context: context, api: api, token: token, body: {'filter': 0}){
     prdBloc = PublicBloc(context: this.context, api: 'Anbar/Product', body: {'anbarid': 1}, token: this.token);
   }
 
   void loadProduct(int anbar){
     setActive(anbar);
     prdBloc.fetchOtherData(body: {'anbarid': anbar});
+  }
+
+  Future<Mainclass> checkPrdID(int anbar, int id) async{
+    try{
+      Map<String, dynamic> _data = await postToServer(api: 'Anbar/Product', body: jsonEncode({'anbarid': anbar, 'id': id, 'token': token}));
+      if (_data['msg'] == "Success")
+        return Mainclass.fromJson(json.decode(_data['body'][0]));
+      return null;
+    }
+    catch(e){
+      return null;
+    }
   }
 }
 
