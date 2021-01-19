@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 enum AppTheme {
@@ -113,8 +115,9 @@ class Mainclass{
     bool autoins;
     bool reg;
     int errorid;
+    int picid;
 
-    Mainclass({this.cmpid,this.cmpname,this.dorehid,this.dorehname,this.userid,this.userfamily,this.sanadid,this.levid,this.tafid,this.grpid,this.kolid,this.moinid,this.old,this.id=0,this.name,this.date,this.note,this.taf1,this.taf2,this.taf3,this.taf4,this.taf5,this.taf6,this.kolname,this.moinname,this.taf1name,this.taf2name,this.taf3name,this.taf4name,this.taf5name,this.taf6name,this.bed,this.bes,this.mandebed,this.mandebes,this.edit=false, this.token, this.selected=false, this.inSearch = true, this.lev1=false,this.lev2=false,this.lev3=false,this.lev4=false,this.lev5=false,this.lev6=false, this.active = true, this.autoins = false, this.reg=false, this.errorid = 0, this.anbarid, this.prdid, this.mojodi, this.min, this.max, this.unitid, this.unitname, this.buyprice, this.sellprice});
+    Mainclass({this.cmpid,this.cmpname,this.dorehid,this.dorehname,this.userid,this.userfamily,this.sanadid,this.levid,this.tafid,this.grpid,this.kolid,this.moinid,this.old,this.id=0,this.name,this.date,this.note,this.taf1,this.taf2,this.taf3,this.taf4,this.taf5,this.taf6,this.kolname,this.moinname,this.taf1name,this.taf2name,this.taf3name,this.taf4name,this.taf5name,this.taf6name,this.bed,this.bes,this.mandebed,this.mandebes,this.edit=false, this.token, this.selected=false, this.inSearch = true, this.lev1=false,this.lev2=false,this.lev3=false,this.lev4=false,this.lev5=false,this.lev6=false, this.active = true, this.autoins = false, this.reg=false, this.errorid = 0, this.anbarid, this.prdid, this.mojodi, this.min, this.max, this.unitid, this.unitname, this.buyprice, this.sellprice, this.picid=0});
  
     Mainclass.fromJson(Map<String, dynamic> json):
         cmpid = json['cmpid'],
@@ -173,7 +176,8 @@ class Mainclass{
         reg = json['reg'] == 1,
         selected = false,
         inSearch = true,
-        errorid = json['errorid'] ?? 0;
+        errorid = json['errorid'] ?? 0,
+        picid = Random().nextInt(1000);
  
     Map<String, dynamic> toJson(){
         final Map<String, dynamic> data = new Map<String, dynamic>();

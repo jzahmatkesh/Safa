@@ -117,7 +117,7 @@ class OButton extends StatelessWidget {
   
   final Btn type;
   final String caption;
-  final Icon icon;
+  final Widget icon;
   final VoidCallback onPressed;
   final Color color;
 
@@ -138,7 +138,7 @@ class OButton extends StatelessWidget {
               ? 'ذخیره'
               : '';
 
-    Icon _icon = icon != null
+    Widget _icon = icon != null
       ? this.icon
       : type == Btn.Add
         ? Icon(CupertinoIcons.plus_app)

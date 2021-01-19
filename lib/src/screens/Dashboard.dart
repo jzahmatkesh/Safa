@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:safa/src/screens/Shop.dart';
 
 import '../module/Blocs.dart';
 import '../module/MyProvider.dart';
@@ -63,6 +64,7 @@ class Dashboard extends StatelessWidget {
                             if (snap.data == 3) return FmCoding();
                             if (snap.data == 4) return FmLevel();
                             if (snap.data == 5) return FmProduct();
+                            if (snap.data == 6) return ShoppingMng();
                           }
                           return Text('none');
                         },
@@ -112,6 +114,7 @@ class SideBar extends StatelessWidget {
                 Menu(icon: Icon(CupertinoIcons.rectangle_3_offgrid), title: 'آنالیز حساب ها', selected: snap.data == 2, onTap: ()=> prov.setDashMenuItem(2)),
                 SizedBox(height: 35,),
                 Menu(icon: Icon(CupertinoIcons.rectangle_3_offgrid), title: 'کالاهای انبار', selected: snap.data == 5, onTap: ()=> prov.setDashMenuItem(5)),
+                Menu(icon: Icon(CupertinoIcons.shopping_cart), title: 'فروشگاه ساز', selected: snap.data == 6, onTap: ()=> prov.setDashMenuItem(6)),
                 Spacer(),
                 Menu(icon: Icon(CupertinoIcons.money_dollar_circle), title: 'کمک مالی', onTap: ()=>showFormAsDialog(context: context, form: PnDonate())),
                 Spacer(),

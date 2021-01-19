@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart' as crypto;
+import 'package:file_picker/file_picker.dart';
 import 'package:flash/flash.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -239,6 +241,7 @@ String moneySeprator(double newValue){
 }
 
 TextStyle alertButtonStyle()=> TextStyle(fontSize: 15,fontFamily: 'lalezar',color: Colors.white);
+bool isDark(BuildContext context)=> Theme.of(context).brightness == Brightness.dark;
 Color scaffoldcolor(BuildContext context)=> Theme.of(context).scaffoldBackgroundColor;
 Color bottomAppbarColor(BuildContext context)=> Theme.of(context).bottomAppBarColor;
 Color appbarColor(BuildContext context)=> Theme.of(context).bottomAppBarColor;
@@ -276,21 +279,24 @@ showFormAsDialog({@required BuildContext context, @required Widget form, Functio
 
 Future<bool> sendSms(BuildContext context, String number, String msg) async{
   try{
-    // var res = await postToServer(api: "User/SMS", body: jsonEncode({"family": msg, "mobile": number}));
-    // if (res['msg'] == "Success" && res['body']['result'] == "success")
-    //   return true;
-    // else if (res['msg'] == "Success" && res['body']['result'] == "error"){
-    //   if (res['body']['messageids'] == 5) myAlert(context: context, title: 'خطا', message: "امکان گرفتن پیام وجود ندارد");
-    //   if (res['body']['messageids'] == 7) myAlert(context: context, title: 'خطا', message: "امکان دسترسی به خط مورد نظر وجود ندارد");
-    //   if (res['body']['messageids'] == 8) myAlert(context: context, title: 'خطا', message: "شماره همراه وارد شده صحیح نمی باشد");
-    //   if (res['body']['messageids'] == 10) myAlert(context: context, title: 'خطا', message: "خطایی در سیستم رخ داده است . دوباره سعی کنید");
-    //   if (res['body']['messageids'] == 11) myAlert(context: context, title: 'خطا', message: "نامعتبر می باشد . IP");
-    //   if (res['body']['messageids'] == 20) myAlert(context: context, title: 'خطا', message: "شماره مخاطب جهت دریافت پیامک فیلتر شده می باشد");
-    //   if (res['body']['messageids'] == 21) myAlert(context: context, title: 'خطا', message: "ارتباط با سرویس دهنده قطع می باشد");
-    // }
-    // return false;
-    print('sms send: $msg');
-    return await Future.delayed(Duration(seconds: 5)).then((value) => true);
+    var res = await postToServer(api: "User/SMS", body: jsonEncode({"family": msg, "mobile": number}));
+    if (res['msg'] == "Success" && res['body']['result'] == "success")
+      return true;
+    else if (res['msg'] == "Success" && res['body']['result'] == "error"){
+      if (res['body']['messageids'] == 5) myAlert(context: context, title: 'خطا', message: "امکان گرفتن پیام وجود ندارد");
+      if (res['body']['messageids'] == 7) myAlert(context: context, title: 'خطا', message: "امکان دسترسی به خط مورد نظر وجود ندارد");
+      if (res['body']['messageids'] == 8) myAlert(context: context, title: 'خطا', message: "شماره همراه وارد شده صحیح نمی باشد");
+      if (res['body']['messageids'] == 10) myAlert(context: context, title: 'خطا', message: "خطایی در سیستم رخ داده است . دوباره سعی کنید");
+      if (res['body']['messageids'] == 11) myAlert(context: context, title: 'خطا', message: "نامعتبر می باشد . IP");
+      if (res['body']['messageids'] == 20) myAlert(context: context, title: 'خطا', message: "شماره مخاطب جهت دریافت پیامک فیلتر شده می باشد");
+      if (res['body']['messageids'] == 21) myAlert(context: context, title: 'خطا', message: "ارتباط با سرویس دهنده قطع می باشد");
+    }
+    return false;
+    // print('sms send: $msg');
+    // return await Future.delayed(Duration(seconds: 5)).then((value) => true);
+
+
+
     // var res = await http.post("http://parsasms.com/tools/urlservice/send/?username=rayan-paya&password=Arman&from=3000500222&to=$number&message=$msg", headers: {'Content-Type': 'application/json'});
     // if (res.statusCode == 200)
     //   return true;
@@ -321,6 +327,49 @@ Future<bool> sendSms(BuildContext context, String number, String msg) async{
     return false;
   }
 }
+
+Future<bool> sendFile(BuildContext context, String token, Uint8List file, String filename, String type, int id, {int cmpid=0, int id1=0, int id2=0, int id3=0, int id4=0, int id5 = 0}) async {
+  try{
+    var url = Uri.parse("http://${serverIP()}:8080/Finance/GetFile.jsp?token=$token&type=$type&id=$id&cmpid=$cmpid&id1=$id1&id2=$id2&id3=$id3&id4=$id4&id5=$id5");
+    var request = new http.MultipartRequest("POST", url);
+    List<int> _selectedFile = file;
+
+    request.files.add(http.MultipartFile.fromBytes('file', _selectedFile, filename: "$filename"));
+
+    http.StreamedResponse _res = await request.send();
+    if (_res.statusCode == 200){
+      myAlert(context: context, title: 'موفقیت آمیز', message: 'ارسال فایل به سرور با موفقیت انجام گردید', msgType: Msg.Success);
+      return true;
+    }
+    else if (_res.statusCode == 501)
+      myAlert(context: context, title: 'خطا', message: 'حجم فایل بیشتر از ۱۰ مگابایت نمی تواند باشد');
+    else if (_res.statusCode == 502)
+      myAlert(context: context, title: 'خطا', message: 'مجاز به آپلود فایل نمی باشید');
+    else
+      myAlert(context: context, title: 'خطا', message: 'خطا در پردازش فایل ارسالی. لطفا پس از بروز رسانی مجددا سعی نمایید');
+    return false;
+  }
+  catch(e){
+    return false;
+  }
+}
+
+void prcUploadImg({BuildContext context, String token, int id, String tag, VoidCallback ondone, int cmpid=0, int id1=0, int id2=0, int id3=0, int id4=0, int id5 = 0}) async{
+  FilePickerResult result = await FilePicker.platform.pickFiles();
+  if(result != null) {
+    try{
+      showWaiting(context);
+      PlatformFile file = result.files.first;
+      bool str = await sendFile(context, token, file.bytes, file.name.split('/').last, "$tag", id, cmpid: cmpid, id1: id1, id2: id2, id3: id3, id4: id4, id5: id5);
+      if (str && ondone != null)
+        ondone();
+    }
+    finally{
+      hideWaiting(context);
+    }
+  }
+}
+
 
 launchUrl(String url) async{
   if (await canLaunch(url)) {

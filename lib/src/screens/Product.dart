@@ -1,6 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../module/Blocs.dart';
@@ -33,6 +34,7 @@ class FmProduct extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     MyProvider _prov = Provider.of<MyProvider>(context);
+    IntBloc _prdimg = IntBloc()..setValue(1);
     if (_bloc == null)
       _bloc = ProductBloc(context: context, api: 'Anbar', token: _prov.currentUser.token);
     return Container(
@@ -106,7 +108,19 @@ class FmProduct extends StatelessWidget {
                           stream: _bloc.prdBloc.rowsStream$,
                           itembuilder: (rec)=>GridRow(
                             [
-                              Field(CircleAvatar(backgroundImage: AssetImage('images/noimage.png'),)),
+                              Field(
+                                GestureDetector(
+                                  child: StreamBuilder<int>(
+                                    stream: _prdimg.stream$,
+                                    builder: (context, snap) {
+                                      return CircleAvatar(
+                                        backgroundImage: NetworkImage('http://${serverIP()}:8080/Finance/LoadFile.jsp?token=${_prov.currentUser.token}&type=Product&id=${rec.id}&random=${rec.picid}')
+                                      );
+                                    }
+                                  ),
+                                  onTap: ()=>prcUploadImg(context: context, token: _prov.currentUser.token, id: rec.id, tag: 'Product', ondone: (){rec.picid=Random().nextInt(100); _prdimg.setValue(rec.picid);}),
+                                )
+                              ),
                               Field('${rec.id}'),
                               Field('${rec.name}'),
                               Field('${moneySeprator(rec.mojodi)}'),
