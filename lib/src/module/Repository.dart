@@ -11,6 +11,13 @@ class Repository{
     throw Exception(_data['msg']);
   }
 
+  Future<Mainclass> loadCompanyInfo(String token) async{
+    Map<String, dynamic> _data = await postToServer(api: 'User/CompanyInfo', body: jsonEncode({"token": '$token'}));
+    if (_data['msg'] == "Success")
+      return Mainclass.fromJson(_data['body']);
+    throw Exception(_data['msg']);
+  }
+
   Future<User> verify(String token) async{
     Map<String, dynamic> _data = await postToServer(api: 'User/Verify', body: jsonEncode({"token": token}));
     if (_data['msg'] == "Success")

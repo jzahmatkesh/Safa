@@ -252,7 +252,7 @@ Color headlineColor(BuildContext context)=> Theme.of(context).textTheme.headline
 TextStyle gridFieldStyle()=> TextStyle(fontSize: 15,fontFamily: 'lalezar');
 
 Color editRowColor() => Colors.deepOrange.withOpacity(0.15);
-Color rowColor(BuildContext context) => appbarColor(context);
+Color rowColor(BuildContext context) => appbarColor(context).withOpacity(0.65);
 
 focusChange(BuildContext context, FocusNode nextFocus) {
   // if (currentFocus != null)

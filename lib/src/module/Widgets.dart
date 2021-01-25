@@ -203,7 +203,7 @@ class Menu extends StatelessWidget {
 }
 
 class Field extends StatelessWidget {
-  const Field(this.data,{Key key, this.bold = false, this.flex = 1, this.sort, this.center = false, this.padding, this.height=44, this.color = Colors.transparent}) : super(key: key);
+  const Field(this.data,{Key key, this.bold = false, this.flex = 1, this.sort, this.center = false, this.padding, this.height=44, this.color = Colors.transparent, this.width}) : super(key: key);
 
   final dynamic data;
   final bool bold;
@@ -213,6 +213,7 @@ class Field extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final double height;
   final Color color;
+  final double width;
   // final bool editable;
   // final String json;
 
@@ -230,16 +231,25 @@ class Field extends StatelessWidget {
   }
 
   Widget widget(){
-    return Expanded(
-      flex: this.flex,
-      child: Container(
+    return this.width==null 
+      ? Expanded(
+        flex: this.flex,
+        child: Container(
+          padding: this.padding ?? EdgeInsets.all(8), 
+          margin: EdgeInsets.zero,
+          height: this.height, 
+          child: Text('$data', style: this.bold ? TextStyle(fontFamily: 'lateef', fontWeight: FontWeight.bold, fontSize: 12) : TextStyle(fontFamily: '${int.tryParse((data as String).replaceAll(',', '').replaceAll('/', '')) == null ? 'lateef' : 'nazanin'}')), 
+          color: this.color
+        )
+      )
+      : Container(
+        width: this.width,
         padding: this.padding ?? EdgeInsets.all(8), 
         margin: EdgeInsets.zero,
         height: this.height, 
         child: Text('$data', style: this.bold ? TextStyle(fontFamily: 'lateef', fontWeight: FontWeight.bold, fontSize: 12) : TextStyle(fontFamily: '${int.tryParse((data as String).replaceAll(',', '').replaceAll('/', '')) == null ? 'lateef' : 'nazanin'}')), 
         color: this.color
-      )
-    );
+      );
   }
 }
 
@@ -663,6 +673,34 @@ class Button extends StatelessWidget {
           onPressed: this.onTap
         ),
       )
+    );
+  }
+}
+
+class MButton extends StatelessWidget {
+  const MButton({Key key, this.caption, @required this.icon, @required this.onPressed, this.color, this.minWidth = 150}) : super(key: key);
+
+  final String caption;
+  final Widget icon;
+  final VoidCallback onPressed;
+  final MaterialColor color;
+  final double minWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialButton(
+      child: caption!=null  ? Row(
+        children: [
+          this.icon,
+          SizedBox(width: 5),
+          Text('$caption'),
+        ],
+      )  : this.icon,
+      color: isDark(context) ? (this.color ?? Colors.grey).shade600 : (this.color ?? Colors.grey).shade300,
+      height: 65,
+      minWidth: this.minWidth,
+      elevation: 3,
+      onPressed: this.onPressed,
     );
   }
 }

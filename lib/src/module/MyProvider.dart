@@ -23,6 +23,10 @@ class MyProvider with ChangeNotifier {
   Stream<User> get userStream$ => _user.stream;
   User get currentUser => _user.value;
 
+  BehaviorSubject<Mainclass> _company = BehaviorSubject<Mainclass>.seeded(null);
+  Stream<Mainclass> get companyStream$ => _company.stream;
+  Mainclass get companyInfo => _company.value;
+
   BehaviorSubject<int> _menuItem = BehaviorSubject<int>.seeded(1);
   Stream<int> get menuitemStream$ => _menuItem.stream;
 
@@ -91,6 +95,7 @@ class MyProvider with ChangeNotifier {
     _user.add(User(id: 0));
     try{
       _user.add(await _repo.authenticate(mobile, pass));
+      _company.add(await  _repo.loadCompanyInfo(currentUser.token));
       if (currentUser.moincount == 0)
         setDashMenuItem(3);
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -119,6 +124,7 @@ class MyProvider with ChangeNotifier {
       String token = prefs.getString("token") ?? "";
       if (token.isNotEmpty){
         _user.value = await _repo.verify(token);
+        _company.add(await  _repo.loadCompanyInfo(currentUser.token));
         if (currentUser.moincount == 0)
           setDashMenuItem(3);
       }

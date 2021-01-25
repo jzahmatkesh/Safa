@@ -777,3 +777,15 @@ class ProductBloc extends Bloc{
   }
 }
 
+class ShopBloc extends Bloc{
+  PublicBloc prdBloc;
+
+  ShopBloc({@required BuildContext context, @required String api, @required String token}): super(context: context, api: api, token: token, body: {'filter': 0}){
+    prdBloc = PublicBloc(context: this.context, api: 'OnlineShop/Product', body: {}, token: this.token);
+  }
+
+  void loadProduct(int anbar){
+    setActive(anbar);
+    prdBloc.fetchOtherData(body: {});
+  }
+}

@@ -81,6 +81,7 @@ class Mainclass{
     int taf5;
     int taf6;
     int anbarid;
+    String anbarname;
     int prdid;
     int unitid;
     double mojodi;
@@ -116,8 +117,18 @@ class Mainclass{
     bool reg;
     int errorid;
     int picid;
+    bool showinshop;
+    String shopid;
+    String shoptitle;
+    String shoptel;
+    String shopaddress;
+    bool showshopprice;
+    String shopname;
+    double shopprice;
+    double shopoff;
 
-    Mainclass({this.cmpid,this.cmpname,this.dorehid,this.dorehname,this.userid,this.userfamily,this.sanadid,this.levid,this.tafid,this.grpid,this.kolid,this.moinid,this.old,this.id=0,this.name,this.date,this.note,this.taf1,this.taf2,this.taf3,this.taf4,this.taf5,this.taf6,this.kolname,this.moinname,this.taf1name,this.taf2name,this.taf3name,this.taf4name,this.taf5name,this.taf6name,this.bed,this.bes,this.mandebed,this.mandebes,this.edit=false, this.token, this.selected=false, this.inSearch = true, this.lev1=false,this.lev2=false,this.lev3=false,this.lev4=false,this.lev5=false,this.lev6=false, this.active = true, this.autoins = false, this.reg=false, this.errorid = 0, this.anbarid, this.prdid, this.mojodi, this.min, this.max, this.unitid, this.unitname, this.buyprice, this.sellprice, this.picid=0});
+
+    Mainclass({this.cmpid,this.cmpname,this.dorehid,this.dorehname,this.userid,this.userfamily,this.sanadid,this.levid,this.tafid,this.grpid,this.kolid,this.moinid,this.old,this.id=0,this.name,this.date,this.note,this.taf1,this.taf2,this.taf3,this.taf4,this.taf5,this.taf6,this.kolname,this.moinname,this.taf1name,this.taf2name,this.taf3name,this.taf4name,this.taf5name,this.taf6name,this.bed,this.bes,this.mandebed,this.mandebes,this.edit=false, this.token, this.selected=false, this.inSearch = true, this.lev1=false,this.lev2=false,this.lev3=false,this.lev4=false,this.lev5=false,this.lev6=false, this.active = true, this.autoins = false, this.reg=false, this.errorid = 0, this.anbarid, this.anbarname, this.prdid, this.mojodi, this.min, this.max, this.unitid, this.unitname, this.buyprice, this.sellprice, this.picid=0, this.showinshop, this.shopaddress, this.shopid, this.showshopprice, this.shoptel, this.shoptitle, this.shopname, this.shopprice, this.shopoff});
  
     Mainclass.fromJson(Map<String, dynamic> json):
         cmpid = json['cmpid'],
@@ -150,6 +161,7 @@ class Mainclass{
         lev5 = json['lev5'] == 2 ? null : json['lev5'] == 1,
         lev6 = json['lev6'] == 2 ? null : json['lev6'] == 1,
         anbarid = json['anbarid'],
+        anbarname = json['anbarname'],
         prdid = json['prdid'],
         unitid = json['unitid'],
         mojodi = json['mojodi'],
@@ -177,7 +189,17 @@ class Mainclass{
         selected = false,
         inSearch = true,
         errorid = json['errorid'] ?? 0,
-        picid = Random().nextInt(1000);
+        picid = Random().nextInt(1000),
+        showinshop = json['showinshop'] == 1,
+        shopid = json['shopid'],
+        shoptitle = json['shoptitle'],
+        shoptel = json['shoptel'],
+        shopaddress = json['shopaddress'],
+        showshopprice = json['showshopprice'] == 1,
+        shopname = json['shopname'],
+        shopprice = json['shopprice'],
+        shopoff = json['shopoff'];
+        
  
     Map<String, dynamic> toJson(){
         final Map<String, dynamic> data = new Map<String, dynamic>();
